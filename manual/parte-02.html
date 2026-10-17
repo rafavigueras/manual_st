@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte II — El mapa y los actores</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte II · Nivel 2</p>
+<h1>El mapa y los actores</h1>
+<p class="subtitulo">Qué ejercicios hace un gran grupo, quién decide cada cosa, cómo es un ejercicio europeo por dentro y qué hacen los supervisores con el resultado.</p>
+
+<p class="lead">La Parte I explicó cómo funciona un <i>stress test</i> en abstracto. Esta parte lo sitúa en el mundo real. Un grupo como Santander o BBVA no hace un ejercicio, sino media docena, con escenarios, reglas y destinatarios distintos; cada uno lo pide alguien con su propio mandato; el europeo tiene una arquitectura muy precisa que hay que conocer antes de proyectar una sola cifra; su resultado acaba convertido en una guía de capital con reglas que conviene saber leer; y las filiales de fuera de la Unión hacen además los ejercicios de sus propios supervisores, que se parecen al europeo menos de lo que sugiere el nombre. Al terminar deberías poder sentarte en la primera reunión de un ejercicio real y entender de qué se habla, quién lo pide y por qué importa. Es el nivel 2: todavía no proyectas, pero ya sabes dónde estás.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap9">9. Un banco, seis números <span class="nivel n2">N2</span></h2>
+
+<p class="lead">Pregunta a un gran grupo cuánto capital pierde en un escenario adverso y la respuesta correcta es otra pregunta: ¿en qué ejercicio? Hay al menos seis, y cada uno da un número distinto. Este capítulo los ordena y explica por qué no coinciden ni deben coincidir.</p>
+
+<h3 id="s9-1">9.1 La familia de ejercicios de un gran grupo</h3>
+
+<p>Los seis tienen en común la mecánica de la Parte I &mdash; un escenario, unos modelos, unos supuestos &mdash; y se diferencian en casi todo lo demás. La tabla los resume; las secciones siguientes los describen uno a uno.</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>La familia de ejercicios de un gran grupo bancario europeo con filiales fuera de la Unión. Rasgos típicos; el detalle de cada ejercicio, en los capítulos que se indican.</caption>
+<thead><tr><th>Ejercicio</th><th>Quién lo pide</th><th>Quién proyecta</th><th>Escenario</th><th>Balance</th><th>Para qué sirve</th></tr></thead>
+<tbody>
+<tr><td><strong>Europeo</strong> (EBA/BCE)</td><td>EBA, con la JERS y el BCE</td><td>El banco, con restricciones</td><td>Común para todos</td><td>Estático</td><td>Guía de Pilar 2 y comparación pública (caps. 11 y 12)</td></tr>
+<tr><td><strong>ICAAP</strong> y su <i>reverse</i></td><td>El propio banco, por expectativa del supervisor</td><td>El banco</td><td>Propio, específico de su perfil</td><td>Dinámico, con acciones de gestión</td><td>Suficiencia de capital interna y planificación (cap. 20)</td></tr>
+<tr><td><strong>Plan de recuperación</strong></td><td>Normativa de recuperación y resolución</td><td>El banco</td><td>Propios, lo bastante severos para disparar los indicadores del plan</td><td>Dinámico, con medidas de recuperación</td><td>Probar que las medidas del plan funcionan</td></tr>
+<tr><td><strong>Escenarios de IFRS 9</strong></td><td>La norma contable</td><td>El banco</td><td>Varios, ponderados por probabilidad</td><td>El de la contabilidad</td><td>Calcular la provisión del cierre; no es un <i>stress test</i></td></tr>
+<tr><td><strong>Macroprudencial <i>top-down</i></strong></td><td>Bancos centrales</td><td>El banco central, con sus modelos</td><td>Propio</td><td>Variable</td><td>Estabilidad del sistema, sin consecuencias por banco</td></tr>
+<tr><td><strong>Locales de las filiales</strong></td><td>Supervisores de fuera de la UE</td><td>Depende del país</td><td>Del supervisor local</td><td>Depende del país</td><td>Requerimientos o guías locales (cap. 13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="s9-1-1">9.1.1 Ejercicio europeo (EBA/BCE)</h4>
+
+<p>Es el que da nombre a la disciplina y el eje de este manual. La Autoridad Bancaria Europea (EBA) lo coordina habitualmente cada dos años sobre los mayores bancos de la Unión: 64 en el de 2025 y 63 previstos para el de 2027, que cubren en torno a tres cuartas partes del activo bancario europeo. Escenario común, balance estático, tres años de horizonte, proyección del banco con sus modelos bajo restricciones estrictas y revisión minuciosa del supervisor. Los resultados se publican banco a banco. Para los bancos de la zona del euro, el BCE los usa para fijar la guía de Pilar 2 de cada uno. El capítulo 11 lo describe por dentro y el capítulo 12 explica qué se hace con el resultado.</p>
+
+<p>El ejercicio europeo no agota el trabajo del supervisor. El BCE somete a una metodología parecida a los bancos que supervisa y que no entran en la muestra de la EBA, y los años sin ejercicio europeo no son años sin <i>stress test</i>: los dedica a ejercicios temáticos, como el climático de 2022 o el <i>reverse stress test</i> geopolítico de 2026, que trata el capítulo 21.</p>
+
+<h4 id="s9-1-2">9.1.2 <i>Stress test</i> del ICAAP y su <i>reverse</i></h4>
+
+<p>El ICAAP es el proceso con el que el banco evalúa por sí mismo si tiene capital suficiente para sus riesgos. El BCE espera que incluya pruebas de estrés con escenarios propios, más severos que un simple adverso genérico y diseñados para las vulnerabilidades concretas del banco, con un horizonte de al menos tres años (Guía del ICAAP del BCE, julio de 2026). A diferencia del europeo, aquí el balance es dinámico: el banco proyecta su plan de negocio bajo estrés y puede incorporar acciones de gestión, siempre que sean creíbles.</p>
+
+<p>El ICAAP lleva además un <i>reverse stress test</i>: en vez de fijar el escenario y calcular el daño, se fija el daño &mdash; el que dejaría al banco en una situación inviable o cerca de ella &mdash; y se busca qué escenario lo produciría. En 2026, el ejercicio geopolítico del BCE ocupó precisamente ese hueco en todos los bancos que supervisa (capítulo 21). El capítulo 20 desarrolla el ICAAP.</p>
+
+<h4 id="s9-1-3">9.1.3 Escenarios del plan de recuperación</h4>
+
+<p>Todo banco importante tiene un plan de recuperación: el catálogo de medidas que tomaría si su situación se deteriorase gravemente, con los indicadores que las dispararían. La normativa europea de recuperación y resolución (Directiva 2014/59/UE) exige probar ese plan contra una gama de escenarios de tensión severa: uno sistémico, uno idiosincrático y uno combinado. Son escenarios más extremos que los del ICAAP, porque su objetivo no es medir el capital sino comprobar que, cuando los indicadores salten, las medidas del plan tienen efecto suficiente y a tiempo.</p>
+
+<p>Para quien trabaja en el crédito, la consecuencia práctica es que la misma cartera se proyecta con un escenario todavía más duro, y que sus pérdidas tienen que ser coherentes con las de los otros ejercicios. Un plan de recuperación cuyas pérdidas de crédito en un escenario extremo son menores que las del adverso europeo es una incoherencia que alguien acabará encontrando.</p>
+
+<h4 id="s9-1-4">9.1.4 Escenarios de IFRS 9 (y por qué no son un <i>stress test</i>)</h4>
+
+<p>El modelo de provisiones contables ya trabaja con escenarios: varios &mdash; normalmente un central, uno favorable y uno o dos desfavorables &mdash;, cada uno con una ponderación de probabilidad, y la provisión es la media ponderada de las pérdidas de cada uno (capítulo 4). El escenario desfavorable de IFRS 9 se parece a un adverso, pero no lo es: está pensado para ser probable, no extremo; su función es producir una provisión insesgada, no medir la resistencia; y lo que importa no es su resultado aislado, sino su peso en la media.</p>
+
+<p>Aun así, este ejercicio importa en un <i>stress test</i> por dos razones. La primera, que los parámetros de partida del ejercicio europeo salen de los modelos de provisiones (capítulo 14), así que cualquier debilidad de esos modelos se hereda. La segunda, que el supervisor compara: si el escenario desfavorable de IFRS 9 de un banco produce pérdidas parecidas a las del adverso europeo, o el adverso de su ICAAP pierde menos que su escenario desfavorable contable, alguien preguntará por qué.</p>
+
+<h4 id="s9-1-5">9.1.5 Ejercicios macroprudenciales <i>top-down</i></h4>
+
+<p>Los bancos centrales, con su mandato de estabilidad financiera, hacen sus propios <i>stress tests</i> del sistema bancario con sus propios modelos, sin pedir proyecciones a los bancos. El BCE los usa para su análisis macroprudencial, y el Banco de España publica pruebas de resistencia del sistema en su Informe de Estabilidad Financiera. El banco no proyecta nada ni recibe un resultado individual con consecuencias, pero estos ejercicios importan por dos motivos: el BCE usa modelos <i>top-down</i> propios también para contrastar las proyecciones de los bancos en el ejercicio europeo (capítulo 18), y las conclusiones de estos ejercicios sobre qué carteras son más vulnerables marcan dónde va a mirar en el siguiente ciclo.</p>
+
+<h4 id="s9-1-6">9.1.6 Ejercicios locales de las filiales fuera de la UE</h4>
+
+<p>Una filial de Santander o BBVA en Estados Unidos, el Reino Unido, México, Brasil, Chile, Türkiye o Argentina está sujeta a su supervisor local, que tiene sus propios ejercicios. Algunos son muy parecidos al europeo en la arquitectura y muy distintos en las consecuencias: el de la Reserva Federal fija un requerimiento vinculante. Otros los hace el banco central sobre el conjunto del sistema sin pedir nada a los bancos. Otros exigen a cada banco proyectar con escenarios del supervisor y un plan de negocio. El capítulo 13 los describe uno a uno.</p>
+
+<p>Es aquí donde aparece el hilo conductor del manual. La misma cartera de consumo de la filial mexicana tiene, como mínimo, tres números de estrés: el que proyecta el grupo para el ejercicio europeo (con el escenario de la JERS, balance estático, provisiones IFRS 9 y el CET1 del grupo como métrica), el que proyecta la filial para la Comisión Nacional Bancaria y de Valores (con escenarios del supervisor mexicano, su plan de negocio, provisiones de la normativa local y el índice de capitalización mexicano como métrica) y el que calcula el Banco de México para todo el sistema con sus propios modelos. Los tres son correctos, los tres son distintos, y el JST puede preguntar por la relación entre el primero y el segundo.</p>
+
+<h3 id="s9-2">9.2 Por qué no coinciden</h3>
+
+<h4 id="s9-2-1">9.2.1 Escenarios, balances y métricas distintas</h4>
+
+<p>Dos ejercicios dan el mismo número solo si coinciden en las seis piezas de la sección 1.3: escenario, punto de partida, supuestos de balance, horizonte, métrica y quién proyecta. En la práctica no coinciden en ninguna. Cada diferencia empuja el resultado en una dirección previsible:</p>
+
+<ul>
+<li><strong>Escenario.</strong> Cada supervisor diseña el suyo para su economía y sus preocupaciones. El escenario de la JERS para México no es el del supervisor mexicano, ni su base es la misma: el de la JERS toma la base de los países de fuera de la Unión de las previsiones del Fondo Monetario Internacional (capítulo 10).</li>
+<li><strong>Perímetro.</strong> El ejercicio europeo mide el grupo consolidado; los locales, la filial sola. Una filial puede perder mucho sobre su propio capital y mover poco el del grupo, porque el resto del grupo sigue generando beneficios.</li>
+<li><strong>Balance.</strong> Con balance estático no se crece ni se reacciona; con balance dinámico se proyecta el plan de negocio, que suele incluir crecimiento y, a veces, acciones de gestión que reducen la caída.</li>
+<li><strong>Horizonte.</strong> Tres años, nueve trimestres o cinco años dan resultados distintos con el mismo escenario: un horizonte más largo deja más tiempo para que los ingresos recompongan el capital, o para que las pérdidas sigan llegando.</li>
+<li><strong>Métrica.</strong> CET1 <i>fully loaded</i>, CET1 transitorio, capital total, índice de capitalización mexicano, índices brasileños: cada uno con su numerador y su denominador (capítulo 13).</li>
+<li><strong>Base contable.</strong> Provisiones IFRS 9 en el grupo; en algunas filiales, normas contables locales que provisionan de otra manera.</li>
+</ul>
+
+<p>Ninguna de estas diferencias es un error. Lo que sí es un error es comparar los números sin decir cuál de ellas explica la distancia.</p>
+
+<h4 id="s9-2-2">9.2.2 El mismo grupo en tres ejercicios</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Banco Santander y dos de sus filiales, cada uno en el último ejercicio publicado de su supervisor:</p>
+<div class="tabla-scroll">
+<table>
+<caption>Santander en tres ejercicios. Caída: partida menos mínimo del ratio CET1 en el horizonte. Fuentes: ficha de resultados de la EBA (1 de agosto de 2025); resultados del <i>stress test</i> de la Reserva Federal (junio de 2026); <i>Bank Capital Stress Test</i> del Banco de Inglaterra (2 de diciembre de 2025). Cálculos en <code>anexos/cifras_parte02.py</code>.</caption>
+<thead><tr><th></th><th>Grupo, EBA 2025</th><th>Santander Holdings USA, Fed 2026</th><th>Santander UK, Banco de Inglaterra 2025</th></tr></thead>
+<tbody>
+<tr><td>Horizonte</td><td>3 años</td><td>9 trimestres</td><td>5 años</td></tr>
+<tr><td>Quién proyecta</td><td>El banco, con restricciones</td><td>La Fed, con sus modelos</td><td>El banco, contrastado por el Banco de Inglaterra</td></tr>
+<tr><td>Balance</td><td>Estático</td><td>Supuestos de capital fijados por la norma</td><td>Dinámico (crédito +6,5 %)</td></tr>
+<tr><td>CET1 de partida → mínimo</td><td>12,19 % → 10,46 % (<i>fully loaded</i>)</td><td>12,6 % → 11,7 %</td><td>14,8 % → 9,7 % (10,3 % con acciones de gestión)</td></tr>
+<tr><td>Caída</td><td><strong>173 pb</strong></td><td><strong>90 pb</strong></td><td><strong>510 pb</strong> (450 pb con acciones)</td></tr>
+<tr><td>Referencia</td><td>Sin umbral; alimenta la guía de Pilar 2</td><td>Requerimiento vinculante: 4,5 % + SCB del 3,4 % = 7,9 %</td><td>Requerimiento mínimo del 6,9 %</td></tr>
+<tr><td>Holgura en el mínimo</td><td>&mdash;</td><td>380 pb</td><td>280 pb</td></tr>
+</tbody>
+</table>
+</div>
+<p>La filial británica cae tres veces más que el grupo y casi seis veces más que la estadounidense. Leído sin contexto, parecería que Santander UK es el eslabón débil. Leído con las piezas de la sección anterior, la conclusión cambia: el ejercicio británico dura cinco años y no tres, mide a la filial sola y no al grupo diversificado, y el mínimo cae en el segundo año, como en ningún otro de los bancos británicos participantes, que lo tocaron en el primero. La caída del grupo es menor en parte porque el resto del grupo sigue ganando dinero mientras una geografía sufre. Y la de Estados Unidos la calcula la Fed con sus modelos y sus supuestos, no el banco.</p>
+<p>En el ejercicio europeo hay además dos caídas del mismo banco: 173 puntos básicos en <i>fully loaded</i> (de 12,19 % a 10,46 %) y 187 en transitorio (de 12,78 % a 10,91 %, con el mínimo en 2027). El supervisor usa la primera (capítulo 12).</p>
+</div>
+
+<h4 id="s9-2-3">9.2.3 Explicar a un consejo que el mismo grupo «aguanta» de cinco maneras</h4>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>Un consejero que recibe en el mismo trimestre los resultados del ejercicio europeo, el de la Fed, el del Banco de Inglaterra, el ICAAP y el informe de la filial mexicana pregunta, con razón, cuál es el bueno. La respuesta que funciona no intenta reconciliar las cifras en una sola; explica que cada una contesta una pregunta distinta. Una tabla de una página con una columna por ejercicio y cinco filas &mdash; qué pregunta responde, sobre qué entidad, con qué métrica, contra qué referencia y qué consecuencia tiene &mdash; resuelve en diez minutos lo que una presentación de veinte transparencias no resuelve.</p>
+<p>La fila que más importa es la última. El europeo orienta una guía de capital no vinculante; el de la Fed fija un requerimiento vinculante para la filial estadounidense; el británico informa al supervisor del Reino Unido sobre la filial británica; el ICAAP es el juicio del propio banco; el mexicano obliga a un plan de acción si la filial incumple. Un consejo que entiende eso deja de preguntar cuál es el número bueno y empieza a preguntar lo que debe: si alguno de esos ejercicios está cerca de tener consecuencias.</p>
+</div>
+
+<h4 id="s9-2-4">9.2.4 Equipos separados, satélites distintos</h4>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Que cada ejercicio lo haga un equipo distinto con sus propios modelos. Es lo que ocurre de forma natural en un grupo grande: el ejercicio europeo lo coordina la matriz, el local lo hace la filial, el ICAAP lo lleva planificación de capital y los escenarios de IFRS 9 son de otro equipo. Cada uno estima su satélite para la misma cartera, con datos y ventanas algo distintas, y nadie compara las elasticidades.</p>
+<p>El problema aflora cuando alguien pone los ejercicios uno al lado del otro. Si el consumo mexicano responde al paro con una elasticidad en el ejercicio europeo y con la mitad en el local, o si el ICAAP de la matriz usa para México un satélite menos sensible que el del ejercicio europeo, la pregunta del supervisor no es cuál de los dos es correcto: es por qué el banco tiene dos opiniones distintas sobre el mismo riesgo. Mantener un inventario de modelos con sus usos, y explicar cada diferencia, es mucho más barato que descubrirla en una carta del JST. El capítulo 25 trata la coherencia entre ejercicios como un problema de gobierno.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap10">10. Quién decide qué <span class="nivel n2">N2</span></h2>
+
+<p class="lead">En el ejercicio europeo intervienen al menos cuatro instituciones, cada una con un papel distinto. Saber quién decide cada cosa ahorra semanas: evita discutir con el JST algo que fijó la EBA, o esperar de la EBA una respuesta que solo puede dar el supervisor.</p>
+
+<h3 id="s10-1">10.1 Los actores</h3>
+
+<p>La nota metodológica del ejercicio de 2027 reparte los papeles en un solo párrafo (párrafo 42 del borrador del 11 de junio de 2026). Desarrollado, queda así:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Quién decide qué en el ejercicio europeo. Fuente: nota metodológica de la EBA para 2027, en borrador, párrafo 42.</caption>
+<thead><tr><th>Institución</th><th>Qué decide o hace</th><th>Qué no decide</th></tr></thead>
+<tbody>
+<tr><td><strong>EBA</strong></td><td>Metodología, plantillas, guía de plantillas, preguntas y respuestas, calidad mínima común, estadísticas para comprobar la coherencia, publicación de resultados</td><td>No revisa uno a uno los modelos de los bancos ni fija su guía de capital</td></tr>
+<tr><td><strong>JERS y BCE</strong></td><td>El escenario adverso (la JERS en estrecha colaboración con el BCE); el BCE, el escenario base</td><td>Cómo se traducen las variables a pérdidas</td></tr>
+<tr><td><strong>Autoridades competentes</strong> (el BCE a través de los JST, para los bancos significativos de la zona del euro)</td><td>Revisión de calidad (QA), revisión de modelos, contraste con sus propios <i>benchmarks</i>, petición de revisiones, traslado del resultado al SREP</td><td>La metodología común</td></tr>
+<tr><td><strong>El banco</strong></td><td>Proyecciones con sus modelos dentro de las restricciones; nota explicativa</td><td>Los supuestos de balance, el escenario, las fórmulas prescritas</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="s10-1-1">10.1.1 EBA: metodología, plantillas, preguntas y respuestas, publicación</h4>
+
+<p>La EBA escribe las reglas del juego y las publica: la nota metodológica, que es el texto de referencia; las plantillas en las que los bancos envían sus datos y sus proyecciones; la guía que explica cómo rellenarlas; y, durante el ejercicio, las respuestas a las preguntas de interpretación que van surgiendo. Coordina además una revisión de calidad mínima común, produce estadísticas descriptivas de todos los bancos para que las autoridades puedan comparar, y publica los resultados al final.</p>
+
+<p>Lo que la EBA no hace es revisar los modelos de cada banco ni decidir qué consecuencias tiene su resultado. Esa es una confusión frecuente en quien llega nuevo: la EBA es la autora de la metodología, pero el interlocutor del banco durante el ejercicio es su supervisor.</p>
+
+<h4 id="s10-1-2">10.1.2 JERS y BCE: los escenarios</h4>
+
+<p>El escenario adverso lo diseña la Junta Europea de Riesgo Sistémico (JERS), a través de un grupo de trabajo propio, en estrecha colaboración con el BCE, y lo aprueba su Junta General. El de 2025 se aprobó el 14 de enero de 2025 y se publicó con el lanzamiento del ejercicio, el 20 de enero. El escenario base sale de las proyecciones del BCE y de los bancos centrales nacionales. La sección 10.3 explica cómo se construyen y qué contienen.</p>
+
+<h4 id="s10-1-3">10.1.3 BCE/MUS y el JST: QA, <i>benchmarks</i> y SREP</h4>
+
+<p>Para los bancos significativos de la zona del euro, la autoridad competente es el BCE, que actúa a través del Mecanismo Único de Supervisión (MUS) y, para cada banco, de su equipo conjunto de supervisión (JST), formado por personal del BCE y de los supervisores nacionales. Es el interlocutor del banco durante todo el ejercicio y quien hace la parte más exigente del trabajo supervisor: la revisión de calidad, o QA.</p>
+
+<p>El QA del BCE combina tres herramientas, en sus propias palabras: modelos <i>top-down</i> propios, comparación con los pares y escrutinio supervisor. La primera produce los <i>benchmarks</i>: los valores de referencia del BCE para los parámetros de crédito de cada cartera bajo el escenario. En 2025 los bancos tuvieron que enviar sus proyecciones de crédito antes de recibir esos <i>benchmarks</i>, para que no pudieran ajustarse a ellos por anticipado. Quien sale demasiado optimista recibe más preguntas, puede recibir visitas durante el QA y es candidato a una inspección posterior. El resultado es medible: el QA de 2025 sumó 88 puntos básicos a la caída de capital del conjunto de bancos del BCE, de 308 a 396 (informe del BCE sobre el ejercicio de 2025, agosto de 2025). Los capítulos 18 y 29 desarrollan cómo funciona.</p>
+
+<p>Terminado el ejercicio, el JST traslada el resultado al proceso de revisión y evaluación supervisora (SREP): la caída de capital alimenta la guía de Pilar 2 y la calidad con que el banco ha hecho el ejercicio se evalúa por separado (capítulo 12).</p>
+
+<h4 id="s10-1-4">10.1.4 Banco de España y autoridades nacionales</h4>
+
+<p>Para un banco significativo español, el Banco de España no es el supervisor directo en el ejercicio europeo, pero está dentro: su personal forma parte del JST, y en esa condición participa en el QA y en las decisiones del SREP. Tiene además dos papeles propios que importan al <i>stress test</i>. Es la autoridad que supervisa directamente a los bancos menos significativos, a los que aplica sus propias pruebas. Y es autoridad macroprudencial, con sus propios ejercicios <i>top-down</i> del sistema (sección 9.1.5).</p>
+
+<p>Fuera de la zona del euro, en los países de la Unión que no participan en el MUS, la autoridad competente del ejercicio europeo es el supervisor nacional. Para los grupos españoles el caso relevante es el de las filiales en esos países, que entran en el ejercicio a través del perímetro consolidado del grupo, no por separado.</p>
+
+<h3 id="s10-2">10.2 La base normativa</h3>
+
+<p>Un <i>stress test</i> no se defiende con artículos, pero conviene saber en qué se apoya cada pieza, porque es lo que determina qué es obligatorio y qué es discrecional.</p>
+
+<h4 id="s10-2-1">10.2.1 Mandato del ejercicio europeo y test supervisor anual</h4>
+
+<div class="bloque b-norma">
+<span class="etiqueta">Norma</span>
+<p><strong>Reglamento (UE) 1093/2010, de creación de la EBA, artículo 32.2:</strong> la EBA, en cooperación con la JERS, inicia y coordina evaluaciones a escala de la Unión de la resistencia de las entidades financieras ante evoluciones adversas de los mercados. Es la base del ejercicio europeo.</p>
+<p><strong>Directiva 2013/36/UE (CRD), artículo 100:</strong> las autoridades competentes someten a las entidades a pruebas de resistencia supervisoras, según proceda, al menos una vez al año. Es la razón por la que en los años sin ejercicio europeo sigue habiendo un test supervisor: el BCE presentó expresamente el ejercicio geopolítico de 2026 como el cumplimiento de esa obligación.</p>
+<p><strong>CRD, artículo 104 ter (104b en la numeración inglesa):</strong> base de la guía de Pilar 2, la P2G (capítulo 12).</p>
+</div>
+
+<h4 id="s10-2-2">10.2.2 Directrices de SREP y de <i>stress testing</i> supervisor</h4>
+
+<div class="bloque b-norma">
+<span class="etiqueta">Norma</span>
+<p><strong>EBA/GL/2026/06</strong>, directrices sobre procedimientos y metodologías comunes del SREP y las pruebas de resistencia supervisoras, publicadas el 26 de junio de 2026. Derogan y sustituyen las EBA/GL/2022/03 y las directrices de 2017 sobre la evaluación del riesgo TIC. Fijan cómo usan las autoridades el resultado del <i>stress test</i> en el SREP: la P2G se calibra con el impacto máximo del adverso, la diferencia entre el CET1 mínimo del escenario y el de partida, y puede fijarse para dos años, con revisión en el año intermedio y revisión obligada cuando hay resultados de un nuevo test supervisor.</p>
+</div>
+
+<p>El borrador de la nota de 2027 todavía remite en una nota al pie a las directrices de 2022; lo previsible es que la versión final cite las nuevas. Es un buen ejemplo de por qué hay que trabajar con la versión final de cada documento (sección 0.3.2).</p>
+
+<h4 id="s10-2-3">10.2.3 Directrices de <i>stress testing</i> de las entidades</h4>
+
+<div class="bloque b-norma">
+<span class="etiqueta">Norma</span>
+<p><strong>EBA/GL/2018/04</strong>, directrices sobre las pruebas de resistencia de las entidades. Regulan los programas de <i>stress testing</i> que hace el propio banco: gobierno, infraestructura de datos, metodologías, tipos de prueba (sensibilidad, escenarios, <i>reverse</i>) y su uso en el ICAAP y en la planificación de capital. Las directrices de SREP de 2026 las citan sin derogarlas, y siguen siendo la referencia para el <i>stress test</i> interno.</p>
+</div>
+
+<p>Las dos familias de directrices se complementan: las de 2018 dicen cómo debe hacer el banco sus propias pruebas; las de 2026, cómo las evalúa el supervisor y cómo usa las suyas. Para el ICAAP hay que leer además la guía del BCE de julio de 2026, que sustituye a la de 2018 (capítulo 20).</p>
+
+<h4 id="s10-2-4">10.2.4 Lo que la nota no regula y se resuelve en preguntas y respuestas</h4>
+
+<div class="bloque b-margen">
+<span class="etiqueta">Margen</span>
+<p>La nota metodológica es larga, pero no lo cubre todo. Hay silencios conocidos: cómo derivar las variables que el escenario no trae (el PIB de un país sin fila en las tablas, la tasa de paro regional), cómo construir las ecuaciones puente, cómo repartir las pérdidas de un país entre sectores cuando no hay modelos sectoriales, qué hacer con una cartera que no encaja en ninguna categoría. En esos huecos el banco decide, lo documenta en la nota explicativa y lo defiende ante el JST.</p>
+<p>Las dudas de interpretación que afectan a todos se elevan a la EBA a través de las autoridades competentes y las respuestas se publican durante el ejercicio. Tienen dos efectos que conviene vigilar. Una respuesta publicada a mitad de ejercicio obliga a todos los bancos, aunque ya hayan proyectado con otra interpretación. Y una pregunta que el banco no hizo no le protege: si su interpretación de un silencio resulta más favorable que la de sus pares, el JST la cuestionará igual. La regla práctica es leer las preguntas y respuestas cada semana durante el ejercicio y documentar cada interpretación propia con su alternativa más conservadora y el impacto de haberla elegido.</p>
+</div>
+
+<h3 id="s10-3">10.3 De dónde sale el escenario</h3>
+
+<h4 id="s10-3-1">10.3.1 Cómo se construye el adverso; el base de fuera de la UE sale del FMI</h4>
+
+<p>El adverso parte de una narrativa: un relato de qué riesgos se materializan. El de 2025 combinaba tensiones geopolíticas agravadas, barreras comerciales y un repunte de la inflación por el lado de la oferta. Esa narrativa se traduce en choques sobre las variables y se propaga con modelos macroeconómicos a todas las economías del escenario, como explicó la sección 5.1.4. El resultado se expresa como desviación respecto al escenario base, y las sendas en niveles se obtienen sumando esa desviación a la base.</p>
+
+<p>De ahí la importancia del base, que tiene un origen distinto según la economía. Para los países de la Unión, son las proyecciones de diciembre de los bancos centrales nacionales y del BCE. <strong>Para los países de fuera de la Unión, el base es la previsión del Fondo Monetario Internacional</strong> (el <i>World Economic Outlook</i> de octubre de 2024, en el ejercicio de 2025) completada con datos de la OCDE. En tipos de cambio, bolsa y materias primas el base es plano: se mantiene el nivel de partida.</p>
+
+<p>La consecuencia es que el escenario base de México en el ejercicio europeo no es el de Banco de México, ni el de la filial, ni el que usará el supervisor mexicano en su propio ejercicio: es el del FMI. Si la filial tiene un escenario central propio más optimista o más pesimista, su resultado en el ejercicio europeo no se compara con sus propias previsiones, sino con las del FMI. Es la primera pieza del puente entre el número europeo y el local que construye el capítulo 32.</p>
+
+<h4 id="s10-3-2">10.3.2 Qué hay por país y qué falta</h4>
+
+<p>El escenario de 2025 trae series por país de PIB, paro, inflación, precios de la vivienda, inmobiliario comercial y tipos a largo plazo para España, el Reino Unido, Estados Unidos, Türkiye, Brasil, México, Chile, Colombia y Perú, entre otros. Cubre, por tanto, las grandes geografías de Santander y BBVA en las variables macroeconómicas. Pero no lo trae todo:</p>
+
+<ul>
+<li><strong>Tipos de cambio:</strong> vienen por pares frente al euro (peso mexicano, real brasileño, lira turca, pesos chileno y colombiano, sol peruano). El euro frente al dólar y frente a la libra no se mueve en el adverso, así que las filiales de Estados Unidos y del Reino Unido no tienen choque cambiario frente al euro.</li>
+<li><strong>Curvas de tipos:</strong> hay curvas <i>swap</i> para las principales monedas, pero no para el sol peruano, que usa la del «resto del mundo», idéntica a la del dólar.</li>
+<li><strong>Bolsa:</strong> solo viene para unas pocas economías desarrolladas; Latinoamérica y Türkiye usan el choque del resto del mundo y España el de la Unión.</li>
+<li><strong>Argentina no aparece:</strong> ni fila, ni tipo de cambio, ni curva. La metodología solo dice que se use el resto del mundo para <i>swaps</i> y tipos de cambio; para PIB, paro o vivienda, el banco tiene que construir su traslación y defenderla.</li>
+</ul>
+
+<p>A esto se suma lo que ningún escenario trae para ningún país: el paro de una región, el precio de los coches usados, la renta disponible de un segmento. El banco lo deriva con ecuaciones puente (sección 5.2.3). Cómo se hace la traslación en un grupo con filiales en ocho geografías, y cómo se defiende, es el contenido del capítulo 31 y del anexo S3.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap11">11. Anatomía de un ejercicio EBA <span class="nivel n2">N2</span></h2>
+
+<p class="lead">Antes de proyectar una cifra hay que conocer las reglas que la enmarcan: qué se proyecta y qué viene dado, qué se puede suponer sobre el banco, qué perímetro y qué modelos cuentan, cuándo se entrega cada cosa y qué se publica al final. Este capítulo describe el ejercicio europeo con el de 2027 como referencia &mdash; nota metodológica en borrador del 11 de junio de 2026 &mdash; y el de 2025 como último cerrado. Los números de párrafo que se citan son los del borrador de 2027 salvo que se diga otra cosa; cuando salga la versión final, hay que comprobarlos.</p>
+
+<h3 id="s11-1">11.1 Rasgos estructurales</h3>
+
+<h4 id="s11-1-1">11.1.1 <i>Bottom-up</i> restringido, con elementos <i>top-down</i></h4>
+
+<p>La nota define el ejercicio como <i>bottom-up</i> restringido: cada banco proyecta con sus propios modelos, pero bajo restricciones estrictas y con revisión de la autoridad competente (párrafo 38). Algunas partes, sin embargo, no las proyecta el banco: vienen fijadas por fórmulas o parámetros comunes. Son los elementos <i>top-down</i>. En 2027 lo son las comisiones, que se proyectan con parámetros prescritos; la senda de pérdidas de las exposiciones soberanas; y componentes del margen de intereses calculados con fórmulas prescritas.</p>
+
+<p>La EBA presenta el margen de intereses de 2027 como <i>top-down</i>, y la etiqueta es nueva, pero el fondo no tanto: las fórmulas del margen y su cálculo centralizado ya existían en 2025. En sentido contrario, las titulizaciones dejan de tener ponderaciones prescritas y pasan a proyección propia. Para quien trabaja en crédito, la conclusión no cambia: <strong>el crédito sigue siendo el gran bloque que proyecta el banco</strong>, ahora con las titulizaciones dentro, y es donde se concentra el margen de decisión y, por tanto, el diálogo con el supervisor.</p>
+
+<h4 id="s11-1-2">11.1.2 Balance estático: sustitución, sin <i>workout</i>, sin curas, sin crecimiento</h4>
+
+<p>El supuesto que más distingue al ejercicio europeo de casi todos los demás es el balance estático (párrafos 33 a 36). El banco no crece ni decrece: lo que vence se sustituye por instrumentos parecidos en tipo, calidad crediticia y plazo. No cambia de modelo de negocio ni de presencia geográfica. No hay <i>workout</i>: lo que entra en impago se queda en el balance hasta el final del horizonte, sin ventas, recobros ni pases a fallidos. No hay curas desde stage 3. Y no hay excepciones: las desinversiones que no estén cerradas antes de la fecha de referencia no se tienen en cuenta, y las medidas de capital que se completen en el primer trimestre del ejercicio se reportan aparte, sin afectar a los ratios.</p>
+
+<div class="bloque b-porque">
+<span class="etiqueta">Por qué</span>
+<p>El balance estático no pretende ser realista: pretende ser comparable. Si cada banco proyectara su plan de negocio, el resultado mezclaría la resistencia de la cartera con el optimismo del plan, y dos bancos con la misma cartera podrían dar resultados muy distintos porque uno supone que crece y el otro que vende. Congelar el balance aísla lo que el supervisor quiere medir: qué hace el escenario a la cartera que el banco tiene hoy. El precio es que algunas cifras del final del horizonte, como el stock de stage 3, no se parecen a nada que vaya a observarse nunca (sección 8.2.1, trampa).</p>
+</div>
+
+<p>Una consecuencia menos evidente afecta a las filiales en divisa. Los saldos de balance y los activos ponderados de crédito se convierten al tipo de cambio de la fecha de referencia y no se mueven en todo el horizonte, aunque el escenario deprecie la moneda; en cambio, el margen de intereses, las comisiones y los gastos sí recogen la senda de tipo de cambio del escenario (párrafo 35 y tabla 1). La filial mexicana no encoge en euros en el balance, pero sus ingresos sí se convierten con el peso depreciado. Esa asimetría vuelve en los capítulos 25 y 31.</p>
+
+<h4 id="s11-1-3">11.1.3 Perímetro, pro forma y la lista cerrada de eventos</h4>
+
+<p>El ejercicio se hace al máximo nivel de consolidación prudencial del grupo, con las aseguradoras fuera (párrafos 13 y 14). Para un grupo como Santander o BBVA, eso significa que todas las filiales bancarias, en la Unión y fuera de ella, entran en el mismo cálculo, con su peso en el balance consolidado.</p>
+
+<p>El perímetro es el de la fecha de referencia. La nota admite datos pro forma, pero en condiciones muy estrictas: solo para un evento único que supere el 12,5 % del activo, solo dentro de una lista cerrada de cinco tipos (fusiones, adquisiciones, escisiones de unidades relevantes, desinversiones y transferencias de activos o pasivos), solo con efecto sobre las partidas cuyos límites se calculan con datos históricos, y solo si la autoridad competente presenta el caso a la EBA antes del primer envío y la EBA lo reconoce (párrafos 15 a 20). En la práctica, casi ningún cambio de perímetro se recoge como pro forma; se recoge, si acaso, en el ejercicio siguiente. El capítulo 31 desarrolla un caso real: la venta de casi toda la participación de Santander en su filial polaca, cerrada el 9 de enero de 2026, que separa el perímetro de 2025 del de 2027.</p>
+
+<h4 id="s11-1-4">11.1.4 Modelos admitidos y la excepción del cambio de enfoque</h4>
+
+<p>Para los activos ponderados solo cuentan los modelos internos aprobados e implantados a la fecha de referencia, el 31 de diciembre de 2026 en el ejercicio de 2027. Un modelo aprobado en febrero no entra, por bueno que sea. La única excepción es el cambio de enfoque: un banco que pase del método IRB al estándar, o al revés, con aprobación e implantación en el primer trimestre del ejercicio, puede hacerlo con el régimen nuevo y reexpresar su punto de partida (párrafos 28 y 29).</p>
+
+<p>Dos reglas comunes más completan la arquitectura. El ejercicio aplica un tipo impositivo común simplificado del 30 % (párrafo 32), para que bancos de países con fiscalidad distinta sean comparables (sección 2.1.6). Y cada año del horizonte se reportan el CET1, el capital de nivel 1, el capital total y la ratio de apalancamiento, en base transitoria y <i>fully loaded</i> (párrafos 26 y 27).</p>
+
+<h3 id="s11-2">11.2 Calendario y entregas</h3>
+
+<h4 id="s11-2-1">11.2.1 Del borrador a la publicación</h4>
+
+<p>El ejercicio de 2025 sirve de plantilla del calendario:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Calendario del ejercicio europeo de 2025. Fuentes: nota metodológica final y notas de prensa de la EBA.</caption>
+<thead><tr><th>Hito</th><th>Ejercicio de 2025</th><th>Qué significa para el banco</th></tr></thead>
+<tbody>
+<tr><td>Borrador de la nota</td><td>Meses antes de la final</td><td>Primera lectura y análisis de diferencias frente al ejercicio anterior</td></tr>
+<tr><td>Nota metodológica final</td><td>11 de noviembre de 2024</td><td>Las reglas quedan fijadas; empieza la preparación en serio</td></tr>
+<tr><td>Fecha de referencia</td><td>31 de diciembre de 2024</td><td>Foto del punto de partida</td></tr>
+<tr><td>Lanzamiento con los escenarios</td><td>20 de enero de 2025</td><td>Empieza la proyección</td></tr>
+<tr><td>Envíos y rondas de QA</td><td>Entre el invierno y el comienzo del verano</td><td>Los meses de más carga; varios envíos y respuestas a preguntas del supervisor</td></tr>
+<tr><td>Publicación de resultados</td><td>1 de agosto de 2025</td><td>Fichas por banco, informe agregado de la EBA e informe del BCE</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Entre el lanzamiento y la publicación hay unos seis meses, y la mayor parte del trabajo de proyección se concentra en los tres primeros: el escenario llega a finales de enero y el primer envío completo es cuestión de semanas. Por eso la preparación &mdash; punto de partida, datos, satélites recalibrados, herramientas &mdash; tiene que estar hecha antes de que llegue el escenario. El capítulo 28 trata el ejercicio como proyecto y el capítulo 29, el ciclo de QA.</p>
+
+<h4 id="s11-2-2">11.2.2 El ciclo de 2027</h4>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>La EBA publicó el borrador de la nota de 2027, con las plantillas y su guía, el 11 de junio de 2026, antes que en ciclos anteriores. La fecha de referencia es el cierre de 2026 y el horizonte, de 2027 a 2029. A mediados de octubre de 2026 no hay calendario oficial: la EBA solo ha dicho que publicará los resultados en torno al verano de 2027. Si se repite la secuencia de 2025, la nota final llegaría hacia el cambio de año y el escenario con el lanzamiento, a comienzos de 2027, pero ninguna de esas fechas está anunciada. Madurez: borrador sometido a consulta; puede cambiar en la versión final.</p>
+<p>El proyecto que genera es doble. Antes de la nota final, un análisis de diferencias del borrador frente al ejercicio de 2025 que permita preparar datos y herramientas sin esperar. Y cuando salga la final, un control de cambios párrafo a párrafo frente al borrador, porque cualquier preparación hecha sobre un párrafo que cambie hay que rehacerla. Citar el borrador cuando ya existe la final es un error que el supervisor detecta enseguida (Parte 0, caso JST).</p>
+</div>
+
+<h4 id="s11-2-3">11.2.3 Plantillas, guía y nota explicativa</h4>
+
+<p>El banco envía sus datos y proyecciones en plantillas normalizadas. En crédito, las principales recogen las proyecciones por escenario, país y cartera (la familia <code>CR_SCEN</code>), el desglose sectorial de las empresas (<code>CR_SECTOR</code>) y los activos ponderados por método, estándar e IRB (<code>CR_REA_STA_DET</code> y <code>CR_REA_IRB_DET</code>). Una guía de plantillas explica cómo se rellena cada celda, y los controles automáticos de la EBA y del supervisor revisan, entre otras cosas, la coherencia interna de cada envío: que los stocks cuadren con los flujos, que los totales cuadren con los desgloses, que las provisiones no se liberen donde no se puede.</p>
+
+<p>Junto a las plantillas, el banco entrega una <strong>nota explicativa</strong>: el documento en el que explica sus métodos, sus supuestos y sus resultados, cartera a cartera. Es la pieza que lee el JST antes de hacer sus preguntas y la que se cita cuando hay que defender un número. Un banco que la trata como un trámite y la escribe al final, deprisa, se condena a contestar por escrito en el QA lo que podía haber explicado de entrada. El capítulo 29 la trata como pieza de defensa.</p>
+
+<h3 id="s11-3">11.3 Qué cambia de 2025 a 2027</h3>
+
+<p>Cada ejercicio cambia algo respecto al anterior, y en la práctica el primer trabajo de un ciclo nuevo es entender qué. Los cambios de 2027 en lo que afecta al crédito, según el borrador:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Cambios del ejercicio de 2027 respecto al de 2025 en lo que afecta al riesgo de crédito. Fuente: nota metodológica de 2027 en borrador y nota final de 2025.</caption>
+<thead><tr><th>Tema</th><th>2025</th><th>2027 (borrador)</th><th>Dónde se desarrolla</th></tr></thead>
+<tbody>
+<tr><td>Volumen de datos</td><td>Plantillas propias del ejercicio</td><td>Un 55 % menos de datos; plantillas que imitan FINREP y COREP</td><td>11.3.1</td></tr>
+<tr><td>Puntos de partida</td><td>Uno (cierre de 2024)</td><td>Dos (cierres de 2025 y 2026)</td><td>Cap. 14</td></tr>
+<tr><td>Margen de intereses</td><td>Fórmulas prescritas y cálculo centralizado</td><td>Lo mismo, ya etiquetado como <i>top-down</i></td><td>11.1.1</td></tr>
+<tr><td>Titulizaciones</td><td>Aumento prescrito de ponderaciones</td><td>Proyección propia</td><td>11.3.2</td></tr>
+<tr><td>Aumento significativo del riesgo (SICR)</td><td>Con <i>backstop</i> común</td><td>Criterio contable de cada banco</td><td>11.3.3 y cap. 16</td></tr>
+<tr><td>Stage 3</td><td>Equivale a exposición dudosa (NPE)</td><td>Deterioro crediticio de IFRS 9, con los POCI aparte</td><td>11.3.3 y cap. 14</td></tr>
+<tr><td>Criterio de país</td><td>Riesgo último en todas las plantillas</td><td>País inmediato en pérdidas y riesgo último en activos ponderados</td><td>11.3.3 y cap. 31</td></tr>
+<tr><td>Clima</td><td>Fuera del ejercicio</td><td>Módulo de pérdidas de crédito, fuera de los resultados principales</td><td>11.3.4 y cap. 21</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="s11-3-1">11.3.1 Menos datos y plantillas que imitan FINREP y COREP</h4>
+
+<p>La EBA calcula que el ejercicio de 2027 pide un 55 % menos de datos que el de 2025, porque se apoya en la información que los bancos ya envían en su reporting supervisor ordinario. Las plantillas de 2027 siguen siendo propias del ejercicio, pero su estructura imita la de FINREP y COREP: en algunos desgloses, como el de los préstamos en divisa, las carteras pasan a ser las de deterioro de FINREP y no las clases de exposición del IRB. Para el equipo de proyección, el cambio es menos de volumen que de traducción: los modelos de crédito siguen trabajando por segmentos de riesgo, y sus resultados hay que llevarlos a una plantilla organizada con otra lógica.</p>
+
+<p>El ejercicio pide además dos puntos de partida, a cierre de 2025 y de 2026. El primero sirve para comparar y controlar la coherencia; el segundo es el del ejercicio. El capítulo 14 trata su conciliación.</p>
+
+<h4 id="s11-3-2">11.3.2 Margen de intereses etiquetado como <i>top-down</i>; titulizaciones a proyección propia</h4>
+
+<p>Los dos cambios van en sentido contrario y ninguno altera el perímetro de este manual. El margen de intereses se presenta ya como <i>top-down</i>, aunque el mecanismo existía en 2025 (sección 11.1.1). Las titulizaciones hacen el camino inverso: en 2025 se estresaban con un aumento prescrito de sus ponderaciones y en 2027 el banco las proyecta, con un suelo propio por método (párrafos 175 a 178). Es más trabajo para el equipo de crédito y un nuevo frente de comparación entre pares.</p>
+
+<h4 id="s11-3-3">11.3.3 Fin del <i>backstop</i> de SICR; stage 3 deja de ser dudoso; nuevo criterio de país</h4>
+
+<p>Son los tres cambios con más efecto en las cifras de crédito, y los tres van en la misma dirección: acercar el ejercicio a la contabilidad y al reporting ordinario del banco.</p>
+
+<p><strong>El aumento significativo del riesgo.</strong> En 2025 la metodología imponía un criterio común de último recurso para pasar a stage 2: una exposición que triplicaba su PD a toda la vida respecto al origen pasaba a stage 2, salvo que su PD estuviera por debajo de un umbral de riesgo bajo del 0,30 %. En 2027 ese <i>backstop</i> desaparece y cada banco aplica su propio criterio contable. Como la sección 4.1.4 explicó, los criterios de SICR difieren mucho de un banco a otro, así que la migración a stage 2 bajo el escenario pasa a ser una fuente de dispersión entre bancos que el JST querrá entender (capítulo 16).</p>
+
+<p><strong>El stage 3.</strong> En 2025 equivalía a la exposición dudosa de la definición supervisora (NPE). En 2027 pasa a ser el deterioro crediticio de IFRS 9, con los activos comprados u originados con deterioro (POCI) aparte (párrafo 56). Las dos definiciones se parecen, pero no coinciden.</p>
+
+<p><strong>El país.</strong> En 2025 todas las plantillas usaban el país de riesgo último, con una cobertura mínima del 95 % o los diez primeros países. En 2027 las plantillas de pérdidas usan el país inmediato de la contraparte y las de activos ponderados, el de riesgo último (párrafos 58 y 59). Se reportan hasta diez países no domésticos que pesen más del 1 % en las plantillas de pérdidas, y hasta cinco de ellos en las de activos ponderados; si lo doméstico supera el 90 %, el resto va a «otros» (párrafos 100 a 107). Un préstamo a la filial mexicana de una multinacional estadounidense garantizado por su matriz es México en las pérdidas y Estados Unidos en los activos ponderados.</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Comparar el stage 3, el stage 2 o el desglose por país de una filial entre los ejercicios de 2025 y 2027 sin advertir que han cambiado las definiciones. Una subida del stage 2 de México entre los dos ejercicios puede ser el escenario, el fin del <i>backstop</i> o un cambio de perímetro por el nuevo criterio de país, y las tres cosas a la vez. El JST lo sabe, y la primera pregunta ante una comparación entre ejercicios es si se ha hecho con definiciones homogéneas. Antes de presentar una evolución, hay que poder responder que sí o cuantificar el efecto de cada cambio.</p>
+</div>
+
+<h4 id="s11-3-4">11.3.4 El módulo climático</h4>
+
+<p>El ejercicio de 2027 incorpora por primera vez un módulo climático (capítulo 7 de la nota), con tres rasgos que conviene tener claros desde el principio. Solo mide pérdidas de crédito, sin efecto en los activos ponderados (párrafo 572). Se aplica como una capa encima del adverso (párrafo 566). Y no afecta a los resultados principales del ejercicio, según la nota de prensa de la EBA.</p>
+
+<p>Tiene dos partes. La de <strong>transición</strong> cubre de 2027 a 2029 las empresas de los sectores más expuestos y las hipotecas según su eficiencia energética; el banco elige entre recibir variables climáticas o directamente choques sobre el valor añadido de cada sector. La <strong>física</strong> simula una inundación fluvial de probabilidad del 1 % en todo el Espacio Económico Europeo a la vez, solo en 2027, geolocalizando cada garantía. Para Santander y BBVA esto deja fuera del riesgo físico a México, Brasil y Estados Unidos; el borrador plantea a los bancos una pregunta abierta sobre el alcance, así que puede cambiar. El capítulo 21 lo desarrolla y el 26 trata sus retos.</p>
+
+<h4 id="s11-3-5">11.3.5 Puntos de partida desde FINREP y COREP</h4>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>La EBA ha propuesto que, en un ciclo posterior al de 2027, los puntos de partida de crédito se tomen directamente de FINREP y COREP en lugar de reportarse en plantillas propias del ejercicio, cuando los formularios de reporting modificados que ya prepara estén en vigor. Madurez: propuesta sometida a consulta pública, pendiente de adopción como norma técnica de ejecución por la Comisión; la dirección es firme, el calendario y el detalle no.</p>
+<p>El cambio parece administrativo y no lo es. Cuando el punto de partida sea el FINREP consolidado, cada diferencia entre el FINREP del grupo y el reporting local de una filial de fuera de la Unión &mdash; perímetro, definiciones, normas contables, fechas de cierre &mdash; aparecerá como un error de conciliación visible para el supervisor desde el primer día. El proyecto que genera es un análisis de linaje del dato de cada filial hasta el FINREP del grupo, con las conciliaciones hechas antes del ejercicio y no durante (capítulo 31).</p>
+</div>
+
+<h3 id="s11-4">11.4 Publicación</h3>
+
+<h4 id="s11-4-1">11.4.1 Qué se publica banco a banco</h4>
+
+<p>Al final del ejercicio la EBA publica tres cosas. Un informe agregado con los resultados del conjunto de bancos y su análisis. Una ficha por banco, cuya primera página es la tabla resumen que leyó la sección 1.3.4: margen, deterioro, resultado, activos ponderados y ratios de capital en el punto de partida y en cada año de los dos escenarios. Y, detrás de la tabla resumen, el detalle: el riesgo de crédito por método, por clase de exposición y por país, con las exposiciones por stage, las provisiones y las tasas de pérdida de partida y de cada año; el riesgo de mercado; los activos ponderados por tipo de riesgo; y la composición del capital. El BCE publica además su propio informe sobre los bancos que supervisa, con la descomposición de la caída de capital que usó la sección 7.1.4 y el efecto del QA.</p>
+
+<p>Las fichas solo traen los diez primeros países de cada banco, así que una geografía pequeña puede no aparecer: en 2025, la de Santander no tiene bloque de Türkiye, Perú ni Colombia, y la de BBVA no lo tiene de Brasil ni de Chile.</p>
+
+<h4 id="s11-4-2">11.4.2 La base de datos CSV de la EBA como herramienta</h4>
+
+<p>Las fichas en PDF están pensadas para leer. Para analizar, la EBA publica la misma información en una base de datos de ficheros CSV, con un fichero por bloque &mdash; riesgo de crédito IRB, riesgo de crédito estándar, otros datos &mdash; más un diccionario de datos y los metadatos. Tiene dos ventajas sobre el PDF: el país y la cartera vienen codificados, sin depender de cómo se lea una tabla, y las cifras traen todos sus decimales. Es la fuente que hay que usar para cualquier comparación entre bancos o entre países, y la que usan el anexo S4 y el capítulo 32 para comparar España y México.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Una comprobación sencilla que enseña a usar los datos publicados con cuidado. Con balance estático, sin <i>workout</i> ni liberación de provisiones de stage 3, el aumento del stock de provisiones de crédito entre el punto de partida y el final del horizonte debería aproximar el deterioro acumulado que va a la cuenta de resultados. Con los datos del ejercicio de 2025 (EBA, 1 de agosto de 2025):</p>
+<ul>
+<li><strong>BBVA:</strong> el stock de provisiones sube 35.593 millones de euros en el adverso y el deterioro acumulado de los tres años es de 35.594 millones. Cuadra al millón.</li>
+<li><strong>Banco Santander:</strong> el stock sube 44.090 millones y el deterioro acumulado es de 44.852 millones. Faltan 762 millones, un 1,7 %.</li>
+</ul>
+<p>La diferencia de Santander no está explicada en los datos publicados; lo más probable es que corresponda a deterioro de partidas que no están en las tablas de riesgo de crédito, como las titulizaciones, pero no se ha verificado. La lección no es la cifra, sino el método: antes de usar los datos de una ficha para comparar bancos o países, se comprueba que cuadran con la cuenta de resultados del propio banco, y se dice qué parte no cuadra. Un análisis horizontal que no hace esta comprobación puede atribuir a una cartera una pérdida que no es suya. Cálculos en <code>anexos/cifras_parte02.py</code>.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap12">12. Qué hace el supervisor con el resultado <span class="nivel n2">N2</span></h2>
+
+<p class="lead">El ejercicio europeo no tiene umbral, pero tiene consecuencias. La caída de capital del adverso se convierte en una guía de capital específica para cada banco, la forma en que el banco ha hecho el ejercicio se evalúa aparte, y el resultado entra en la planificación de capital del propio banco. Este capítulo explica cómo, y por qué el mismo resultado puede tener efectos muy distintos según dónde caiga.</p>
+
+<h3 id="s12-1">12.1 De la caída de capital a la P2G</h3>
+
+<h4 id="s12-1-1">12.1.1 Los dos pasos del BCE</h4>
+
+<p>Desde 2021 el BCE fija la guía de Pilar 2 (P2G) de los bancos que han participado en el ejercicio en dos pasos:</p>
+
+<ol>
+<li><strong>Asigna el banco a un tramo</strong> según la caída máxima de su CET1 <i>fully loaded</i> en el escenario adverso: la diferencia entre el ratio de partida y el mínimo que alcanza en cualquier año del horizonte. Usa el <i>fully loaded</i> para que la caída mida el efecto del escenario y no el del calendario normativo; en 2025, por ejemplo, para quitar el efecto de la reexpresión del punto de partida por la entrada en vigor de las nuevas reglas de capital, que no era una pérdida inesperada (informe del BCE sobre el ejercicio de 2025, sección 4.2).</li>
+<li><strong>El JST fija la P2G dentro del rango del tramo</strong>, o excepcionalmente fuera de él, teniendo en cuenta el perfil de riesgo del banco, los cambios materiales de ese perfil desde la fecha de referencia, el año en que se alcanza el mínimo y las acciones mitigadoras relevantes ya tomadas, como ventas de activos o reestructuraciones.</li>
+</ol>
+
+<p>Las directrices de SREP de la EBA de 2026 recogen la misma lógica: la P2G se calibra con el impacto máximo del adverso, medido como la diferencia entre el CET1 mínimo del escenario y el de partida. Para los bancos que no participan en el ejercicio, el BCE la fija con su propia evaluación prospectiva.</p>
+
+<h4 id="s12-1-2">12.1.2 La tabla de tramos</h4>
+
+<div class="tabla-scroll">
+<table>
+<caption>Tramos de la P2G del BCE, sin cambios desde 2021. Fuente: páginas del BCE sobre la P2G, consultadas el 16 de octubre de 2026.</caption>
+<thead><tr><th>Tramo</th><th>Caída máxima del CET1 <i>fully loaded</i></th><th>Rango de P2G</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Hasta 3 puntos</td><td>Hasta el 1,00 %</td></tr>
+<tr><td>2</td><td>Entre 3 y 6 puntos</td><td>Del 0,50 % al 2,00 %</td></tr>
+<tr><td>3</td><td>Entre 6 y 9 puntos</td><td>Del 1,00 % al 2,75 %</td></tr>
+<tr><td>4</td><td>Más de 9 puntos</td><td>Desde el 1,75 %, sin tope</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Tres rasgos de la tabla importan más que sus cifras. El primero, que <strong>la P2G no es la caída</strong>: el propio BCE pone el ejemplo de un banco que cae 8 puntos, queda en el tercer tramo y probablemente tendrá una P2G no superior al 2,75 %. El segundo, que <strong>los rangos se solapan</strong>: un banco del tramo 2 puede acabar con menos P2G que uno del tramo 1, si su perfil lo justifica. El tercero, que el BCE no publica si una caída de exactamente 3,00 puntos es del tramo 1 o del 2. En la práctica, los bancos que caen cerca de un corte lo saben y lo miran con lupa.</p>
+
+<h4 id="s12-1-3">12.1.3 P2G de apalancamiento</h4>
+
+<p>Existe una guía equivalente para la ratio de apalancamiento, la P2G-LR, con la misma lógica de cuatro tramos sobre la caída máxima de esa ratio en el adverso (cortes en 1,10, 2,20 y 3,30 puntos; rangos de hasta el 0,35 % en el primer tramo y desde el 0,60 % en el cuarto). Pero no se fija a todos los bancos, sino solo a algunos: por ejemplo, a aquellos cuya ratio de apalancamiento proyectada cae por debajo de su requerimiento global de apalancamiento. En el SREP de 2025 se aplicó a cinco bancos. Para un gran grupo con una ratio de apalancamiento holgada, es una pieza que conviene conocer, pero que rara vez muerde.</p>
+
+<h4 id="s12-1-4">12.1.4 Por qué 50 pb pueden no mover la P2G y otros 50 sí</h4>
+
+<div class="bloque b-palanca">
+<span class="etiqueta">Palanca</span>
+<p>La tabla de tramos convierte una variable continua, la caída de capital, en una escalera. Para el banco de referencia de la sección 2.1.4, con 35.000 millones de activos ponderados, 50 puntos básicos de CET1 son 175 millones de capital, o unos 250 millones de pérdidas antes de impuestos. Si su caída pasa del 2,0 % al 2,5 %, sigue en el tramo 1 y el rango de su P2G no cambia. Si pasa del 2,8 % al 3,3 %, cruza al tramo 2: el suelo del rango sube de cero al 0,50 % y el techo, del 1,00 % al 2,00 %. Los mismos 250 millones de pérdidas pueden no tener efecto en la guía o desplazar su rango hasta 100 puntos básicos, que para este banco son otros 350 millones de capital que el supervisor espera que mantenga.</p>
+<p>De ahí dos consecuencias prácticas. La primera, que un banco cerca de un corte vigila cada ajuste del QA con otra intensidad, porque el QA mueve la caída: en 2025 sumó 88 puntos básicos a la del conjunto de bancos del BCE (capítulo 18). La segunda, que la tentación de quedar justo por debajo de un corte es real, y el JST lo sabe: una proyección que se queda en 2,95 puntos tras varias revisiones a la baja de supuestos aislados invita a mirar cada una de ellas. El segundo paso, la discreción del JST, existe en parte para eso.</p>
+</div>
+
+<h4 id="s12-1-5">12.1.5 Santander y BBVA en el tramo 1, y lo que eso no dice</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>En el ejercicio de 2025, la caída máxima del CET1 <i>fully loaded</i> fue de 173 puntos básicos en Banco Santander (del 12,19 % al 10,46 %) y de 218 en BBVA (del 12,88 % al 10,70 %), según sus fichas de la EBA del 1 de agosto de 2025. Las dos están por debajo de 3 puntos: los dos bancos caen en el tramo 1, con un rango de P2G de hasta el 1,00 %. El conjunto de bancos del BCE cayó 3,5 puntos de máximo en <i>fully loaded</i>, en el tramo 2. Tras el ejercicio, la P2G media de los bancos del BCE bajó del 1,3 % al 1,1 %, porque los beneficios amortiguaron la caída (resultados agregados del SREP de 2025).</p>
+<p>Lo que el tramo no dice es casi tan importante como lo que dice:</p>
+<ul>
+<li><strong>No dice la P2G de cada banco.</strong> El JST la fija dentro del rango, o fuera, con criterios que no se publican banco a banco.</li>
+<li><strong>No dice que los dos bancos sean igual de resistentes.</strong> Entre ellos hay 45 puntos básicos de caída, y BBVA toca su mínimo en el primer año mientras Santander lo toca en el primero y en el tercero a la vez.</li>
+<li><strong>No dice cómo se comparan con sus pares.</strong> Esa comparación depende de la métrica y de quién elige a los pares. BBVA publicó como referencia una caída media de 228 puntos básicos de diez comparables elegidos por el propio banco, calculada con la caída a final de 2027 y no con la máxima. Con esa métrica BBVA cae 186 puntos; con la máxima, la que usa el BCE, 218. Y sin el comparable que más cae, con 478 puntos, la media de los otros nueve baja a 200.</li>
+</ul>
+<p>Ninguna de esas cifras es incorrecta. Lo que enseñan es que una comparación entre pares sin la métrica y la muestra explícitas no es un dato, sino un argumento. Cálculos en <code>anexos/cifras_parte02.py</code>.</p>
+</div>
+
+<h3 id="s12-2">12.2 La parte cualitativa</h3>
+
+<h4 id="s12-2-1">12.2.1 Calidad de datos, cooperación y puntualidad</h4>
+
+<p>Además de la cifra, el JST evalúa cómo ha hecho el banco el ejercicio: la puntualidad de los envíos, la exactitud de los datos, la calidad de la información y de las explicaciones, y la cooperación durante el QA. La evaluación combina métricas automáticas de calidad de datos, que el BCE calcula para todos los bancos con los mismos criterios, con el juicio del JST sobre el comportamiento del banco en las rondas de preguntas (informe del BCE sobre el ejercicio de 2025, sección 4.1).</p>
+
+<p>Para quien coordina un ejercicio, esto significa que hay dos resultados que gestionar, no uno. Un banco puede tener una caída de capital pequeña y una mala nota cualitativa: envíos tardíos, reenvíos por errores de datos, respuestas que no contestan. Y la segunda tiene consecuencias propias.</p>
+
+<h4 id="s12-2-2">12.2.2 Del <i>stress test</i> al Elemento 2 del SREP y a la P2R</h4>
+
+<p>La evaluación cualitativa puede pesar en la P2G, pero no se queda ahí: alimenta además otra parte del SREP, la de gobierno interno y gestión de riesgos, el llamado Elemento 2, dentro del cual está la evaluación de la capacidad del banco para agregar datos de riesgo y producir informes (RDAR). Las deficiencias de calidad pueden así influir en el requerimiento de Pilar 2, la P2R, que a diferencia de la P2G sí es vinculante. El BCE enumera en su informe de 2025 las consecuencias posibles de las deficiencias de datos en el ejercicio: P2R adicional, medidas de ejecución y sanciones.</p>
+
+<p>No es una amenaza retórica. La agregación de datos de riesgo es una de las dos prioridades supervisoras del BCE para 2026-2028, que considera que el progreso de los bancos sigue siendo lento, y su guía de mayo de 2024 sobre esta materia incluye expresamente en su perímetro los envíos al ejercicio europeo. Un <i>stress test</i> mal hecho en datos es, para el supervisor, una prueba más de que el banco no controla sus datos. El capítulo 31 trata la parte de los datos en un grupo con filiales lejanas.</p>
+
+<h4 id="s12-2-3">12.2.3 «Su envío ha sido tardío y con errores»</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>Una carta tras el ejercicio que señala que el banco envió fuera de plazo dos de sus entregas, que el segundo envío tuvo que repetirse por errores en el punto de partida de una filial y que varias respuestas del QA llegaron incompletas. La carta anuncia que estos hechos se tendrán en cuenta en la evaluación del gobierno interno.</dd>
+<dt>Qué hay detrás</dt>
+<dd>El JST no está discutiendo la caída de capital, sino la capacidad del banco para producir datos fiables a tiempo. Para el supervisor, los errores en el punto de partida de una filial son un síntoma de un problema estructural de agregación de datos, no un accidente del ejercicio. Y lo que de verdad quiere saber es si el banco lo entiende así.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Reconocer los hechos sin discutir los que son ciertos, separar las causas &mdash; un error de calendario interno no es lo mismo que un dato de la filial que no cuadraba con su contabilidad &mdash; y presentar para cada una un plan de remediación con responsable, fecha y una métrica que demuestre que se ha corregido antes del siguiente ejercicio. Si el problema es de datos de una filial, conectarlo con el programa de agregación de datos de riesgo del banco: es el lenguaje en que el JST lo va a evaluar.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Explicar que los plazos del ejercicio eran irrealistas, que los errores eran menores y que no afectaron al resultado. Puede que sea verdad, pero confirma al supervisor que el banco ve el ejercicio como un trámite y no como una prueba de su infraestructura de datos. En el siguiente ciclo, la misma deficiencia sin resolver se leerá como reincidencia (capítulo 30, sección 30.3.3).</dd>
+</dl>
+</div>
+
+<h3 id="s12-3">12.3 Más allá del SREP</h3>
+
+<h4 id="s12-3-1">12.3.1 Distribuciones, planificación de capital y apetito de riesgo</h4>
+
+<p>El resultado del ejercicio no termina en la P2G. Dentro del banco, alimenta al menos tres decisiones. La <strong>planificación de capital</strong>, porque la P2G se suma a la pila de requerimientos con la que se calcula cuánto capital hay que mantener y, por tanto, cuánto se puede repartir. El <strong>apetito de riesgo</strong>, porque los umbrales que el consejo fija para las ratios de capital suelen calibrarse con la caída de los ejercicios de estrés. Y la <strong>comunicación</strong> con analistas e inversores, que leen las fichas de la EBA y comparan.</p>
+
+<p>Fuera del banco, el resultado entra en el diálogo del supervisor sobre la planificación de capital y las distribuciones. La P2G no limita por sí misma los dividendos, como sí lo hace el requerimiento combinado de colchones (sección 2.1.5), pero un plan de distribuciones que deja al banco cerca de su P2G en el escenario base no pasará sin preguntas.</p>
+
+<h4 id="s12-3-2">12.3.2 P2G no vinculante y lo que pide la Guía del ICAAP de 2026</h4>
+
+<p>La P2G no es jurídicamente vinculante. Caer por debajo de ella no dispara las restricciones automáticas que dispara caer por debajo de los colchones. Pero no vinculante no significa irrelevante. La Guía del ICAAP del BCE de julio de 2026 pide a los bancos que integren la P2G en su marco de gestión de riesgos y de capital, y que, si sus fondos propios caen o van a caer por debajo de ella, lo comuniquen al supervisor con un plan de capital revisado, como prevé el artículo 104 ter de la CRD. La misma guía aclara que el colchón de gestión que el banco fija por encima de sus requerimientos no es un requerimiento ni un margen libre que el supervisor dé por disponible.</p>
+
+<h4 id="s12-3-3">12.3.3 P2G bienal</h4>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>Las directrices de SREP de la EBA de 2026, aplicables desde el comienzo de 2027, mantienen la posibilidad de fijar la P2G y la P2G de apalancamiento para dos años, en línea con el ejercicio europeo bienal, con una revisión en el año intermedio y una revisión obligada cuando haya resultados de un nuevo test supervisor. Madurez: directrices ya publicadas; lo que falta por ver es cómo y con qué frecuencia lo aplicará el BCE en la práctica, y qué papel tendrán en la revisión intermedia los ejercicios temáticos de los años sin ejercicio europeo.</p>
+<p>Para el banco, una P2G fijada para dos años alarga las consecuencias de cada ejercicio: un mal resultado pesa más tiempo, y uno bueno también. El proyecto que genera está en la planificación de capital: un ICAAP y un plan de capital que proyecten con una P2G estable durante dos años, y una vigilancia en el año intermedio de los cambios materiales de perfil que podrían llevar al JST a revisarla.</p>
+</div>
+
+<h4 id="s12-3-4">12.3.4 Contraste: el SCB de la Fed, vinculante y promediado</h4>
+
+<p>La Reserva Federal usa su <i>stress test</i> de una manera muy distinta. El resultado no orienta una guía, sino que fija un requerimiento vinculante, el colchón de capital por estrés (SCB): la caída máxima de CET1 en el adverso más cuatro trimestres de dividendos previstos, con un suelo del 2,5 %. Sumado al mínimo del 4,5 %, define la parte del CET1 por debajo de la cual el banco ve restringidas sus distribuciones. Para Santander Holdings USA, el SCB vigente es del 3,4 %, así que su referencia es un CET1 del 7,9 % (Reserva Federal, junio de 2026). Como la Fed decidió en febrero de 2026 mantener los SCB vigentes hasta 2027, ese 3,4 % todavía se basa en el test de 2024, en el que SHUSA participó, y no en el de 2026.</p>
+
+<p>Las reglas finales que la Fed aprobó el 30 de septiembre de 2026 añaden un cambio de fondo: el SCB será la media de las caídas de los dos últimos tests, con el mismo peso, para reducir su volatilidad de un año a otro, que la Fed estima que bajará en torno a la mitad. La media no se aplica si hay un cambio material en el plan de negocio del banco.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Un ejemplo ilustrativo, con caídas supuestas. Un banco cae 2,4, 4,6, 3,1 y 4,2 puntos en cuatro tests consecutivos y sus dividendos previstos de cuatro trimestres son 0,6 puntos. Con la regla anual, su SCB sería del 3,0 %, 5,2 %, 3,7 % y 4,8 %: saltos de más de un punto de un año a otro. Con la media de los dos últimos tests, desde el segundo año sería del 4,10 %, 4,45 % y 4,25 %. En los dos últimos años, el salto medio pasa de 1,30 a 0,27 puntos. El banco pierde la ventaja de un año bueno, pero gana un requerimiento con el que puede planificar. Cálculos en <code>anexos/cifras_parte02.py</code>.</p>
+</div>
+
+<p>Puesto al lado de la P2G del BCE, el contraste tiene tres planos. En la Fed proyecta el supervisor con sus propios modelos; en el ejercicio europeo, el banco. En la Fed el resultado es vinculante; en Europa, una guía. Y en la Fed la traslación es casi mecánica, mientras que en Europa hay tramos y un segundo paso discrecional. Un grupo con una filial estadounidense vive los dos regímenes a la vez, y el capítulo 13 los pone uno al lado del otro.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap13">13. El grupo multi-regulador <span class="nivel n2">N2</span></h2>
+
+<p class="lead">Santander y BBVA tienen filiales en una decena de países de fuera de la Unión, y cada una vive con su supervisor y sus ejercicios. Este capítulo los ordena en tres familias, describe los de cada jurisdicción relevante por sus rasgos &mdash; escenario, balance, horizonte, contabilidad, métrica y publicación &mdash; antes que por su nombre oficial, y explica qué no se puede comparar sin traducirlo antes.</p>
+
+<h3 id="s13-1">13.1 Tres familias de ejercicio</h3>
+
+<p>La distinción que más ordena el mapa es la de la sección 1.3.2: quién hace los cálculos. Según eso, los ejercicios que afectan a un grupo español se agrupan en tres familias:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Los ejercicios de las filiales de Santander y BBVA por familia. Fuente: <code>investigacion/reguladores-no-ue.md</code>, validada con fuentes primarias el 16 de octubre de 2026.</caption>
+<thead><tr><th>Familia</th><th>Ejercicios</th><th>Filiales afectadas</th></tr></thead>
+<tbody>
+<tr><td><strong>El banco proyecta</strong> con escenarios o parámetros del supervisor</td><td>Europeo (EBA), Comisión Nacional Bancaria y de Valores (México), Comisión para el Mercado Financiero (Chile), autoevaluación del capital del Banco Central de la República Argentina, autoevaluación del capital en Türkiye; y el ICAAP en todas partes</td><td>Grupos; Santander México y BBVA México; Santander Chile; BBVA Argentina y Santander Argentina; Garanti BBVA</td></tr>
+<tr><td><strong>El supervisor proyecta</strong> con sus modelos</td><td>Reserva Federal; Banco de México; Banco Central do Brasil; Banco Central de Chile</td><td>Santander Holdings USA (por banco); las filiales mexicanas, la brasileña y la chilena (dentro del sistema)</td></tr>
+<tr><td><strong>Mixto</strong>, con acciones de gestión</td><td>Banco de Inglaterra (<i>Bank Capital Stress Test</i>)</td><td>Santander UK</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="s13-1-1">13.1.1 El banco proyecta con escenarios o parámetros del supervisor</h4>
+
+<p>Es la familia del ejercicio europeo. El supervisor fija el escenario, a veces también parámetros o restricciones, y el banco proyecta con sus modelos. Hay margen de decisión y, con él, diálogo: el banco elige sus satélites, el supervisor los revisa y discute. Es la familia en la que un equipo de proyección trabaja de verdad y en la que se producen las incoherencias entre ejercicios del capítulo 9, porque el mismo equipo &mdash; o dos equipos del mismo grupo &mdash; proyecta la misma cartera con reglas distintas.</p>
+
+<h4 id="s13-1-2">13.1.2 El supervisor proyecta con sus modelos</h4>
+
+<p>Aquí el banco envía datos y el supervisor calcula. Hay dos variantes muy distintas. En la de la Reserva Federal, el resultado es por banco, se publica y fija un requerimiento vinculante: el banco no decide el método, pero vive con su consecuencia. En la de los bancos centrales de México, Brasil o Chile, el ejercicio es macroprudencial: simula el sistema entero, publica distribuciones o agregados y no tiene consecuencias por banco. En las dos, el trabajo del banco se desplaza de la proyección a la calidad de los datos que envía y a entender el resultado del supervisor, porque no puede rehacerlo.</p>
+
+<h4 id="s13-1-3">13.1.3 Mixto, con acciones de gestión</h4>
+
+<p>El Banco de Inglaterra combina las dos cosas: los bancos proyectan y el Banco contrasta con sus propios modelos, ajusta lo que considera necesario y acepta solo las acciones de gestión que juzga realistas. Además, trabaja con balance dinámico. El resultado se publica por banco antes y después de esas acciones, lo que permite ver cuánto aportan.</p>
+
+<h3 id="s13-2">13.2 Fichas por jurisdicción</h3>
+
+<h4 id="s13-2-1">13.2.1 Estados Unidos: la Reserva Federal</h4>
+
+<p><strong>Rasgos.</strong> Proyecta el supervisor con sus modelos, sobre nueve trimestres, con supuestos de capital fijados por la norma. Contabilidad estadounidense, que provisiona desde el origen la pérdida esperada a toda la vida. Resultados por banco publicados. Consecuencia vinculante: el SCB (sección 12.3.4).</p>
+
+<p><strong>Filial.</strong> Santander Holdings USA (SHUSA) fue uno de los 32 bancos del ejercicio de 2026. Su CET1 pasó del 12,6 % al 11,7 % en el mínimo; su capital de nivel 1, del 14,4 % al 13,5 %; su capital total, del 16,5 % al 15,7 %; y su ratio de apalancamiento, del 9,2 % al 8,7 %. El conjunto de bancos proyectó 708.000 millones de dólares de pérdidas, 625.000 de ellas en préstamos, con un CET1 agregado que bajaba del 12,8 % al 11,2 % (Reserva Federal, junio de 2026). BBVA no tiene entidad en este ejercicio desde que vendió BBVA USA a PNC en junio de 2021; su exposición a Estados Unidos en el ejercicio europeo es sobre todo mayorista.</p>
+
+<p><strong>Lo que está cambiando.</strong> Además del SCB promediado, la Fed someterá cada año sus escenarios y sus modelos a comentario público antes de aplicarlos, según las reglas finales de septiembre de 2026. Para un grupo europeo, es la primera vez que podrá leer de antemano y comentar los modelos con los que se proyectará a su filial. El capítulo 34 vuelve sobre ello.</p>
+
+<h4 id="s13-2-2">13.2.2 Reino Unido: el <i>Bank Capital Stress Test</i></h4>
+
+<p><strong>Rasgos.</strong> Desde 2025, el ejercicio del Banco de Inglaterra se llama <i>Bank Capital Stress Test</i> y es bienal; en los años intermedios hay ejercicios exploratorios publicados solo en agregado, como el de mercados privados de junio de 2026. Horizonte de cinco años, balance dinámico, acciones de gestión aceptadas si son realistas, IFRS 9 sin disposiciones transitorias, resultados por banco.</p>
+
+<p><strong>Filial.</strong> Santander UK fue uno de los siete participantes del de 2025, publicado el 2 de diciembre de 2025, que en conjunto suman en torno a tres cuartas partes del crédito a la economía real británica. Su CET1 bajó del 14,8 % a un mínimo del 9,7 % antes de acciones de gestión y del 10,3 % después, frente a un requerimiento mínimo del 6,9 %; su ratio de apalancamiento, del 4,9 % al 3,5 % antes de acciones y al 3,9 % después, frente a un umbral del 3,25 %. El mínimo llegó en el segundo año.</p>
+
+<p><strong>Un matiz de 2025.</strong> Ese año el Banco no evaluó a los bancos contra los mínimos más los colchones sistémicos, sino que publicó el mínimo de cada uno junto a sus requerimientos, para recalibrar la referencia tras la introducción de IFRS 9; ha anunciado que en los próximos tests volverá a evaluar contra mínimos más colchones. Y la rebaja del nivel de referencia de capital del sistema que el Banco anunció en diciembre de 2025 no es el umbral del <i>stress test</i>, sino otra cosa: la referencia de su comité de política financiera para los requerimientos de capital del conjunto del sistema.</p>
+
+<h4 id="s13-2-3">13.2.3 México: la CNBV y el Banco de México</h4>
+
+<p>México es el hilo conductor del manual, y tiene dos ejercicios que conviene no confundir.</p>
+
+<p><strong>El de la Comisión Nacional Bancaria y de Valores (CNBV)</strong> es de la primera familia. Está regulado en las disposiciones de carácter general aplicables a las instituciones de crédito, la llamada Circular Única de Bancos (artículos 2 Bis 117 e a 2 Bis 117 i). Cada año, cada banco comprueba con escenarios que la CNBV le comunica por oficio que su capital neto cubre las pérdidas, que sigue en la categoría I de capitalización y que cumple el capital mínimo en cada trimestre. Proyecta al menos nueve trimestres con su plan de negocio, dividendos incluidos: balance dinámico. El informe lo firma el director general y lo aprueba el consejo, y si el banco incumple debe presentar un Plan de Acción Preventivo de doce meses como máximo. Los lineamientos detallados están en un anexo de la circular cuyo contenido este manual no ha podido verificar todavía. Ningún banco publica su resultado.</p>
+
+<p><strong>El del Banco de México</strong> es de la segunda familia. En cada <i>Reporte de Estabilidad Financiera</i>, semestral, simula el sistema bancario con escenarios comunes &mdash; en el de junio de 2026, tres hipotéticos y tres históricos (las crisis de 1995 y 2008 y la de la COVID-19) &mdash;, con datos de marzo de 2026 y tres años de horizonte, sin problemas idiosincrásicos de originación, sin acciones de mitigación ni reacción del regulador. Mide el índice de capitalización (ICAP) contra el 10,5 % y presenta el resultado como distribución del sistema: en ese informe, todo el sistema quedaba por encima del umbral, incluidos los escenarios históricos. Hace además pruebas de liquidez y climáticas.</p>
+
+<p><strong>Las provisiones locales.</strong> La circular calcula las provisiones por etapas, con una lógica cercana a IFRS 9 pero con su propia mecánica: en las etapas 1 y 3, probabilidad de incumplimiento por severidad de la pérdida por exposición (PI × SP × EI); en la etapa 2, pérdida a toda la vida; con métodos estándar o internos y grados de riesgo de A-1 a E. La misma cartera de consumo tiene así una provisión local en la filial y otra IFRS 9 en el grupo. El ejercicio de la CNBV se construye sobre la normativa local, así que lo previsible es que parta de la provisión local; en un proyecto hay que confirmarlo con la filial antes de comparar nada. El capítulo 32 construye el puente entre el número europeo y el local.</p>
+
+<h4 id="s13-2-4">13.2.4 Brasil: el test macro del Banco Central, el ICAAP local y la Resolución CMN 4.966</h4>
+
+<p><strong>El ejercicio del supervisor.</strong> El Banco Central do Brasil incluye en su <i>Relatório de Estabilidade Financeira</i>, semestral, un test de estrés macroeconómico del sistema: doce trimestres, balance dinámico y tres escenarios &mdash; un base con las expectativas del mercado, una recesión aguda y una crisis de confianza &mdash; definidos sobre cinco variables (PIB, tipo de cambio frente al dólar, tipo oficial Selic, inflación y paro). El resultado se expresa en el porcentaje del activo del sistema que incumpliría algún mínimo de capital y en el que quedaría con restricciones para distribuir beneficios por no cubrir el colchón de conservación.</p>
+
+<p>Las cifras cambian mucho de una edición a otra, y es una buena lección sobre leer ejercicios ajenos. En el informe de abril de 2025, en el escenario de crisis de confianza, el 44 % del activo quedaba con restricciones y la necesidad de capital del sistema era el 9,9 % de su patrimonio de referencia. En el de mayo de 2026, con datos de diciembre de 2025, el 68,7 % del activo seguía por encima del 10,5 %, frente al 46 % de la edición anterior, y la necesidad de capital era el 3,1 %, un tercio de la anterior. Antes de citar un resultado del Banco Central do Brasil, hay que decir de qué edición es.</p>
+
+<p><strong>El ICAAP local y la contabilidad.</strong> Los bancos grandes hacen además su propio ICAAP con programa de pruebas de estrés y plan de capital a tres años como mínimo. Y desde el 1 de enero de 2025 provisionan con la Resolución CMN 4.966, un modelo de pérdida esperada por etapas cercano a IFRS 9, con una transición que reconoce el impacto en tramos del 25 % anual. El test macro aplica esa transición dentro del horizonte.</p>
+
+<h4 id="s13-2-5">13.2.5 Chile: la autoevaluación de capital y el Informe de Estabilidad Financiera</h4>
+
+<p><strong>El de la CMF.</strong> La Comisión para el Mercado Financiero exige a cada banco un informe de autoevaluación de patrimonio efectivo (IAPE) con al menos tres años de horizonte y tres escenarios: base, tensión sin mitigación y tensión con mitigación. El banco proyecta con parámetros agregados que fija la CMF y con sus propias estimaciones. En tensión tiene que cumplir al menos el mínimo regulatorio; en el escenario normal, su propio objetivo interno. Mide tres ratios: patrimonio efectivo sobre activos ponderados, capital básico sobre activos ponderados y capital básico sobre activos. Es la familia del ejercicio europeo, con una diferencia útil: el escenario con y sin mitigación permite ver cuánto aportan las acciones de gestión, como en el británico.</p>
+
+<p><strong>El del Banco Central de Chile.</strong> Publica en su Informe de Estabilidad Financiera, semestral, pruebas de tensión del sistema con sus propios modelos, sin resultados por banco. En paralelo, el propio Banco Central ha subido el requerimiento de capital contracíclico del 0,5 % al 1 % de los activos ponderados, con 24 meses para cumplirlo (comunicado de mayo de 2026): no es un resultado de un <i>stress test</i>, pero cambia la pila de requerimientos contra la que se mide la filial.</p>
+
+<h4 id="s13-2-6">13.2.6 Türkiye y Argentina: autoevaluación del capital, hiperinflación y NIC 29</h4>
+
+<p><strong>Türkiye.</strong> Los bancos turcos tienen un programa de <i>stress testing</i> dentro de su proceso de autoevaluación del capital (ISEDES, en sus siglas turcas), regulado desde 2014 y desarrollado por una guía del supervisor bancario, la BDDK, de 2016. Proyecta el banco; los detalles de escenarios, horizonte y métrica no se han podido verificar en fuente primaria. Lo que sí importa, y mucho, es la contabilidad: BBVA aplica la contabilidad de hiperinflación (NIC 29) a sus entidades turcas desde el 1 de enero de 2022, con un impacto estimado, sobre datos de marzo de 2022, de −324 millones de euros en el beneficio atribuido y +19 puntos básicos en el CET1 <i>fully loaded</i> del grupo. Según la prensa, la BDDK habría decidido que los bancos no apliquen esa contabilidad en sus estados locales de 2025. Si es así, la misma Garanti BBVA tiene un balance en las cuentas del grupo y otro en las locales, y probablemente es la mayor diferencia de base contable entre un número del grupo y uno local.</p>
+
+<p><strong>Argentina.</strong> El Banco Central de la República Argentina pide a cada banco un plan de negocios con proyecciones y un informe de autoevaluación del capital, cuyo apartado de pruebas de estrés combina los supuestos macroeconómicos del relevamiento de expectativas del mercado con variables de estrés que fija el propio banco central, según la Comunicación «A» 6646, de 2019, que lo estableció; el texto ordenado vigente no se ha podido verificar. La NIC 29 es obligatoria para las entidades financieras desde los ejercicios iniciados el 1 de enero de 2020 (Comunicación «A» 6849). Y Argentina, recuérdese, ni siquiera aparece en el escenario de la JERS (sección 10.3.2).</p>
+
+<p>Los dos países comparten un problema que no tienen los demás: con inflaciones muy altas, las variables en términos nominales no significan lo mismo que en una economía estable. En el escenario adverso de 2025, el precio de la vivienda en Türkiye sube un 128,7 % nominal en tres años y, sin embargo, cae un 19,3 % frente a la base. Un satélite que lea la variable nominal concluiría que el adverso es un buen escenario para las hipotecas turcas. El capítulo 31 trata cómo se trasladan estas variables.</p>
+
+<h3 id="s13-3">13.3 Lo que no se compara sin traducir</h3>
+
+<h4 id="s13-3-1">13.3.1 Métricas</h4>
+
+<p>Cada ejercicio mide el resultado con su propia ratio, y casi ninguna coincide con la del ejercicio europeo:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Métricas de capital de los ejercicios de las filiales. Las ratios difieren en el numerador, el denominador o los dos.</caption>
+<thead><tr><th>Ejercicio</th><th>Métrica</th><th>Numerador</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>Europeo</td><td>CET1 <i>fully loaded</i></td><td>Capital ordinario de nivel 1</td><td>Sin umbral; tramos de P2G</td></tr>
+<tr><td>Reserva Federal</td><td>CET1, nivel 1, total y apalancamiento</td><td>Capital según las reglas estadounidenses</td><td>4,5 % + SCB</td></tr>
+<tr><td>Banco de Inglaterra</td><td>CET1 y apalancamiento</td><td>Capital según las reglas británicas</td><td>Requerimientos mínimos del banco (2025)</td></tr>
+<tr><td>CNBV y Banco de México</td><td>Índice de capitalización (ICAP)</td><td>Capital neto: capital básico más complementario</td><td>10,5 % y los suplementos que correspondan</td></tr>
+<tr><td>Banco Central do Brasil</td><td>Índice de Basilea, de nivel 1 y de capital principal</td><td>Patrimonio de referencia brasileño</td><td>Mínimos y colchón de conservación</td></tr>
+<tr><td>CMF (Chile)</td><td>Patrimonio efectivo y capital básico sobre activos ponderados y sobre activos</td><td>Patrimonio según las normas chilenas</td><td>Mínimo regulatorio en tensión</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>El matiz que más se olvida es el del numerador. El ICAP mexicano y el índice de Basilea brasileño son ratios de capital total, no de capital ordinario: su numerador incluye instrumentos que el CET1 excluye. Y cada base de capital se calcula con las deducciones de su normativa. Dos ratios del 11 % en México y en el grupo no dicen lo mismo.</p>
+
+<h4 id="s13-3-2">13.3.2 El «10,5 %» de México y el de Brasil</h4>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Leer el mismo número como la misma referencia. En México, el 10,5 % es el índice de capitalización que exige la categoría I de la circular de la CNBV, y el que usa el Banco de México como umbral en sus pruebas. En Brasil, el 10,5 % es el índice de Basilea más el colchón de conservación, sobre el patrimonio de referencia brasileño. Mismo número, distinta métrica y distinta base de capital.</p>
+<p>La confusión se agrava cuando entra el grupo. En el ejercicio europeo de 2025, Banco Santander tocó un mínimo del 10,46 % de CET1 <i>fully loaded</i>. Una presentación que ponga esa cifra junto al «10,5 %» de México o de Brasil sugiere que el grupo estaría por debajo de lo que se exige a sus filiales, y no dice nada: compara capital ordinario con capital total, una métrica sin umbral con un umbral, y un grupo diversificado con un banco local. La regla es que ninguna cifra de capital de otro ejercicio se pone al lado de la del grupo sin una fila que diga qué mide.</p>
+</div>
+
+<h4 id="s13-3-3">13.3.3 Colegios de supervisores</h4>
+
+<p>Lo que el mercado no ve, el supervisor del grupo puede verlo. La CRD prevé colegios de supervisores para los grupos con filiales en varios países: un foro presidido por el supervisor consolidado, el BCE en el caso de Santander y BBVA, en el que los supervisores de las filiales intercambian información y coordinan su trabajo. Los supervisores de países de fuera de la Unión pueden participar si tienen un régimen de confidencialidad equivalente.</p>
+
+<p>Para el <i>stress test</i>, el colegio tiene dos consecuencias. La primera, que el JST puede conocer el resultado del ejercicio local de una filial aunque nadie lo publique, y compararlo con lo que el grupo proyectó para esa misma filial en el ejercicio europeo. La segunda, que los supervisores locales conocen el resultado del grupo para su país. Ninguno de los dos números es privado frente al otro supervisor, y una diferencia que el banco no sepa explicar es una pregunta que llegará, antes o después, por uno de los dos lados. El capítulo 33 trata qué ve el JST que el mercado no ve, y cómo se defiende una diferencia.</p>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Enumerar los seis ejercicios de un gran grupo y decir, para cada uno, quién lo pide, quién proyecta, con qué balance y qué consecuencia tiene.</li>
+<li>Explicar por qué Santander cae 173 puntos básicos en el ejercicio europeo, 90 en su filial estadounidense y 510 en la británica, señalando qué pieza del ejercicio explica cada diferencia.</li>
+<li>Decir qué decide la EBA, qué la JERS, qué el BCE a través del JST y qué el banco, y a quién se dirige cada tipo de pregunta.</li>
+<li>Describir los rasgos estructurales del ejercicio europeo de 2027 (proyección restringida, balance estático, perímetro, modelos admitidos) y los cambios frente a 2025 que afectan al crédito, incluido el riesgo de comparar definiciones distintas entre ejercicios.</li>
+<li>Leer una ficha de resultados, saber cuándo usar la base de datos CSV y comprobar que los datos de crédito cuadran con la cuenta de resultados.</li>
+<li>Convertir una caída de CET1 en un tramo y un rango de P2G, explicar por qué el mismo importe de pérdidas puede no mover la guía o moverla mucho y qué no dice el tramo de un banco.</li>
+<li>Distinguir la evaluación cuantitativa de la cualitativa y explicar por qué la segunda puede acabar en la P2R.</li>
+<li>Describir por sus rasgos el ejercicio local de una filial de fuera de la Unión y traducir su métrica antes de ponerla al lado de la del grupo.</li>
+</ul>
+</div>
+
+<p>La autoevaluación del nivel 2 está en el anexo R6. La Parte III entra en la metodología: primero, en su bloque A, la que se aplica hoy, capítulo a capítulo y al nivel de quien la ejecuta; después, en el bloque B, los retos que siguen abiertos.</p>
+
+<nav class="nav">
+<p><a href="parte-01.html">← Parte I</a> · <a href="index.html">Índice</a> · <a href="parte-03a.html">Parte III-A: La metodología que se aplica hoy →</a></p>
+</nav>
+
+</body>
+</html>

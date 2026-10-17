@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte V — Grupos internacionales</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte V · Nivel 3</p>
+<h1>Avanzada: grupos internacionales y los próximos años</h1>
+<p class="subtitulo">Cómo se organiza el ejercicio de un grupo con filiales fuera de la Unión, cómo se gobiernan sus datos, por qué dos números del mismo grupo no coinciden y qué viene.</p>
+
+<p class="lead">Esta parte responde a la pregunta que motivó el manual: ¿cómo se compara el número que sale de Santander España con el de Santander México? La respuesta exige primero entender cómo se monta el ejercicio de un grupo con filiales en varios continentes &mdash; quién proyecta cada país, cómo se traslada el escenario, qué hace el tipo de cambio, de dónde salen los datos &mdash;, y después un método para comparar que no se quede en un cociente. Las cifras de bancos reales son las del ejercicio europeo de 2025, publicadas por la EBA el 1 de agosto de 2025; las cuentas están en los anexos S3 y S4.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap31">31. Arquitectura de un ejercicio de grupo <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Un grupo como Santander o BBVA proyecta en el ejercicio europeo carteras de una decena de países, con modelos, sistemas y equipos en cada uno. Este capítulo trata las decisiones de arquitectura que lo hacen posible y los problemas que aparecen en las juntas: el escenario fuera de la Unión, el tipo de cambio, el perímetro, la contabilidad y los datos.</p>
+
+<h3 id="s31-1">31.1 Matriz y filiales</h3>
+
+<h4 id="s31-1-1">31.1.1 Quién proyecta cada país y con qué modelos</h4>
+
+<p>Hay dos modelos de organización y casi todos los grupos están en algún punto intermedio. En el <strong>centralizado</strong>, la matriz proyecta todas las carteras con sus modelos y la filial aporta datos. En el <strong>federado</strong>, cada filial proyecta sus carteras con sus modelos y la matriz consolida y revisa. El primero da coherencia y pierde conocimiento local; el segundo, al revés. Para un grupo cuyas filiales son bancos grandes con sus propios equipos de riesgos y su propio supervisor, el federado es casi inevitable, y la pregunta pasa a ser cuánto revisa la matriz.</p>
+
+<p>La regla que el JST aplica es simple: en el ejercicio europeo el responsable es el grupo, aunque el modelo sea de la filial (sección 30.1.4). Por eso el modelo federado necesita tres piezas de la matriz: criterios comunes escritos (tratamiento de la pandemia, elección de <i>benchmark</i>, ajustes), una revisión de cada satélite de filial con las mismas pruebas que los de la matriz, y un control de coherencia entre filiales antes de cada envío.</p>
+
+<h4 id="s31-1-2">31.1.2 Satélites locales frente a satélites del grupo</h4>
+
+<p>La filial tiene sus satélites para su ejercicio local, su ICAAP y su IFRS 9; el grupo puede tener otros para la misma cartera. Usar los locales en el ejercicio europeo aprovecha su conocimiento de la cartera y asegura la coherencia con los números que la filial presenta a su supervisor (capítulo 25). Usar los del grupo asegura la homogeneidad entre países. La solución habitual es usar el satélite local cuando supera las pruebas del grupo, y el del grupo o el <i>benchmark</i> cuando no, con la decisión documentada cartera a cartera. Lo que no funciona es usar el local en el ejercicio local y otro en el europeo sin poder explicar la diferencia.</p>
+
+<h4 id="s31-1-3">31.1.3 Consolidación y ajustes de grupo</h4>
+
+<p>Las proyecciones de las filiales se integran en las plantillas del grupo con su perímetro y sus eliminaciones: las exposiciones entre entidades del grupo desaparecen en el consolidado, pero las de una filial frente a la matriz se tratan en condiciones de mercado (párrafo 126). Hay además ajustes que solo existen a nivel de grupo: la homogeneización de criterios contables cuando la filial reporta localmente con otra norma, el tratamiento de los intereses minoritarios en el capital y la conversión a euros (sección 31.3). Cada ajuste de consolidación que cambia una cifra de la filial es una fuente de diferencias con su reporting local y, por tanto, una pregunta posible (sección 31.4.6).</p>
+
+<h3 id="s31-2">31.2 El escenario fuera de la UE</h3>
+
+<h4 id="s31-2-1">31.2.1 Traslación de las variables JERS a cada geografía</h4>
+
+<p>El escenario trae para las grandes geografías de los grupos españoles el PIB, el paro, la inflación, la vivienda, el inmobiliario comercial y los tipos a largo, con un base que fuera de la Unión sale del FMI (sección 10.3). Trasladarlo a cada filial significa tres cosas: llevar las variables nacionales a las que usan los satélites locales (regionales, sectoriales, de renta), con ecuaciones puente estimadas y documentadas; derivar las que faltan; y hacerlo una sola vez para todo el grupo, de modo que todos los ejercicios que usan el escenario lo usen igual (sección 25.2).</p>
+
+<p>Antes de trasladar conviene medir la severidad, porque es la primera pregunta que se hace al comparar países. El anexo S3 lo hace para las geografías de Santander y BBVA: en acumulado, México pierde un 6,9 % de PIB en tres años y España un 4,1 %; frente al base, la distancia se estrecha, con un −11,9 % para México y un −9,8 % para España, y el paro sube algo menos en México (+5,3 puntos) que en España (+5,7). Türkiye es la más severa en desviación (−14,8 %), y Brasil y Chile están en torno al −9 % y −10 % (cifras publicadas por la JERS; recalculadas desde las tasas anuales redondeadas, difieren como mucho en una décima).</p>
+
+<h4 id="s31-2-2">31.2.2 Lo que falta: bolsa, <i>swaps</i>, Argentina</h4>
+
+<p>La sección 10.3.2 listó los huecos: la bolsa solo viene para economías desarrolladas, el sol peruano no tiene curva propia y Argentina no aparece. Para el riesgo de mercado la metodología prohíbe extrapolar factores y obliga a usar el choque más cercano; para el crédito, el banco construye su traslación y la defiende.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Argentina, con un base propio supuesto (PIB del 3 % anual y paro del 7 %, ilustrativos), y tres traslaciones posibles (anexo S3):</p>
+<ul>
+<li><strong>La fila «resto del mundo» tal cual:</strong> PIB de −3,2 / −1,5 / +1,5 % y paro del 15,6 / 16,1 / 15,4 %. El paro de esa fila reproduce casi exactamente el de Türkiye: aplicarlo a Argentina mezcla un nivel de paro ajeno con la economía local.</li>
+<li><strong>La desviación del resto del mundo sobre el base propio:</strong> PIB de −4,1 / −2,7 / +0,6 % y paro del 12,7 / 13,5 / 12,9 %.</li>
+<li><strong>La desviación de América Latina sobre el base propio:</strong> PIB de −2,0 / −0,1 / +1,3 % y paro del 10,0 / 11,2 / 11,4 %.</li>
+</ul>
+<p>Entre la segunda y la tercera hay dos puntos de PIB el primer año y casi dos de paro: con los satélites del manual, varios puntos de tasa de impago en consumo. La metodología no dice cuál usar. La que se defiende mejor es la que aplica una desviación (no un nivel) de la región más parecida en estructura y en historia de crisis, documentada, con la sensibilidad a la alternativa; y en Argentina, con su historia de inflación y devaluaciones, ninguna de las dos recoge el riesgo de tipos e inflación, que hay que añadir con criterio propio.</p>
+</div>
+
+<h4 id="s31-2-3">31.2.3 Türkiye en desviación, no en nominal</h4>
+
+<p>Con inflaciones muy altas, las variables nominales del escenario dicen lo contrario de lo que significan. En el adverso de 2025, el precio de la vivienda en Türkiye sube un 128,7 % nominal en tres años y, sin embargo, cae un 19,3 % frente al base, que implícitamente sube un 183 % (anexo S3). Un satélite de LGD hipotecaria que lea el precio nominal concluiría que las garantías se revalorizan en plena crisis. La regla es trabajar en términos reales o en desviación frente al base para todas las variables de precio de las economías con inflación alta, y comprobar el signo de cada traslación antes de proyectar. Argentina tiene el mismo problema, agravado por la falta de fila.</p>
+
+<h4 id="s31-2-4">31.2.4 Código</h4>
+
+<div class="bloque b-codigo">
+<span class="etiqueta">Código</span>
+<p>Anexo S3 (<code>anexos/s3_traslacion.py</code>): severidad por país en acumulado y en desviación, la vivienda turca en nominal y frente al base, tres traslaciones para Argentina y la asimetría del tipo de cambio en la filial del juguete. Cambia el base supuesto de Argentina y observa cómo cambia la traslación.</p>
+</div>
+
+<h3 id="s31-3">31.3 Divisa, perímetro y contabilidad</h3>
+
+<h4 id="s31-3-1">31.3.1 La asimetría del tipo de cambio en la práctica</h4>
+
+<p>En el ejercicio europeo, los saldos de balance y los activos ponderados de crédito se convierten al tipo de cambio de la fecha de referencia y no se mueven en todo el horizonte; el margen de intereses, las comisiones y los gastos sí recogen la senda de tipo de cambio del escenario (párrafo 35 y tabla 1). El crédito no se escapa: el tipo de cambio entra en sus satélites a través de la macroeconomía local y, para los préstamos en divisa, a través de la regla del 5 % (sección 15.4.2). Como el euro no se mueve frente al dólar ni a la libra, las filiales de Estados Unidos y del Reino Unido no tienen choque cambiario; las latinoamericanas y la turca, sí.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>En el adverso de 2025, el peso se deprecia frente al euro un 8,9 %, un 7,3 % y un 6,0 % de media en los tres años. Si el margen de la filial del juguete, 87 millones de euros al año al tipo de cierre, se genera en pesos, en euros queda en 79,9, 81,1 y 82,1 millones: 18,0 millones menos en tres años. Sobre los activos ponderados de partida de la filial, que no se mueven con el tipo de cambio, son 73 puntos básicos de CET1 (anexo S3). Las pérdidas de crédito de la cartera en pesos no se convierten con la senda, porque los saldos y sus provisiones están al tipo de cierre; el margen que las absorbe, sí. El efecto es pequeño frente a la caída de la filial (523 puntos básicos), pero aparece en el ejercicio del grupo y no en el local, y es una de las piezas del puente del capítulo 32.</p>
+</div>
+
+<h4 id="s31-3-2">31.3.2 Polonia: un cambio de perímetro real entre 2025 y 2027</h4>
+
+<p>Erste cerró la compra del 49 % de Santander Bank Polska el 9 de enero de 2026, por unos 7.000 millones de euros, y Santander se quedó con el 9,7 % tras esa venta y una colocación previa; la operación sumó unos 95 puntos básicos de CET1 al grupo (nota de prensa de Santander, enero de 2026). Como la venta se cerró antes del 31 de diciembre de 2026, el ejercicio de 2027 parte ya sin esa filial: no hace falta ningún ajuste pro forma (sección 11.1.3). Según la prensa, Santander conserva Santander Consumer Bank en Polonia, así que el país no desaparece del todo del perímetro.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>En el ejercicio de 2025, el bloque «Polonia» de la ficha de Santander tenía 52.704 millones de exposición, el 3,8 % del grupo, con un aumento de provisiones en el adverso del 3,42 %: 1.803 millones. Sin ese bloque, la tasa del grupo pasaría del 3,19 % al 3,18 %; en importe, son unos 1.800 millones de pérdidas adversas que no estarán en 2027, del orden de 20 puntos básicos de CET1 del grupo después de impuestos, antes de contar el margen y los activos ponderados que también salen (<code>anexos/cifras_parte05.py</code>). Dos cautelas: el bloque de país agrupa toda la exposición a contrapartes polacas, no solo la de la filial vendida; y el resultado de 2027 se moverá también por el escenario, el punto de partida y los cambios metodológicos. Cualquier comparación entre los dos ejercicios del grupo tiene que hacerse con el perímetro ajustado y diciendo que lo está.</p>
+</div>
+
+<h4 id="s31-3-3">31.3.3 NIC 29: Türkiye y Argentina</h4>
+
+<p>En las economías hiperinflacionarias, IFRS exige reexpresar los estados financieros por la inflación (NIC 29). BBVA lo aplica a sus entidades turcas desde el 1 de enero de 2022, y en Argentina es obligatorio para las entidades financieras desde los ejercicios iniciados en 2020 (sección 13.2.6). Para el ejercicio europeo, la reexpresión afecta al punto de partida y a la cuenta de resultados del grupo: la pérdida monetaria por mantener activos monetarios netos en una moneda que se deprecia es un resultado que no existe en una economía estable. Para el crédito, el efecto más directo está en la comparación: las tasas de pérdida de la filial en las cuentas del grupo y en las locales pueden partir de bases contables distintas, sobre todo si el supervisor local no aplica la contabilidad de inflación, como habría decidido el turco para 2025 según la prensa. Antes de comparar una cifra local con una del grupo, hay que saber con qué base contable está cada una.</p>
+
+<h4 id="s31-3-4">31.3.4 «¿Por qué México pesa más en pérdidas que en balance?»</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«México representa el 16,8 % de la exposición de crédito del grupo en el punto de partida y el 41,7 % del aumento de provisiones del adverso. Explique los factores de esta concentración y su coherencia con el perfil de riesgo de la filial» (cifras de BBVA en el ejercicio de 2025; en Santander, el 4,7 % y el 8,9 %; anexo S4).</dd>
+<dt>Qué hay detrás</dt>
+<dd>La concentración no es un error: México tiene más consumo y tarjetas, PD de partida más altas y un base que ya consume mucho. Lo que el supervisor comprueba es si el banco sabe descomponerla y si la proyección mexicana es coherente con lo que la filial presenta a su propio supervisor.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>El puente del capítulo 32 aplicado al grupo: cuánto de la concentración viene de la mezcla de carteras, cuánto del nivel de riesgo de partida (lo que el base ya consume) y cuánto de la sensibilidad al escenario. Con datos de 2025, la mayor parte viene de las dos primeras, no de que el escenario sea más duro para México. Y una conciliación con el ejercicio local de la filial, en los términos del capítulo 25.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Explicarlo solo por la severidad del escenario mexicano. Medido frente al base, el escenario no es mucho más duro para México que para España (sección 31.2.1), y el supervisor lo sabe.</dd>
+</dl>
+</div>
+
+<h3 id="s31-4">31.4 Datos repartidos</h3>
+
+<h4 id="s31-4-1">31.4.1 Sistemas, definiciones y calendarios locales; residencia de datos</h4>
+
+<p>Cada filial tiene sus sistemas, sus definiciones (de impago, de reestructuración, de segmento) y su calendario de cierre. El ejercicio exige llevar todo a las definiciones del grupo y de la EBA, en plazo y con datos a nivel de préstamo cuando el satélite lo requiere. En algunos países la normativa de protección o de residencia de datos limita qué puede salir del país y en qué forma, lo que obliga a calcular localmente y enviar agregados. El diseño del flujo de datos de cada filial &mdash; qué se calcula allí, qué se envía, con qué controles &mdash; es una de las primeras decisiones de arquitectura y de las más difíciles de cambiar.</p>
+
+<h4 id="s31-4-2">31.4.2 GAAP locales frente a IFRS 9</h4>
+
+<p>La filial mexicana provisiona localmente con la circular de la CNBV (sección 13.2.3); la brasileña, con la Resolución CMN 4.966; la turca y la argentina, con sus normas y su tratamiento de la inflación. El grupo consolida con IFRS 9. Para el ejercicio europeo, el punto de partida tiene que ser el de IFRS 9 del grupo, no el local, y los parámetros de partida tienen que salir del modelo de provisiones que el grupo usa para consolidar. Si la filial solo tiene modelos locales, el grupo necesita una capa de traducción documentada, y esa capa es una de las primeras cosas que mira el JST.</p>
+
+<h4 id="s31-4-3">31.4.3 RDARR: la guía de 2024 incluye el <i>stress test</i>; prioridades 2026-2028</h4>
+
+<p>La guía del BCE sobre agregación de datos de riesgo y presentación de informes, de mayo de 2024, incluye expresamente en su perímetro los envíos al ejercicio europeo y a las pruebas del SREP, y considera que un informe mensual o trimestral que tarda más de veinte días hábiles no permite reaccionar a tiempo. El BCE la ha situado dentro de una de sus dos prioridades para 2026-2028, ha dicho que el progreso de los bancos sigue siendo lento y anuncia inspecciones específicas y un proceso de remediación y escalado claramente definido. Para un grupo con filiales lejanas, eso convierte el flujo de datos del <i>stress test</i> en parte de una evaluación supervisora más amplia: lo que se descubre en el ejercicio sobre los datos de una filial se lee como evidencia sobre la capacidad de agregación del grupo (sección 12.2.2).</p>
+
+<h4 id="s31-4-4">31.4.4 Linaje de la filial al CSV de la EBA y conciliaciones previas</h4>
+
+<p>Para cada cifra que el grupo envía de una filial, alguien tiene que poder seguir el camino hasta su origen: del CSV publicado por la EBA a la plantilla del grupo, de la plantilla a la consolidación, de la consolidación al reporting de la filial y de ahí a sus sistemas. Ese linaje, documentado, permite contestar en horas una pregunta como la del caso siguiente, y permite hacer antes del envío las conciliaciones que el supervisor hará después: plantilla frente a FINREP consolidado, contribución de la filial frente a su reporting local, y tipo de cambio aplicado frente al de cierre.</p>
+
+<h4 id="s31-4-5">31.4.5 Puntos de partida desde FINREP y COREP</h4>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>La propuesta de la EBA de tomar los puntos de partida de crédito directamente de FINREP y COREP en un ciclo posterior al de 2027 (sección 11.3.5) tiene para un grupo con filiales fuera de la Unión una consecuencia propia: el FINREP consolidado incluye la contribución de cada filial después de todos los ajustes de consolidación y homogeneización, y cualquier diferencia entre esa contribución y lo que la filial reporta localmente dejará de ser un problema interno para ser un dato visible para el supervisor. Madurez: propuesta en consulta, pendiente de adopción.</p>
+<p>El proyecto que genera es la conciliación permanente de cada filial con su contribución al FINREP del grupo, mantenida cada trimestre y no solo en los años de ejercicio, con las diferencias explicadas por tipo (perímetro, norma contable, tipo de cambio, fecha).</p>
+</div>
+
+<h4 id="s31-4-6">31.4.6 «Su dato de México no cuadra con su reporting»</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«La exposición en stage 3 de la cartera de consumo de México en su punto de partida es un 12 % inferior a la que resulta de los estados financieros publicados por la filial, convertidos al tipo de cierre. Explique la diferencia».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor ha hecho una conciliación sencilla con datos públicos y ha encontrado una diferencia. Puede ser legítima &mdash; la filial publica con norma local y el grupo consolida con IFRS 9; las definiciones de etapa no coinciden del todo; hay carteras que el grupo clasifica de otra forma &mdash; o puede ser un error. No lo sabe, y la rapidez y la claridad de la respuesta le dirán tanto como su contenido.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>La conciliación hecha de antemano (sección 31.4.4), con cada diferencia cuantificada por tipo: norma contable, definición de etapa, perímetro, tipo de cambio. Si la mayor parte es de norma contable, enseñar la capa de traducción entre la provisión local y la IFRS 9 del grupo. Si queda algo sin explicar, decirlo y corregirlo.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Pedir a la filial que lo explique y reenviar su respuesta. El JST pregunta al grupo, y una respuesta que muestra que el grupo no sabe de dónde salen los datos de su filial es la confirmación del problema de agregación del que trata la sección 31.4.3.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap32">32. Comparabilidad: del cociente al puente <span class="nivel n3">N3</span></h2>
+
+<p class="lead">¿Por qué México cuesta más que España? La respuesta rápida es un cociente: en el ejercicio de 2025, la pérdida de México fue unas 3,2 veces la de España en Santander y en BBVA. Este capítulo explica por qué ese cociente no sirve y lo sustituye por un puente en cuatro pasos que sí explica la distancia. Todas las cifras son las del ejercicio europeo de 2025, con la métrica de la sección 11.4.2 (aumento del stock de provisiones sobre la exposición de partida), y salen del anexo S4.</p>
+
+<h3 id="s32-1">32.1 La pregunta del JST</h3>
+
+<h4 id="s32-1-1">32.1.1 ¿Por qué Santander México no da lo mismo en el ejercicio europeo que ante la CNBV?</h4>
+
+<p>La primera versión de la pregunta compara dos ejercicios de la misma filial. La respuesta está en las piezas de la sección 1.3, que difieren en todo: escenario (JERS con base del FMI frente al del supervisor mexicano), balance (estático frente a plan de negocio), contabilidad (IFRS 9 del grupo frente a la provisión local), métrica (CET1 <i>fully loaded</i> del grupo frente al índice de capitalización de la filial) y conversión (euros con la asimetría del tipo de cambio frente a pesos). Es el paso 4 del puente.</p>
+
+<h4 id="s32-1-2">32.1.2 ¿Por qué México cuesta más que España, y BBVA México más que Santander México?</h4>
+
+<p>La segunda versión compara países y bancos dentro del mismo ejercicio. Es más difícil de lo que parece, porque el ejercicio europeo usa las mismas reglas para todos y la tentación es leer la diferencia directamente como diferencia de riesgo. Los pasos 1 a 3 del puente la descomponen.</p>
+
+<h4 id="s32-1-3">32.1.3 El cociente que coincide por casualidad</h4>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Con todas las carteras y en el adverso, la tasa de pérdida de México dividida por la de España da 3,24 en Santander (6,00 % entre 1,85 %) y 3,18 en BBVA (13,67 % entre 4,30 %). La coincidencia invita a una tesis: «México cuesta 3,2 veces España». No resiste un cambio de métrica. En el base, los cocientes son 3,03 y 4,69. En adverso menos base, 3,56 y 1,66. Con hogares y empresas, 2,65 y 2,59. La coincidencia de los dos bancos solo aparece con una cartera y un escenario concretos, y es en parte casual. Usar un cociente así en una presentación al consejo o en una respuesta al JST es invitar a que alguien pruebe otra métrica y lo desmonte en un minuto (anexo S4).</p>
+</div>
+
+<h3 id="s32-2">32.2 Paso 1: normalizar la severidad</h3>
+
+<h4 id="s32-2-1">32.2.1 Adverso menos base</h4>
+
+<p>La pérdida del adverso mezcla dos cosas: lo que la cartera pierde en cualquier caso, que mide el base, y lo que añade el escenario. Para comparar la severidad del escenario entre países hay que mirar la segunda: adverso menos base. El juguete ya lo hizo en la sección 8.2.2.</p>
+
+<h4 id="s32-2-2">32.2.2 El escenario de la JERS para México y España en desviación</h4>
+
+<p>Medido frente al base en 2027, el escenario es más duro para México en PIB (−11,9 % frente a −9,8 %) y en inmobiliario comercial (−42,1 % frente a −28,8 %), y menos duro en paro (+5,3 frente a +5,7 puntos) y en vivienda (−22,1 % frente a −30,1 %). No es un escenario tres veces más severo para México: en las variables que mueven el crédito a hogares, es parecido o más suave.</p>
+
+<h4 id="s32-2-3">32.2.3 El base ya consume mucho en México</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Todas las carteras, ejercicio de 2025 (anexo S4):</p>
+<div class="tabla-scroll">
+<table>
+<caption>Aumento de provisiones sobre la exposición de partida. Fuente: base de datos de la EBA, 1 de agosto de 2025.</caption>
+<thead><tr><th></th><th>Base</th><th>Adverso</th><th>Adverso menos base</th></tr></thead>
+<tbody>
+<tr><td>Santander España</td><td>1,13 %</td><td>1,85 %</td><td>0,73 pp</td></tr>
+<tr><td>Santander México</td><td>3,41 %</td><td>6,00 %</td><td>2,58 pp</td></tr>
+<tr><td>BBVA España</td><td>2,16 %</td><td>4,30 %</td><td>2,14 pp</td></tr>
+<tr><td>BBVA México</td><td>10,12 %</td><td>13,67 %</td><td>3,55 pp</td></tr>
+</tbody>
+</table>
+</div>
+<p>En BBVA México, el base ya consume el 10,12 % de la exposición en tres años: tres cuartas partes de la pérdida del adverso estaban en el base. Lo que el escenario añade en México (3,55 puntos) es 1,66 veces lo que añade en España, no 3,2. En Santander la proporción es mayor (3,56), porque su base español es muy bajo. La mayor parte de la distancia entre países no la pone el escenario, sino el nivel de riesgo de partida que el base ya refleja.</p>
+</div>
+
+<h3 id="s32-3">32.3 Paso 2: limpiar el denominador</h3>
+
+<h4 id="s32-3-1">32.3.1 Hogares y empresas, sin soberanos ni bancos centrales</h4>
+
+<p>La exposición de un país incluye deuda pública, bancos centrales y entidades de crédito, con pérdidas casi nulas en el ejercicio. Su peso varía mucho entre países y bancos, y diluye la tasa de forma distinta en cada uno. Para comparar riesgo de crédito al sector privado hay que restringirse a hogares y empresas.</p>
+
+<h4 id="s32-3-2">32.3.2 Del 50,8 % al 82,3 %</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>El peso de hogares y empresas en la exposición va del 50,8 % en Santander España al 82,3 % en BBVA México (63,2 % en Santander México, 64,3 % en BBVA España). La mitad de la exposición española de Santander es sector público y entidades, con pérdida casi nula, que rebaja su tasa a la mitad. Con hogares y empresas, la tasa adversa es del 3,45 % en Santander España y del 9,15 % en Santander México; del 6,38 % en BBVA España y del 16,53 % en BBVA México. Los cocientes México / España bajan a 2,65 y 2,59 (anexo S4). Limpiar el denominador no cambia la conclusión de que México pierde más, pero cambia cuánto: casi una quinta parte del «3,2» era composición del balance, no riesgo de crédito.</p>
+</div>
+
+<h3 id="s32-4">32.4 Paso 3: separar mezcla e intensidad</h3>
+
+<h4 id="s32-4-1">32.4.1 La descomposición por segmentos</h4>
+
+<p>Dentro de hogares y empresas, la diferencia entre dos tasas puede venir de que las carteras tienen distinta composición (más consumo, menos hipotecas) o de que el mismo segmento pierde más. La descomposición clásica separa las dos: el efecto <strong>mezcla</strong> es la diferencia de pesos por segmento valorada a las tasas de uno de los dos, y el efecto <strong>intensidad</strong> es la diferencia de tasas dentro de cada segmento, valorada a los pesos del otro. Los dos suman la diferencia total. Con los datos de la EBA se pueden separar tres segmentos: hipotecas, resto de minorista (consumo, tarjetas, automóvil y pymes minoristas) y empresas.</p>
+
+<h4 id="s32-4-2">32.4.2 México: −0,26 puntos de mezcla, +7,64 de intensidad</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<div class="tabla-scroll">
+<table>
+<caption>BBVA frente a Santander en México, hogares y empresas, adverso del ejercicio de 2025. Pesos sobre la exposición de hogares y empresas; tasas de aumento de provisiones sobre la exposición de cada segmento (anexo S4).</caption>
+<thead><tr><th>Segmento</th><th>Peso Santander</th><th>Peso BBVA</th><th>Tasa Santander</th><th>Tasa BBVA</th></tr></thead>
+<tbody>
+<tr><td>Hipotecas</td><td>24,4 %</td><td>18,8 %</td><td>3,53 %</td><td>4,71 %</td></tr>
+<tr><td>Resto minorista</td><td>37,7 %</td><td>37,3 %</td><td>21,55 %</td><td>37,67 %</td></tr>
+<tr><td>Empresas</td><td>37,9 %</td><td>43,9 %</td><td>0,41 %</td><td>3,61 %</td></tr>
+<tr><td><strong>Total</strong></td><td>100 %</td><td>100 %</td><td>9,15 %</td><td>16,53 %</td></tr>
+</tbody>
+</table>
+</div>
+<p>BBVA México pierde 7,39 puntos más que Santander México. La mezcla aporta −0,26: BBVA tiene algo menos de hipotecas y más empresas, y con las tasas de Santander eso apenas cambia nada. La intensidad aporta +7,64: el resto minorista de BBVA pierde un 37,67 % frente a un 21,55 %, con un peso casi idéntico en los dos bancos (37,3 % frente a 37,7 %), y sus empresas pierden un 3,61 % frente a un 0,41 %. En España el patrón se repite: de 2,93 puntos de diferencia, −0,24 son mezcla y +3,17 intensidad.</p>
+<p>La conclusión contradice la explicación más habitual. La diferencia entre los dos bancos no viene de que uno tenga más consumo que el otro, sino de que el mismo segmento pierde mucho más en uno que en otro. Con una cautela: dentro del «resto minorista» puede quedar mezcla de producto (tarjetas frente a nómina, automóvil frente a consumo) que las plantillas de la EBA no separan, así que una parte de lo que aquí es intensidad podría ser mezcla a un nivel más fino.</p>
+</div>
+
+<h4 id="s32-4-3">32.4.3 «La misma cartera, el doble de pérdida»</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>En el análisis horizontal del ejercicio: «La pérdida acumulada de su cartera minorista no hipotecaria en México en el adverso es aproximadamente la mitad de la de su principal competidor en el país, con una composición de cartera comparable. Explique».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El JST ha hecho la descomposición del paso 3 y ha llegado a la conclusión de esta sección: no es mezcla. Quedan tres explicaciones: la cartera es de mejor calidad dentro del mismo segmento; el producto es distinto a un nivel que las plantillas no ven; o el método es distinto (satélite propio frente a <i>benchmark</i>, ajustes, parámetros de partida). Con datos públicos no se puede separar la tercera, y es la que le interesa.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Bajar un nivel de detalle con datos propios: composición del resto minorista por producto (tarjetas, consumo con nómina, automóvil, pymes), tasas de mora observadas por producto frente a las del sistema publicadas por el supervisor local, PD de partida y sensibilidad del satélite frente al <i>benchmark</i>. Si la diferencia se explica por producto y calidad, la tabla lo demuestra. Si parte se explica por método, decirlo y cuantificarlo.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Atribuirlo a la mezcla de cartera sin haber hecho la descomposición. El supervisor la ha hecho, y la respuesta le confirma que el banco no conoce su posición.</dd>
+</dl>
+</div>
+
+<h3 id="s32-5">32.5 Paso 4: traducir la mecánica europea a la local</h3>
+
+<p>Los pasos 1 a 3 comparan dentro del ejercicio europeo. El cuarto compara el ejercicio europeo con el local de la misma filial, y es una traducción pieza a pieza.</p>
+
+<h4 id="s32-5-1">32.5.1 Balance estático frente a plan de negocio</h4>
+
+<p>El ejercicio europeo congela el balance; el de la CNBV proyecta el plan de negocio, dividendos incluidos, al menos nueve trimestres. Como mostró el anexo S6 con la cartera del juguete, el crecimiento puede aumentar la pérdida en importe (el crédito nuevo también entra en impago) aunque reduzca la tasa sobre una exposición mayor, y el vencimiento con renovación más selectiva la reduce. El sentido del efecto depende del plan.</p>
+
+<h4 id="s32-5-2">32.5.2 IFRS 9 frente a PI × SP × EI y NIF C-16</h4>
+
+<p>La provisión local mexicana se calcula por etapas con probabilidad de incumplimiento, severidad de la pérdida y exposición, con pérdida a vida en la etapa 2 y metodologías estándar o internas basadas en la NIF C-16 (sección 13.2.3). La lógica es cercana a IFRS 9, pero los parámetros, los criterios de etapa y la previsión perfecta del ejercicio europeo no tienen por qué coincidir. Lo previsible es que el ejercicio local parta de la provisión local; si es así, el punto de partida ya es distinto antes de proyectar nada.</p>
+
+<h4 id="s32-5-3">32.5.3 CET1 <i>fully loaded</i> frente a ICAP; sin acciones frente a Plan de Acción Preventivo</h4>
+
+<p>La métrica europea es la caída del CET1 del grupo; la local, el índice de capitalización de la filial frente al 10,5 % y la categoría I, trimestre a trimestre (sección 13.3). En el europeo no hay acciones de gestión; en el local, si la filial incumple, presenta un Plan de Acción Preventivo. Una filial que pierde mucho en el europeo puede cumplir holgadamente en el local, y al revés, sin que ninguno de los dos esté mal.</p>
+
+<h4 id="s32-5-4">32.5.4 Base FMI frente a escenario por oficio; tipo de cambio de cierre frente a senda</h4>
+
+<p>El base del ejercicio europeo para México es la previsión del FMI; el escenario local lo fija la CNBV por oficio, con su propio base y su propio adverso (sección 10.3.1). Y en el europeo la filial se convierte a euros con la asimetría de la sección 31.3.1: saldos al tipo de cierre, margen con la senda del escenario. En el local, todo está en pesos.</p>
+
+<h4 id="s32-5-5">32.5.5 Código</h4>
+
+<div class="bloque b-codigo">
+<span class="etiqueta">Código</span>
+<p>Anexo S4 (<code>anexos/s4_puente.py</code>): los pasos 1 a 3 del puente con los datos de la EBA de 2025 para Santander y BBVA en España y México: cocientes, severidad neta, denominador y descomposición de mezcla e intensidad, más el peso de México en exposición y en pérdidas. El paso 4 se ilustra con la cartera sintética del anexo S6, porque no hay números locales publicados. Para regenerar los datos desde los ficheros CSV de la EBA, ver <code>herramientas/validacion_f1/</code>.</p>
+</div>
+
+<h3 id="s32-6">32.6 Por qué la comparación local es sintética</h3>
+
+<h4 id="s32-6-1">32.6.1 Ningún número local publicado por banco</h4>
+
+<p>Ni Santander México ni BBVA México publican el resultado de su ejercicio ante la CNBV. Santander México dejó de cotizar en 2023 (la CNBV canceló su inscripción el 12 de mayo de 2023) y Banco Santander pasó a tener prácticamente el 100 % tras las ofertas de ese año; de BBVA México solo hay una frase cualitativa de su casa de bolsa sobre niveles superiores a los mínimos. El Banco de México publica distribuciones del sistema, no bancos. Por eso el paso 4 del puente no se puede hacer con datos públicos: el manual lo ilustra con la cartera sintética del anexo S6, y en un proyecto se hace con los datos internos de la filial.</p>
+
+<h4 id="s32-6-2">32.6.2 Otros contrastes del mismo grupo: SHUSA y Santander UK</h4>
+
+<p>Donde sí hay resultados locales publicados es en Estados Unidos y el Reino Unido (sección 9.2.2): Santander Holdings USA cae 90 puntos básicos en el ejercicio de la Fed de 2026 y Santander UK 510 en el del Banco de Inglaterra de 2025, frente a los 173 del grupo en el europeo de 2025. El mismo puente se puede hacer ahí con más datos, y conviene tenerlo hecho: es el ejemplo público más claro de que tres supervisores miden el mismo grupo con tres reglas distintas, y de que el número solo dice algo con su puente al lado.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap33">33. Cómo compara el supervisor y cómo se defiende un número <span class="nivel n3">N3</span></h2>
+
+<p class="lead">El supervisor compara con más información que nadie: tiene los envíos de todos los bancos, sus <i>benchmarks</i>, el resultado local de las filiales a través de los colegios y la historia de cada banco en ciclos anteriores. Este capítulo trata qué ve, cómo compara y cómo se defiende una diferencia.</p>
+
+<h3 id="s33-1">33.1 El análisis horizontal</h3>
+
+<p>El JST no compara a un banco con la media del ejercicio, sino con pares: bancos con el mismo modelo de negocio, la misma geografía y la misma cartera. Para una filial mexicana, los pares son los otros bancos del ejercicio con exposición relevante en México; para una cartera de consumo, las carteras de consumo de los demás. Y compara parámetro a parámetro: punto de partida, sensibilidad, LGD, migración a stage 2, pérdida acumulada, siempre frente al <i>benchmark</i> y frente a los pares.</p>
+
+<p>Ve además lo que el mercado no ve. Tiene el detalle de las plantillas, no solo la ficha publicada; tiene las respuestas del QA de todos los bancos; puede conocer el resultado del ejercicio local de las filiales a través de los colegios de supervisores (sección 13.3.3); y tiene la historia de los ciclos anteriores de cada banco, incluidos los ajustes que hizo después de cada ronda. Un banco que prepara su defensa solo con los datos públicos va con menos información que su interlocutor.</p>
+
+<h3 id="s33-2">33.2 Explicar una diferencia en cuatro frases</h3>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>Cualquier diferencia frente a un par o frente al <i>benchmark</i> se puede explicar en cuatro frases, y si no se puede, es que no se entiende todavía:</p>
+<ol>
+<li><strong>Cuánto:</strong> la diferencia en la métrica que usa el supervisor, con la misma cartera y el mismo denominador.</li>
+<li><strong>De dónde:</strong> su descomposición en punto de partida, severidad neta, mezcla e intensidad (capítulo 32).</li>
+<li><strong>Por qué:</strong> la causa de la parte principal, con el dato que la demuestra.</li>
+<li><strong>Qué se hace:</strong> se defiende, se corrige o se corrige en parte, con su efecto.</li>
+</ol>
+<p>La disciplina de las cuatro frases obliga a hacer el trabajo antes de la reunión. Una explicación que necesita veinte transparencias suele estar escondiendo que falta la tercera frase.</p>
+</div>
+
+<h3 id="s33-3">33.3 «Sus pares en México pierden más»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«En el adverso, la tasa de pérdida de sus empresas en México es del 0,41 %, frente a una mediana de sus pares en el país varias veces superior. El 94 % de esa cartera se proyecta con modelos IRB propios. Justifique» (la cifra y el peso IRB son los de Santander México en el ejercicio de 2025; anexo S4 y nota de datos públicos).</dd>
+<dt>Qué hay detrás</dt>
+<dd>Una cartera de empresas que pierde un 0,41 % en tres años de escenario adverso, con solo 0,14 puntos por encima del base, es una cartera cuyo modelo apenas responde o una cartera excepcional. El alto peso de modelos propios hace que el supervisor mire el modelo antes que la cartera.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Las cuatro frases. Cuánto: la diferencia frente a la mediana y frente al <i>benchmark</i>. De dónde: punto de partida (¿PD de partida muy bajas?), sensibilidad (¿responden las tasas al PIB y al valor añadido sectorial?) y composición (¿grandes empresas multinacionales con garantías de su matriz, que en las pérdidas cuentan como México por el país inmediato?). Por qué: el dato que lo demuestra, por ejemplo la distribución por calificación y por garante. Qué se hace: si la sensibilidad es baja, corregirla antes de que se imponga el <i>benchmark</i>.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Defender que la cartera es de grandes corporaciones de alta calidad sin enseñar ni la distribución por calificación ni la respuesta del modelo al escenario. Puede ser cierto, pero sin los datos es exactamente lo que diría un banco con un modelo que no responde.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap34">34. Lo que viene <span class="nivel n3">N3</span></h2>
+
+<p class="lead">La metodología del <i>stress test</i> cambia en cada ciclo, y la dirección de los cambios es más estable que su calendario. Este capítulo recoge lo que está en marcha a mediados de octubre de 2026, con las cautelas de todo bloque QUÉ VIENE (sección 0.3.3), y los proyectos que genera.</p>
+
+<h3 id="s34-1">34.1 Unión Europea</h3>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>Cuatro direcciones, con madurez distinta:</p>
+<ul>
+<li><strong>Simplificación e integración con el reporting.</strong> Un 55 % menos de datos en 2027 y la propuesta de tomar los puntos de partida de FINREP y COREP en un ciclo posterior (secciones 11.3.1 y 11.3.5). Madurez: lo primero está en el borrador de 2027; lo segundo es una propuesta en consulta.</li>
+<li><strong>Más elementos proyectados por el supervisor.</strong> Comisiones, soberanos y margen de intereses con fórmulas o parámetros comunes; el crédito sigue siendo del banco. Madurez: tendencia consolidada de varios ciclos.</li>
+<li><strong>Clima y geopolítica en el ciclo ordinario.</strong> Un módulo climático en 2027 y un <i>reverse stress test</i> geopolítico en 2026 dentro del ICAAP (capítulo 21). Madurez: dirección declarada, diseño de los próximos ciclos sin fijar.</li>
+<li><strong>P2G para dos años.</strong> Prevista en las directrices de SREP de 2026 (sección 12.3.3). Madurez: norma publicada; aplicación práctica por ver.</li>
+</ul>
+<p>Cautela: la simplificación es también una tendencia política, y no debe usarse como base de planificación para reducir capacidades de <i>stress testing</i>. Menos datos en la plantilla no significa menos preguntas en el QA.</p>
+</div>
+
+<h3 id="s34-2">34.2 Fuera de la Unión</h3>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p><strong>Estados Unidos.</strong> La Reserva Federal aprobó en septiembre de 2026 que su colchón de capital por estrés se calcule con la media de los dos últimos tests y que sus escenarios y modelos se sometan cada año a comentario público (sección 12.3.4). Madurez: reglas finales; la primera aplicación completa del promedio llegará en ciclos posteriores, según el calendario de la Fed.</p>
+<p><strong>Reino Unido.</strong> El Banco de Inglaterra ha anunciado que en los próximos tests volverá a evaluar a los bancos contra mínimos más colchones sistémicos, tras el ejercicio de 2025 en el que no lo hizo (sección 13.2.2). Madurez: anuncio; diseño por publicar.</p>
+<p><strong>Divergencia transatlántica.</strong> Mientras la Fed reduce la volatilidad de un requerimiento vinculante y abre sus modelos al público, el ejercicio europeo mantiene un resultado no vinculante calibrado con discreción supervisora. Para un grupo con filial estadounidense, las dos lógicas conviven y se alejan.</p>
+<p>El proyecto que generan es de seguimiento: un calendario regulatorio de grupo que recoja los ejercicios de cada jurisdicción, sus cambios y su efecto en los requerimientos de cada filial, y, en Estados Unidos, una revisión de los modelos de la Fed cuando se publiquen para comentario.</p>
+</div>
+
+<h3 id="s34-3">34.3 Supervisión con datos e IA: <i>benchmarks</i> más finos, menos margen para el modelo propio</h3>
+
+<p>La tendencia de fondo es que el supervisor sabe cada vez más. Plantillas alineadas con el reporting ordinario, puntos de partida que saldrán de FINREP, <i>benchmarks</i> más granulares y herramientas de análisis automático de los envíos reducen el espacio en el que una decisión del banco pasa inadvertida. La consecuencia previsible es que el margen del modelo propio se estrecha: no porque se prohíba, sino porque cada desviación frente a la referencia se detecta antes y se pregunta mejor. Es una tendencia, no una norma, y conviene leerla así.</p>
+
+<h3 id="s34-4">34.4 Los proyectos que se generan</h3>
+
+<p>Recogidos de los bloques QUÉ VIENE y de los capítulos de retos, los proyectos que un gran grupo tiene por delante en los próximos ciclos son:</p>
+
+<ul>
+<li><strong>Linaje y conciliación de datos</strong> de cada filial hasta el FINREP del grupo, permanente y no solo en año de ejercicio (secciones 11.3.5 y 31.4).</li>
+<li><strong>Inventario de modelos y usos</strong> con el puente entre ejercicios en cada ciclo (capítulo 25).</li>
+<li><strong>Recalibración de satélites</strong> con tratamiento explícito de la pandemia, especificaciones no lineales y contraste con episodios históricos (capítulos 22 y 23).</li>
+<li><strong>Datos climáticos</strong> &mdash; geolocalización, eficiencia energética, emisiones &mdash; también en las filiales de fuera de la Unión (capítulo 26).</li>
+<li><strong>Granularidad sectorial</strong> para escenarios geopolíticos y de transición (capítulos 15 y 21).</li>
+<li><strong>Gobierno del ICAAP</strong> con escenarios propios, balance dinámico creíble y acciones de gestión defendibles (capítulo 20).</li>
+<li><strong>Seguimiento regulatorio multijurisdicción</strong> (sección 34.2).</li>
+</ul>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Diseñar la arquitectura de un ejercicio de grupo: quién proyecta cada país, con qué modelos, con qué revisión de la matriz.</li>
+<li>Trasladar el escenario a una geografía de fuera de la Unión, incluida una sin fila, y en una economía con inflación alta.</li>
+<li>Cuantificar la asimetría del tipo de cambio y un cambio de perímetro entre ejercicios.</li>
+<li>Construir el linaje de los datos de una filial hasta el CSV de la EBA y conciliarlos con su reporting.</li>
+<li>Comparar la pérdida de dos países o dos bancos con el puente en cuatro pasos, y explicar por qué un cociente no sirve.</li>
+<li>Explicar cualquier diferencia frente a un par o al <i>benchmark</i> en cuatro frases.</li>
+<li>Identificar los proyectos que generan los cambios en curso, en la Unión y fuera de ella.</li>
+</ul>
+</div>
+
+<p>La Parte VI cierra el manual con el oficio: cómo se entra en un encargo y un árbol de diagnóstico para cualquier número de un <i>stress test</i>.</p>
+
+<nav class="nav">
+<p><a href="parte-04.html">← Parte IV</a> · <a href="index.html">Índice</a> · <a href="parte-06.html">Parte VI: El oficio →</a></p>
+</nav>
+
+</body>
+</html>

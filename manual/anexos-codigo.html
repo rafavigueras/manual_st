@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anexos de código</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Anexos · Código</p>
+<h1>Anexos de código</h1>
+<p class="subtitulo">Los programas que producen todas las cifras del manual, con su salida.</p>
+
+<p class="lead">Todas las cifras de los bloques NÚMEROS, PALANCA y CASO JST que no salen directamente de una fuente pública salen de estos programas, y la salida que aparece debajo de cada uno es la de su última ejecución, generada automáticamente el 17/10/2026 por <code>herramientas/generar_anexos_codigo.py</code>. Están escritos en Python con numpy, pandas, scipy y statsmodels, y se ejecutan desde la raíz del proyecto con el entorno virtual del repositorio. Los datos de bancos reales son públicos y llevan su fuente; los datos de las carteras del hilo conductor son sintéticos. El objetivo de estos anexos no es dar un modelo para producción, sino que cada mecanismo del texto se pueda ver, cambiar y volver a ejecutar.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="S0">Anexo S0 &mdash; El <i>stress test</i> de juguete</h2>
+<p>Una filial mexicana con una cartera de consumo y otra de empresas, el escenario de la JERS de 2025 para México, satélites, flujos entre stages, provisiones con y sin previsión perfecta, activos ponderados con suelo y CET1. Termina con la sensibilidad de la pérdida de consumo a cada supuesto.</p>
+<p class="small">Se usa en: capítulo 8 y secciones 19.2.4 y 21.1.1. Ejecución: <code>.venv/bin/python -I anexos/s0_juguete.py</code>.</p>
+<h3>s0_juguete.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S0: un stress test de credito de juguete, de principio a fin.
+
+Una filial mexicana con dos carteras (consumo y empresas), el escenario base y
+adverso de la JERS para Mexico del ejercicio 2025, un satelite por cartera,
+flujos entre stages, provisiones IFRS 9 con prevision perfecta, RWA estandar y
+caida de CET1 atribuible al credito. Balance estatico: lo que vence se repone,
+el S3 no se cura ni se da de baja.
+
+Simplificaciones deliberadas (se explican en el capitulo 8):
+  - solo credito: no hay margen de intereses, comisiones ni gastos;
+  - satelites dados (el de consumo es el estimado en el anexo S1);
+  - transiciones a S2 y desde S2 como multiplos fijos de la PD de S1;
+  - sin descuento financiero en la perdida a vida.
+&quot;&quot;&quot;
+import numpy as np
+import pandas as pd
+
+# ------------------------------------------------------------------
+# 1. Escenario JERS 2025 para Mexico (tabla 4.1.1 y 4.1.2 del escenario)
+# ------------------------------------------------------------------
+ANOS = [2025, 2026, 2027]
+PARO_2024 = 3.0
+ESC = {
+    &quot;base&quot;:    {&quot;pib&quot;: [1.3, 2.0, 2.3],   &quot;paro&quot;: [3.3, 3.4, 3.5]},
+    &quot;adverso&quot;: {&quot;pib&quot;: [-4.7, -2.2, -0.1], &quot;paro&quot;: [5.2, 7.6, 8.8]},
+}
+
+# ------------------------------------------------------------------
+# 2. Las dos carteras (millones de euros) y sus parametros
+# ------------------------------------------------------------------
+CARTERAS = {
+    &quot;consumo&quot;: {
+        &quot;stock&quot;: {&quot;S1&quot;: 880.0, &quot;S2&quot;: 70.0, &quot;S3&quot;: 50.0},
+        &quot;satelite&quot;: (-3.514, 0.215, -0.0802),   # anexo S1: logit PD = a + b*paro(t-1) + c*PIB(t)
+        &quot;m_s1_s2&quot;: 1.5,   # tasa S1-&gt;S2 = m * PD S1
+        &quot;m_s2_s3&quot;: 3.0,   # PD S2 = m * PD S1
+        &quot;cura_s2&quot;: 0.20,  # S2 -&gt; S1 cada ano
+        &quot;vida&quot;: 3,        # anos de vida residual para la perdida a vida de S2
+        &quot;lgd&quot;: lambda paro, pib: min(0.85, 0.70 + 0.01 * (paro - 3.5)),
+        &quot;pond_rwa&quot;: 0.75,
+        &quot;margen&quot;: {&quot;base&quot;: 0.085, &quot;adverso&quot;: 0.075},   # margen antes de provisiones, dado
+    },
+    &quot;empresas&quot;: {
+        &quot;stock&quot;: {&quot;S1&quot;: 950.0, &quot;S2&quot;: 36.0, &quot;S3&quot;: 14.0},
+        &quot;satelite&quot;: (-4.60, 0.10, -0.12),
+        &quot;m_s1_s2&quot;: 2.0,
+        &quot;m_s2_s3&quot;: 6.0,
+        &quot;cura_s2&quot;: 0.20,
+        &quot;vida&quot;: 4,
+        &quot;lgd&quot;: lambda paro, pib: 0.40 + 0.02 * max(0.0, -pib),
+        &quot;pond_rwa&quot;: 1.00,
+        &quot;margen&quot;: {&quot;base&quot;: 0.015, &quot;adverso&quot;: 0.012},
+    },
+}
+TIPO_FISCAL = 0.30
+CET1_INICIAL_SOBRE_RWA = 0.13
+
+
+def logistica(z):
+    return 1 / (1 + np.exp(-z))
+
+
+def sendas(cart, esc):
+    &quot;&quot;&quot;PD de S1 y LGD por ano: 2024 (partida), 2025-2027 y 10 anos mas tras el horizonte.
+
+    Tras 2027: en el base, parametros planos; en el adverso, reversion lineal en
+    6 anos a los parametros base de 2027 (como en la metodologia EBA 2027).
+    &quot;&quot;&quot;
+    a, b, c = cart[&quot;satelite&quot;]
+    paro_prev = [PARO_2024] + ESC[esc][&quot;paro&quot;][:-1]
+    pd_h = [logistica(a + b * pp + c * g) for pp, g in zip(paro_prev, ESC[esc][&quot;pib&quot;])]
+    lgd_h = [cart[&quot;lgd&quot;](p, g) for p, g in zip(ESC[esc][&quot;paro&quot;], ESC[esc][&quot;pib&quot;])]
+    # punto de partida (fin de 2024): parametros &quot;de hoy&quot; = primer ano del base
+    pd0 = logistica(a + b * PARO_2024 + c * ESC[&quot;base&quot;][&quot;pib&quot;][0])
+    lgd0 = cart[&quot;lgd&quot;](ESC[&quot;base&quot;][&quot;paro&quot;][0], ESC[&quot;base&quot;][&quot;pib&quot;][0])
+    # base de 2027 como ancla de la reversion
+    pb = [PARO_2024] + ESC[&quot;base&quot;][&quot;paro&quot;][:-1]
+    pd_b27 = logistica(a + b * pb[2] + c * ESC[&quot;base&quot;][&quot;pib&quot;][2])
+    lgd_b27 = cart[&quot;lgd&quot;](ESC[&quot;base&quot;][&quot;paro&quot;][2], ESC[&quot;base&quot;][&quot;pib&quot;][2])
+    pd_tras, lgd_tras = [], []
+    for k in range(1, 11):
+        w = max(0.0, 1 - k / 6) if esc == &quot;adverso&quot; else 1.0
+        pd_tras.append(pd_b27 + (pd_h[2] - pd_b27) * w if esc == &quot;adverso&quot; else pd_h[2])
+        lgd_tras.append(lgd_b27 + (lgd_h[2] - lgd_b27) * w if esc == &quot;adverso&quot; else lgd_h[2])
+    return [pd0] + pd_h + pd_tras, [lgd0] + lgd_h + lgd_tras
+
+
+def provisiones(cart, stock, pd_s, lgd_s, t, prevision_perfecta=True, prov_s3_vieja=None):
+    &quot;&quot;&quot;Stock de provisiones al final del ano t (t=0 es la partida).&quot;&quot;&quot;
+    s1 = stock[&quot;S1&quot;] * pd_s[t + 1] * lgd_s[t + 1]
+    if prevision_perfecta:
+        camino = [min(0.6, cart[&quot;m_s2_s3&quot;] * pd_s[t + j]) for j in range(1, cart[&quot;vida&quot;] + 1)]
+    else:
+        camino = [min(0.6, cart[&quot;m_s2_s3&quot;] * pd_s[t + 1])] * cart[&quot;vida&quot;]
+    pd_vida = 1 - np.prod([1 - p for p in camino])
+    s2 = stock[&quot;S2&quot;] * pd_vida * lgd_s[t + 1]
+    s3 = stock[&quot;S3_nuevo&quot;] * lgd_s[max(t, 1)] + prov_s3_vieja
+    return s1 + s2 + s3, {&quot;S1&quot;: s1, &quot;S2&quot;: s2, &quot;S3&quot;: s3}
+
+
+def proyectar(nombre, esc, prevision_perfecta=True):
+    cart = CARTERAS[nombre]
+    pd_s, lgd_s = sendas(cart, esc)
+    pd_b, lgd_b = sendas(cart, &quot;base&quot;)
+    st = dict(cart[&quot;stock&quot;])
+    st[&quot;S3_nuevo&quot;] = 0.0
+    exp_total = st[&quot;S1&quot;] + st[&quot;S2&quot;] + st[&quot;S3&quot;]
+    # el punto de partida es un dato: se provisiona con el escenario interno (el base),
+    # igual en los dos escenarios
+    prov_s3_0 = st[&quot;S3&quot;] * lgd_b[0]
+    prov0, _ = provisiones(cart, st, pd_b, lgd_b, 0, True, prov_s3_0)
+    filas = [{&quot;ano&quot;: 2024, &quot;S1&quot;: st[&quot;S1&quot;], &quot;S2&quot;: st[&quot;S2&quot;], &quot;S3&quot;: st[&quot;S3&quot;], &quot;prov&quot;: prov0,
+              &quot;deterioro&quot;: 0.0, &quot;prov_S3&quot;: prov_s3_0}]
+    prov_ant = prov0
+    prov_s3_vieja = max(prov_s3_0, st[&quot;S3&quot;] * lgd_s[1])   # suelo del S3 antiguo
+    for t in (1, 2, 3):
+        pd1 = pd_s[t]
+        pd2 = min(0.6, cart[&quot;m_s2_s3&quot;] * pd1)
+        a_s3_desde_s1 = st[&quot;S1&quot;] * pd1
+        a_s2_desde_s1 = st[&quot;S1&quot;] * cart[&quot;m_s1_s2&quot;] * pd1
+        a_s3_desde_s2 = st[&quot;S2&quot;] * pd2
+        a_s1_desde_s2 = st[&quot;S2&quot;] * cart[&quot;cura_s2&quot;]
+        st[&quot;S1&quot;] += -a_s3_desde_s1 - a_s2_desde_s1 + a_s1_desde_s2
+        st[&quot;S2&quot;] += a_s2_desde_s1 - a_s3_desde_s2 - a_s1_desde_s2
+        st[&quot;S3_nuevo&quot;] += a_s3_desde_s1 + a_s3_desde_s2
+        st[&quot;S3&quot;] = cart[&quot;stock&quot;][&quot;S3&quot;] + st[&quot;S3_nuevo&quot;]
+        prov, det = provisiones(cart, st, pd_s, lgd_s, t, prevision_perfecta, prov_s3_vieja)
+        filas.append({&quot;ano&quot;: ANOS[t - 1], &quot;S1&quot;: st[&quot;S1&quot;], &quot;S2&quot;: st[&quot;S2&quot;], &quot;S3&quot;: st[&quot;S3&quot;],
+                      &quot;prov&quot;: prov, &quot;deterioro&quot;: prov - prov_ant, &quot;pd_s1&quot;: pd1,
+                      &quot;prov_S1&quot;: det[&quot;S1&quot;], &quot;prov_S2&quot;: det[&quot;S2&quot;], &quot;prov_S3&quot;: det[&quot;S3&quot;]})
+        prov_ant = prov
+    df = pd.DataFrame(filas)
+    # RWA estandar: performing a su ponderacion; S3 al 100 % neto de su provision
+    df[&quot;rwa&quot;] = (df.S1 + df.S2) * cart[&quot;pond_rwa&quot;] + (df.S3 - df.prov_S3).clip(lower=0) * 1.00
+    df[&quot;margen&quot;] = [0.0] + [exp_total * cart[&quot;margen&quot;][esc]] * 3
+    return df, exp_total
+
+
+def main():
+    pd.set_option(&quot;display.width&quot;, 140)
+    resultados = {}
+    print(&quot;PD de S1 que da el satelite (fin 2024 y 2025-2027)&quot;)
+    for nombre, cart in CARTERAS.items():
+        for esc in ESC:
+            pd_s, lgd_s = sendas(cart, esc)
+            print(f&quot;  {nombre:8} {esc:7}  PD: &quot; + &quot;  &quot;.join(f&quot;{p:6.2%}&quot; for p in pd_s[:4])
+                  + &quot;   LGD: &quot; + &quot;  &quot;.join(f&quot;{l:5.1%}&quot; for l in lgd_s[:4]))
+
+    for esc in ESC:
+        print(f&quot;\n===== Escenario {esc} =====&quot;)
+        tot = None
+        for nombre in CARTERAS:
+            df, exp_total = proyectar(nombre, esc)
+            resultados[(nombre, esc)] = (df, exp_total)
+            print(f&quot;\n{nombre} (exposicion {exp_total:,.0f} M EUR)&quot;)
+            print(df[[&quot;ano&quot;, &quot;S1&quot;, &quot;S2&quot;, &quot;S3&quot;, &quot;prov&quot;, &quot;deterioro&quot;, &quot;rwa&quot;]].round(1).to_string(index=False))
+            acum = df.deterioro.sum()
+            print(f&quot;  deterioro acumulado: {acum:,.1f} M EUR = {acum / exp_total:.2%} de la exposicion; &quot;
+                  f&quot;S3 final {df.S3.iloc[-1] / exp_total:.2%}; primer ano {df.deterioro.iloc[1] / acum:.0%} del total&quot;)
+            cols = [&quot;deterioro&quot;, &quot;rwa&quot;, &quot;margen&quot;]
+            tot = df[cols] if tot is None else tot + df[cols]
+        rwa0 = tot.rwa.iloc[0]
+        for etiqueta, con_margen in ((&quot;solo perdidas de credito&quot;, False), (&quot;con el margen dado&quot;, True)):
+            cet1 = CET1_INICIAL_SOBRE_RWA * rwa0
+            ratios = [cet1 / rwa0]
+            for t in (1, 2, 3):
+                resultado = -tot.deterioro.iloc[t] + (tot.margen.iloc[t] if con_margen else 0.0)
+                cet1 += resultado * (1 - TIPO_FISCAL) if resultado &gt; 0 else resultado * (1 - TIPO_FISCAL)
+                # suelo metodologico: el RWA no puede bajar del de partida (EBA 2027, parr. 153)
+                ratios.append(cet1 / max(tot.rwa.iloc[t], rwa0))
+            print(f&quot;Filial, CET1 {etiqueta:26}: &quot; + &quot; -&gt; &quot;.join(f&quot;{r:.2%}&quot; for r in ratios)
+                  + f&quot;  (caida maxima {(ratios[0] - min(ratios)) * 1e4:,.0f} pb)&quot;)
+        print(f&quot;RWA de la filial sin suelo: {rwa0:,.0f} -&gt; &quot; + &quot; -&gt; &quot;.join(f&quot;{x:,.0f}&quot; for x in tot.rwa.iloc[1:])
+              + f&quot;  (con el suelo, nunca por debajo de {rwa0:,.0f})&quot;)
+
+    print(&quot;\n===== Adverso menos base =====&quot;)
+    for nombre in CARTERAS:
+        da = resultados[(nombre, &quot;adverso&quot;)][0].deterioro.sum()
+        db = resultados[(nombre, &quot;base&quot;)][0].deterioro.sum()
+        e = resultados[(nombre, &quot;base&quot;)][1]
+        print(f&quot;  {nombre:8} adverso {da / e:.2%}  base {db / e:.2%}  diferencia {(da - db) / e * 100:.2f} pp&quot;)
+
+    print(&quot;\n===== Prevision perfecta: de donde sale el primer ano (consumo, adverso) =====&quot;)
+    df_pp, _ = proyectar(&quot;consumo&quot;, &quot;adverso&quot;, True)
+    df_np, _ = proyectar(&quot;consumo&quot;, &quot;adverso&quot;, False)
+    for etiqueta, df in ((&quot;con prevision perfecta&quot;, df_pp), (&quot;con la PD del ano siguiente fija&quot;, df_np)):
+        print(f&quot;  {etiqueta:34} deterioro por ano: &quot;
+              + &quot;  &quot;.join(f&quot;{d:6.1f}&quot; for d in df.deterioro.iloc[1:])
+              + f&quot;   total {df.deterioro.sum():6.1f}&quot;)
+    fila = df_pp.iloc[1]
+    print(f&quot;  Primer ano, composicion del stock: S1 {fila.prov_S1:.1f}, S2 {fila.prov_S2:.1f}, S3 {fila.prov_S3:.1f}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+
+
+def sensibilidad():
+    &quot;&quot;&quot;Mueve un supuesto cada vez y mide la perdida acumulada de consumo en el adverso.&quot;&quot;&quot;
+    import copy
+    original = copy.deepcopy(CARTERAS[&quot;consumo&quot;])
+    base_df, e = proyectar(&quot;consumo&quot;, &quot;adverso&quot;)
+    ref = base_df.deterioro.sum() / e
+    print(f&quot;\n===== Sensibilidad (consumo, adverso; referencia {ref:.2%}) =====&quot;)
+    pruebas = [
+        (&quot;LGD 5 puntos menos&quot;, &quot;lgd&quot;, lambda f: (lambda p, g: f(p, g) - 0.05)),
+        (&quot;LGD 5 puntos mas&quot;, &quot;lgd&quot;, lambda f: (lambda p, g: f(p, g) + 0.05)),
+        (&quot;coef. del paro x0,8&quot;, &quot;satelite&quot;, lambda s: (s[0], s[1] * 0.8, s[2])),
+        (&quot;coef. del paro x1,2&quot;, &quot;satelite&quot;, lambda s: (s[0], s[1] * 1.2, s[2])),
+        (&quot;paso a S2 = 1,0 x PD&quot;, &quot;m_s1_s2&quot;, lambda v: 1.0),
+        (&quot;paso a S2 = 2,0 x PD&quot;, &quot;m_s1_s2&quot;, lambda v: 2.0),
+        (&quot;PD de S2 = 2 x PD S1&quot;, &quot;m_s2_s3&quot;, lambda v: 2.0),
+        (&quot;PD de S2 = 4 x PD S1&quot;, &quot;m_s2_s3&quot;, lambda v: 4.0),
+        (&quot;cura de S2 del 10 %&quot;, &quot;cura_s2&quot;, lambda v: 0.10),
+        (&quot;cura de S2 del 30 %&quot;, &quot;cura_s2&quot;, lambda v: 0.30),
+        (&quot;vida residual 2 anos&quot;, &quot;vida&quot;, lambda v: 2),
+        (&quot;vida residual 4 anos&quot;, &quot;vida&quot;, lambda v: 4),
+    ]
+    for nombre, clave, cambio in pruebas:
+        CARTERAS[&quot;consumo&quot;] = copy.deepcopy(original)
+        CARTERAS[&quot;consumo&quot;][clave] = cambio(original[clave])
+        df, e = proyectar(&quot;consumo&quot;, &quot;adverso&quot;)
+        v = df.deterioro.sum() / e
+        print(f&quot;  {nombre:24} {v:7.2%}  ({(v - ref) * 100:+6.2f} pp)&quot;)
+    CARTERAS[&quot;consumo&quot;] = original
+
+
+if __name__ == &quot;__main__&quot;:
+    sensibilidad()</code></pre>
+<pre class="salida">PD de S1 que da el satelite (fin 2024 y 2025-2027)
+  consumo  base     PD:  4.86%   4.86%   4.90%   4.89%   LGD: 69.8%  69.8%  69.9%  70.0%
+  consumo  adverso  PD:  4.86%   7.64%   9.80%  13.33%   LGD: 69.8%  71.7%  74.1%  75.3%
+  empresas base     PD:  1.15%   1.15%   1.09%   1.06%   LGD: 40.0%  40.0%  40.0%  40.0%
+  empresas adverso  PD:  1.15%   2.33%   2.15%   2.13%   LGD: 40.0%  49.4%  44.4%  40.2%
+
+===== Escenario base =====
+
+consumo (exposicion 1,000 M EUR)
+ ano    S1    S2    S3  prov  deterioro   rwa
+2024 880.0  70.0  50.0  83.3        0.0 727.6
+2025 787.0 110.0 103.0 128.0       44.8 703.8
+2026 712.5 129.7 157.8 169.0       41.0 679.2
+2027 651.3 137.0 211.7 206.7       37.7 654.8
+  deterioro acumulado: 123.4 M EUR = 12.34% de la exposicion; S3 final 21.17%; primer ano 36% del total
+
+empresas (exposicion 1,000 M EUR)
+ ano    S1   S2   S3  prov  deterioro   rwa
+2024 950.0 36.0 14.0  13.4        0.0 994.4
+2025 924.5 48.1 27.4  19.5        6.1 989.0
+2026 903.9 55.5 40.6  25.2        5.7 983.8
+2027 886.3 60.0 53.7  30.8        5.6 978.5
+  deterioro acumulado: 17.4 M EUR = 1.74% de la exposicion; S3 final 5.37%; primer ano 35% del total
+Filial, CET1 solo perdidas de credito  : 13.00% -&gt; 10.93% -&gt; 9.03% -&gt; 7.27%  (caida maxima 573 pb)
+Filial, CET1 con el margen dado        : 13.00% -&gt; 15.00% -&gt; 17.16% -&gt; 19.47%  (caida maxima 0 pb)
+RWA de la filial sin suelo: 1,722 -&gt; 1,693 -&gt; 1,663 -&gt; 1,633  (con el suelo, nunca por debajo de 1,722)
+
+===== Escenario adverso =====
+
+consumo (exposicion 1,000 M EUR)
+ ano    S1    S2    S3  prov  deterioro   rwa
+2024 880.0  70.0  50.0  83.3        0.0 727.6
+2025 725.9 140.8 133.3 224.2      141.0 687.8
+2026 576.2 178.0 245.8 337.5      113.2 630.5
+2027 419.8 186.4 393.8 426.4       88.9 553.7
+  deterioro acumulado: 343.1 M EUR = 34.31% de la exposicion; S3 final 39.38%; primer ano 41% del total
+
+empresas (exposicion 1,000 M EUR)
+ ano    S1   S2   S3  prov  deterioro   rwa
+2024 950.0 36.0 14.0  13.4        0.0 994.4
+2025 890.8 68.0 41.2  41.0       27.6 979.7
+2026 846.8 84.0 69.1  51.4       10.4 968.6
+2027 809.6 92.5 97.9  59.9        8.5 959.4
+  deterioro acumulado: 46.5 M EUR = 4.65% de la exposicion; S3 final 9.79%; primer ano 59% del total
+Filial, CET1 solo perdidas de credito  : 13.00% -&gt; 6.15% -&gt; 1.12% -&gt; -2.84%  (caida maxima 1,584 pb)
+Filial, CET1 con el margen dado        : 13.00% -&gt; 9.68% -&gt; 8.19% -&gt; 7.77%  (caida maxima 523 pb)
+RWA de la filial sin suelo: 1,722 -&gt; 1,667 -&gt; 1,599 -&gt; 1,513  (con el suelo, nunca por debajo de 1,722)
+
+===== Adverso menos base =====
+  consumo  adverso 34.31%  base 12.34%  diferencia 21.97 pp
+  empresas adverso 4.65%  base 1.74%  diferencia 2.91 pp
+
+===== Prevision perfecta: de donde sale el primer ano (consumo, adverso) =====
+  con prevision perfecta             deterioro por ano:  141.0   113.2    88.9   total  343.1
+  con la PD del ano siguiente fija   deterioro por ano:  132.6   127.9    90.1   total  350.7
+  Primer ano, composicion del stock: S1 52.7, S2 76.0, S3 95.6
+
+===== Sensibilidad (consumo, adverso; referencia 34.31%) =====
+  LGD 5 puntos menos        32.06%  ( -2.26 pp)
+  LGD 5 puntos mas          36.57%  ( +2.26 pp)
+  coef. del paro x0,8       27.28%  ( -7.03 pp)
+  coef. del paro x1,2       41.92%  ( +7.60 pp)
+  paso a S2 = 1,0 x PD      30.94%  ( -3.37 pp)
+  paso a S2 = 2,0 x PD      37.30%  ( +2.98 pp)
+  PD de S2 = 2 x PD S1      30.96%  ( -3.35 pp)
+  PD de S2 = 4 x PD S1      36.27%  ( +1.96 pp)
+  cura de S2 del 10 %       35.65%  ( +1.33 pp)
+  cura de S2 del 30 %       33.16%  ( -1.16 pp)
+  vida residual 2 anos      33.17%  ( -1.14 pp)
+  vida residual 4 anos      34.89%  ( +0.58 pp)</pre>
+<!-- ============================================================ -->
+<h2 id="S1">Anexo S1 &mdash; Modelo satélite de PD y LGD</h2>
+<p>Primera parte: estimación de un satélite logit sobre veinte años de datos sintéticos con dos recesiones, lectura de elasticidades, el error de estimar sin crisis y las tres pruebas de validación. Segunda parte: proyección con el escenario de la JERS para México y España, contraste con un <i>benchmark</i> ilustrativo (los del BCE no son públicos) y LGD hipotecaria en función del LTV con la caída de la vivienda del adverso.</p>
+<p class="small">Se usa en: capítulos 6, 15, 22 y 23. Ejecución: <code>.venv/bin/python -I anexos/s1a_satelite.py</code> (y <code>anexos/s1b_satelite.py</code>).</p>
+<h3>s1a_satelite.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S1, primera parte: un modelo satelite estimado sobre datos sinteticos.
+
+Genera veinte anos de datos trimestrales de una cartera de consumo mexicana
+(tasa de default observada, paro y crecimiento del PIB), estima un satelite
+sobre el logit de la tasa y muestra como se lee: coeficientes, ajuste,
+elasticidades y que pasa si se olvida un retardo.
+
+Los datos son sinteticos: el &quot;modelo verdadero&quot; esta escrito abajo y sirve
+para comprobar que la estimacion lo recupera.
+&quot;&quot;&quot;
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+rng = np.random.default_rng(2026)
+
+# ------------------------------------------------------------------
+# 1. Historia macro sintetica: 80 trimestres (20 anos) con dos recesiones
+# ------------------------------------------------------------------
+T = 80
+pib = np.full(T, 2.4)           # crecimiento interanual del PIB, %
+pib += rng.normal(0, 0.8, T)
+pib[28:34] -= np.array([2.0, 4.5, 6.5, 6.0, 4.0, 1.5])     # recesion 1 (anos 8-9)
+pib[60:64] -= np.array([3.0, 9.0, 6.0, 2.0])               # recesion 2 (anos 15-16)
+
+paro = np.empty(T)
+paro[0] = 4.0
+for t in range(1, T):
+    # el paro sube cuando el PIB crece por debajo de ~2,5 % (ley de Okun simplificada)
+    paro[t] = paro[t - 1] + 0.12 * (2.5 - pib[t]) * 0.5 - 0.04 * (paro[t - 1] - 4.0)
+paro += rng.normal(0, 0.08, T)
+
+# ------------------------------------------------------------------
+# 2. Modelo verdadero de la tasa de default anual (en logit)
+#    logit(TD_t) = a + b * paro_{t-1} + c * pib_t + ruido
+# ------------------------------------------------------------------
+#    En recesion la tasa responde mas: termino extra d * max(0, -PIB)
+a_true, b_true, c_true, d_true = -3.60, 0.22, -0.06, 0.05
+paro_l1 = np.r_[paro[0], paro[:-1]]
+logit_td = (a_true + b_true * paro_l1 + c_true * pib + d_true * np.maximum(0, -pib)
+            + rng.normal(0, 0.06, T))
+td = 1 / (1 + np.exp(-logit_td))
+
+df = pd.DataFrame({&quot;pib&quot;: pib, &quot;paro&quot;: paro, &quot;paro_l1&quot;: paro_l1, &quot;td&quot;: td})
+df[&quot;logit_td&quot;] = np.log(df.td / (1 - df.td))
+df = df.iloc[1:]   # se pierde el primer trimestre por el retardo
+
+print(&quot;Resumen de los datos sinteticos (80 trimestres)&quot;)
+print(df[[&quot;pib&quot;, &quot;paro&quot;, &quot;td&quot;]].describe().loc[[&quot;mean&quot;, &quot;min&quot;, &quot;max&quot;]].round(3).to_string())
+
+# ------------------------------------------------------------------
+# 3. Estimacion: MCO sobre el logit de la tasa
+# ------------------------------------------------------------------
+X = sm.add_constant(df[[&quot;paro_l1&quot;, &quot;pib&quot;]])
+modelo = sm.OLS(df.logit_td, X).fit(cov_type=&quot;HAC&quot;, cov_kwds={&quot;maxlags&quot;: 4})
+print(&quot;\nSatelite estimado: logit(TD) = a + b*paro(t-1) + c*PIB(t)&quot;)
+print(modelo.summary2().tables[1][[&quot;Coef.&quot;, &quot;Std.Err.&quot;, &quot;P&gt;|z|&quot;]].round(4).to_string())
+print(f&quot;R2 = {modelo.rsquared:.3f}   (verdadero: a={a_true}, b={b_true}, c={c_true})&quot;)
+
+# ------------------------------------------------------------------
+# 4. Como se lee: efecto de un punto de paro sobre la tasa
+# ------------------------------------------------------------------
+a, b, c = modelo.params
+def tasa(paro_val, pib_val):
+    z = a + b * paro_val + c * pib_val
+    return 1 / (1 + np.exp(-z))
+
+for paro_ref in (3.5, 8.0):
+    t0 = tasa(paro_ref, 2.0)
+    t1 = tasa(paro_ref + 1, 2.0)
+    print(f&quot;Con paro {paro_ref:.1f} %: TD {t0:.2%} -&gt; {t1:.2%} si el paro sube 1 punto &quot;
+          f&quot;(+{(t1 - t0) * 100:.2f} pp, +{t1 / t0 - 1:.0%})&quot;)
+
+# ------------------------------------------------------------------
+# 5. Lo que sale mal: olvidar el retardo del paro
+# ------------------------------------------------------------------
+X2 = sm.add_constant(df[[&quot;paro&quot;, &quot;pib&quot;]])
+m2 = sm.OLS(df.logit_td, X2).fit()
+print(&quot;\nSin retardo (paro contemporaneo):&quot;)
+print(m2.params.round(4).to_string(), f&quot;\nR2 = {m2.rsquared:.3f}&quot;)
+
+# ------------------------------------------------------------------
+# 6. Lo que sale mal: estimar solo con anos buenos (sin recesiones)
+# ------------------------------------------------------------------
+buenos = df.drop(index=list(range(28, 38)) + list(range(60, 68)), errors=&quot;ignore&quot;)
+m3 = sm.OLS(buenos.logit_td, sm.add_constant(buenos[[&quot;paro_l1&quot;, &quot;pib&quot;]])).fit(
+    cov_type=&quot;HAC&quot;, cov_kwds={&quot;maxlags&quot;: 4})
+print(&quot;\nSolo trimestres sin recesion:&quot;)
+print(pd.DataFrame({&quot;coef&quot;: m3.params, &quot;error&quot;: m3.bse}).round(4).to_string(), f&quot;\nR2 = {m3.rsquared:.3f}&quot;)
+print(f&quot;Rango de paro en esa muestra: {buenos.paro_l1.min():.1f} % - {buenos.paro_l1.max():.1f} %&quot;)
+
+# Proyeccion en un punto adverso: paro 8,8 % (retardado) y PIB -4,7 %
+def pred(params, paro_v, pib_v, d=0.0):
+    z = params.iloc[0] + params.iloc[1] * paro_v + params.iloc[2] * pib_v + d * max(0, -pib_v)
+    return 1 / (1 + np.exp(-z))
+verdad = pred(pd.Series([a_true, b_true, c_true]), 8.8, -4.7, d_true)
+print(f&quot;\nTasa en un punto adverso (paro 8,8 %, PIB -4,7 %):&quot;)
+print(f&quot;  modelo verdadero          {verdad:.2%}&quot;)
+print(f&quot;  satelite con recesiones   {pred(modelo.params, 8.8, -4.7):.2%}&quot;)
+print(f&quot;  satelite sin recesiones   {pred(m3.params, 8.8, -4.7):.2%}&quot;)
+
+print(&quot;\nCoeficientes para el anexo S0:&quot;, {k: round(v, 4) for k, v in modelo.params.items()})
+
+# ------------------------------------------------------------------
+# 7. Validacion: backtest fuera de muestra
+#    Se estima con los 15 primeros anos y se proyecta los 5 ultimos,
+#    que contienen la segunda recesion, con la macro observada.
+# ------------------------------------------------------------------
+corte = 60
+ent = df.loc[:corte - 1]
+pru = df.loc[corte:]
+m_ent = sm.OLS(ent.logit_td, sm.add_constant(ent[[&quot;paro_l1&quot;, &quot;pib&quot;]])).fit()
+pred_pru = 1 / (1 + np.exp(-(m_ent.params[&quot;const&quot;] + m_ent.params[&quot;paro_l1&quot;] * pru.paro_l1
+                             + m_ent.params[&quot;pib&quot;] * pru.pib)))
+err = pred_pru - pru.td
+print(&quot;\nBacktest fuera de muestra (estimado con anos 1-15, proyectado en anos 16-20):&quot;)
+print(f&quot;  coeficientes estimados: &quot; + &quot;, &quot;.join(f&quot;{k} {v:.4f}&quot; for k, v in m_ent.params.items()))
+print(f&quot;  error medio {err.mean() * 100:+.2f} pp; error absoluto medio {err.abs().mean() * 100:.2f} pp&quot;)
+pico = pru.td.idxmax()
+print(f&quot;  en el pico de la recesion: observado {pru.td[pico]:.2%}, proyectado {pred_pru[pico]:.2%}&quot;)
+
+# ------------------------------------------------------------------
+# 8. Validacion: estabilidad de los coeficientes por ventanas
+# ------------------------------------------------------------------
+print(&quot;\nEstabilidad: coeficiente del paro con ventanas moviles de 10 anos&quot;)
+for ini in (1, 21, 41):
+    v = df.loc[ini:ini + 39]
+    mv = sm.OLS(v.logit_td, sm.add_constant(v[[&quot;paro_l1&quot;, &quot;pib&quot;]])).fit()
+    print(f&quot;  trimestres {ini:2d}-{ini + 39:2d}: paro {mv.params[&#x27;paro_l1&#x27;]:.3f}, PIB {mv.params[&#x27;pib&#x27;]:.3f}&quot;)
+
+# ------------------------------------------------------------------
+# 9. Validacion: sensibilidad a choques de una desviacion tipica
+# ------------------------------------------------------------------
+base_paro, base_pib = df.paro_l1.mean(), df.pib.mean()
+t0 = tasa(base_paro, base_pib)
+print(f&quot;\nSensibilidad en la media (TD {t0:.2%}):&quot;)
+for nombre, dp, dg in ((&quot;paro +1 desv. tipica&quot;, df.paro_l1.std(), 0), (&quot;PIB -1 desv. tipica&quot;, 0, -df.pib.std())):
+    t1 = tasa(base_paro + dp, base_pib + dg)
+    print(f&quot;  {nombre:22} ({dp:+.2f} / {dg:+.2f}): TD {t1:.2%} ({(t1 - t0) * 100:+.2f} pp)&quot;)</code></pre>
+<pre class="salida">Resumen de los datos sinteticos (80 trimestres)
+        pib   paro     td
+mean  1.942  4.581  0.065
+min  -7.402  3.856  0.049
+max   4.921  5.509  0.138
+
+Satelite estimado: logit(TD) = a + b*paro(t-1) + c*PIB(t)
+          Coef.  Std.Err.  P&gt;|z|
+const   -3.5140    0.0777    0.0
+paro_l1  0.2150    0.0169    0.0
+pib     -0.0802    0.0042    0.0
+R2 = 0.889   (verdadero: a=-3.6, b=0.22, c=-0.06)
+Con paro 3.5 %: TD 5.11% -&gt; 6.26% si el paro sube 1 punto (+1.15 pp, +22%)
+Con paro 8.0 %: TD 12.41% -&gt; 14.94% si el paro sube 1 punto (+2.53 pp, +20%)
+
+Sin retardo (paro contemporaneo):
+const   -3.5421
+paro     0.2156
+pib     -0.0680 
+R2 = 0.873
+
+Solo trimestres sin recesion:
+           coef   error
+const   -3.5913  0.0698
+paro_l1  0.2254  0.0146
+pib     -0.0649  0.0075 
+R2 = 0.780
+Rango de paro en esa muestra: 3.9 % - 5.3 %
+
+Tasa en un punto adverso (paro 8,8 %, PIB -4,7 %):
+  modelo verdadero          24.10%
+  satelite con recesiones   22.36%
+  satelite sin recesiones   21.37%
+
+Coeficientes para el anexo S0: {&#x27;const&#x27;: -3.514, &#x27;paro_l1&#x27;: 0.215, &#x27;pib&#x27;: -0.0802}
+
+Backtest fuera de muestra (estimado con anos 1-15, proyectado en anos 16-20):
+  coeficientes estimados: const -3.5017, paro_l1 0.2106, pib -0.0783
+  error medio -0.15 pp; error absoluto medio 0.47 pp
+  en el pico de la recesion: observado 13.85%, proyectado 12.24%
+
+Estabilidad: coeficiente del paro con ventanas moviles de 10 anos
+  trimestres  1-40: paro 0.198, PIB -0.080
+  trimestres 21-60: paro 0.230, PIB -0.077
+  trimestres 41-80: paro 0.236, PIB -0.081
+
+Sensibilidad en la media (TD 6.38%):
+  paro +1 desv. tipica   (+0.53 / +0.00): TD 7.09% (+0.72 pp)
+  PIB -1 desv. tipica    (+0.00 / -2.00): TD 7.41% (+1.03 pp)</pre>
+<h3>s1b_satelite.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S1, segunda parte: proyeccion del satelite bajo el escenario JERS y contraste.
+
+1. Proyecta la PD de consumo con el satelite estimado en la primera parte (s1a_satelite.py)
+   bajo el base y el adverso de la JERS de 2025 para Mexico y para Espana. Para Espana se
+   recalibra solo la constante, de modo que la PD de partida sea la de una cartera espanola
+   de consumo tipica (supuesto: 3,0 %); las elasticidades son las mismas.
+2. Contrasta la respuesta del satelite con la de un &quot;benchmark&quot; ilustrativo. Los benchmarks
+   del BCE no son publicos: aqui el benchmark es otro satelite, mas sensible al paro, con la
+   misma PD de partida. Lo que se compara es lo que compara el supervisor: el aumento de la
+   PD del adverso sobre el base.
+3. LGD hipotecaria bajo escenario: efecto de la caida acumulada de la vivienda (Espana,
+   -17,2 % nominal en el adverso de 2025) segun el LTV, con prevision perfecta.
+&quot;&quot;&quot;
+import numpy as np
+
+A, B, C = -3.514, 0.215, -0.0802          # s1a_satelite.py: logit PD = a + b*paro(t-1) + c*PIB(t)
+
+ESC = {  # escenario JERS 2025, tablas 4.1.1 y 4.1.2
+    &quot;Mexico&quot;: {&quot;paro0&quot;: 3.0,
+               &quot;base&quot;: {&quot;pib&quot;: [1.3, 2.0, 2.3], &quot;paro&quot;: [3.3, 3.4, 3.5]},
+               &quot;adverso&quot;: {&quot;pib&quot;: [-4.7, -2.2, -0.1], &quot;paro&quot;: [5.2, 7.6, 8.8]}},
+    &quot;Espana&quot;: {&quot;paro0&quot;: 11.5,
+               &quot;base&quot;: {&quot;pib&quot;: [2.5, 1.9, 1.7], &quot;paro&quot;: [10.8, 10.4, 9.9]},
+               &quot;adverso&quot;: {&quot;pib&quot;: [-2.5, -3.5, 2.0], &quot;paro&quot;: [14.1, 16.8, 15.6]}},
+}
+
+
+def logit(p):
+    return np.log(p / (1 - p))
+
+
+def logistica(z):
+    return 1 / (1 + np.exp(-z))
+
+
+def senda(pais, esc, a=A, b=B, c=C):
+    e = ESC[pais]
+    paro_prev = [e[&quot;paro0&quot;]] + e[esc][&quot;paro&quot;][:-1]
+    return [logistica(a + b * pp + c * g) for pp, g in zip(paro_prev, e[esc][&quot;pib&quot;])]
+
+
+def constante_para(pais, pd0, b=B, c=C):
+    e = ESC[pais]
+    return logit(pd0) - b * e[&quot;paro0&quot;] - c * e[&quot;base&quot;][&quot;pib&quot;][0]
+
+
+def imprimir(pais, a, b=B, c=C, etiqueta=&quot;satelite&quot;):
+    pd0 = logistica(a + b * ESC[pais][&quot;paro0&quot;] + c * ESC[pais][&quot;base&quot;][&quot;pib&quot;][0])
+    base, adv = senda(pais, &quot;base&quot;, a, b, c), senda(pais, &quot;adverso&quot;, a, b, c)
+    inc = [x - y for x, y in zip(adv, base)]
+    print(f&quot;  {pais:7} {etiqueta:10} partida {pd0:6.2%} | base &quot; + &quot; &quot;.join(f&quot;{x:6.2%}&quot; for x in base)
+          + &quot; | adverso &quot; + &quot; &quot;.join(f&quot;{x:6.2%}&quot; for x in adv)
+          + &quot; | adv-base &quot; + &quot; &quot;.join(f&quot;{x * 100:5.2f}&quot; for x in inc) + &quot; pp&quot;
+          + f&quot; | multiplicador ano 3 {adv[2] / pd0:.2f}x&quot;)
+    return inc
+
+
+def main():
+    print(&quot;1. Proyeccion de la PD de consumo&quot;)
+    imprimir(&quot;Mexico&quot;, A)
+    a_es = constante_para(&quot;Espana&quot;, 0.030)
+    print(f&quot;  (constante recalibrada para Espana: {a_es:.3f})&quot;)
+    imprimir(&quot;Espana&quot;, a_es)
+
+    print(&quot;\n2. Contraste con un benchmark ilustrativo (mas sensible al paro)&quot;)
+    b_bm, c_bm = 0.30, -0.10
+    inc_sat = imprimir(&quot;Mexico&quot;, A, etiqueta=&quot;satelite&quot;)
+    pd0_mx = logistica(A + B * 3.0 + C * 1.3)
+    a_bm = constante_para(&quot;Mexico&quot;, pd0_mx, b_bm, c_bm)
+    inc_bm = imprimir(&quot;Mexico&quot;, a_bm, b_bm, c_bm, etiqueta=&quot;benchmark&quot;)
+    print(f&quot;  Sensibilidad relativa (suma de aumentos adv-base): satelite / benchmark = &quot;
+          f&quot;{sum(inc_sat) / sum(inc_bm):.2f}&quot;)
+    for k in (0.5, 0.75):
+        print(f&quot;  Mezcla {k:.0%} satelite / {1 - k:.0%} benchmark, PD adversa ano 3: &quot;
+              f&quot;{k * senda(&#x27;Mexico&#x27;, &#x27;adverso&#x27;)[2] + (1 - k) * senda(&#x27;Mexico&#x27;, &#x27;adverso&#x27;, a_bm, b_bm, c_bm)[2]:.2%}&quot;)
+
+    print(&quot;\n3. LGD hipotecaria de un S3 con la caida de la vivienda (Espana, adverso 2025: -17,2 %)&quot;)
+    descuento, costes, cura = 0.20, 0.05, 0.30     # venta forzosa, costes de ejecucion, cura implicita
+    for ltv in (0.60, 0.80, 0.95):
+        out = []
+        for caida in (0.0, -0.172):
+            garantia = (1 + caida) * (1 - descuento) / ltv          # valor recuperable por euro de deuda
+            perdida_ejec = max(0.0, 1 - garantia) + costes
+            out.append((1 - cura) * perdida_ejec + cura * 0.05)       # los que se curan pierden 5 %
+        print(f&quot;  LTV {ltv:.0%}: LGD sin caida {out[0]:.1%}, con la caida del adverso {out[1]:.1%} &quot;
+              f&quot;(+{(out[1] - out[0]) * 100:.1f} pp)&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+<pre class="salida">1. Proyeccion de la PD de consumo
+  Mexico  satelite   partida  4.86% | base  4.86%  4.90%  4.89% | adverso  7.64%  9.80% 13.33% | adv-base  2.78  4.90  8.44 pp | multiplicador ano 3 2.74x
+  (constante recalibrada para Espana: -5.748)
+  Espana  satelite   partida  3.00% | base  3.00%  2.72%  2.54% | adverso  4.41%  8.05%  9.14% | adv-base  1.41  5.33  6.60 pp | multiplicador ano 3 3.05x
+
+2. Contraste con un benchmark ilustrativo (mas sensible al paro)
+  Mexico  satelite   partida  4.86% | base  4.86%  4.90%  4.89% | adverso  7.64%  9.80% 13.33% | adv-base  2.78  4.90  8.44 pp | multiplicador ano 3 2.74x
+  Mexico  benchmark  partida  4.86% | base  4.86%  4.96%  4.96% | adverso  8.52% 12.31% 18.95% | adv-base  3.66  7.35 13.99 pp | multiplicador ano 3 3.90x
+  Sensibilidad relativa (suma de aumentos adv-base): satelite / benchmark = 0.64
+  Mezcla 50% satelite / 50% benchmark, PD adversa ano 3: 16.14%
+  Mezcla 75% satelite / 25% benchmark, PD adversa ano 3: 14.74%
+
+3. LGD hipotecaria de un S3 con la caida de la vivienda (Espana, adverso 2025: -17,2 %)
+  LTV 60%: LGD sin caida 5.0%, con la caida del adverso 5.0% (+0.0 pp)
+  LTV 80%: LGD sin caida 5.0%, con la caida del adverso 17.0% (+12.0 pp)
+  LTV 95%: LGD sin caida 16.1%, con la caida del adverso 26.2% (+10.1 pp)</pre>
+<!-- ============================================================ -->
+<h2 id="S2">Anexo S2 &mdash; Migración de stages bajo escenario</h2>
+<p>Las fórmulas de provisiones de los recuadros 3 a 9 de la nota metodológica de 2027 aplicadas a la cartera de consumo del hilo conductor: previsión perfecta, reversión en seis años, ponderación 5/6 &ndash; 1/6 del último año, suelo del stage 3 antiguo y tres criterios de SICR.</p>
+<p class="small">Se usa en: capítulos 16 y 17. Ejecución: <code>.venv/bin/python -I anexos/s2_migracion.py</code>.</p>
+<h3>s2_migracion.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S2: migracion entre stages y provisiones con las formulas prescritas de la EBA.
+
+Aplica literalmente los recuadros 3 a 9 de la nota metodologica de 2027 (borrador del
+11-jun-2026) a la cartera de consumo de la filial mexicana del hilo conductor (anexo S0):
+
+  Prov S1-S1(t+1) = Exp S1(t) * (1 - TR12(t+1) - PD1(t+1)) * PD1(t+2) * LGD1(t+2)
+  Prov S2-S1(t+1) = Exp S2(t) * TR21(t+1) * PD1(t+2) * LGD1(t+2)
+  Prov S1-S2(t+1) = Exp S1(t) * TR12(t+1) * LRLT S2(t+1)
+  Prov S2-S2(t+1) = Exp S2(t) * (1 - TR21(t+1) - PD2(t+1)) * LRLT S2(t+1)
+  Prov S1-S3(t+1) = Exp S1(t) * PD1(t+1) * LGD1(t+1)        (acumuladas, sin liberacion)
+  Prov S2-S3(t+1) = Exp S2(t) * PD2(t+1) * LGD2(t+1)
+  Prov Old S3     = MAX{Exp S3(0) * LGD S3(1); Prov S3(0)}
+
+En el ultimo ano, los parametros &quot;del ano siguiente&quot; del adverso ponderan 5/6 el adverso y
+1/6 el base (reversion lineal en seis anos); en el base quedan planos. LRLT S2 se calcula con
+prevision perfecta sobre la vida residual, con la misma reversion tras el horizonte.
+
+Los anos se numeran 1, 2 y 3: el escenario es el de la JERS para Mexico del ejercicio 2025,
+y las formulas, las del borrador de 2027.
+&quot;&quot;&quot;
+import numpy as np
+
+PARO_0 = 3.0
+ESC = {
+    &quot;base&quot;:    {&quot;pib&quot;: [1.3, 2.0, 2.3],   &quot;paro&quot;: [3.3, 3.4, 3.5]},
+    &quot;adverso&quot;: {&quot;pib&quot;: [-4.7, -2.2, -0.1], &quot;paro&quot;: [5.2, 7.6, 8.8]},
+}
+SATELITE = (-3.514, 0.215, -0.0802)      # anexo S1: logit PD = a + b*paro(t-1) + c*PIB(t)
+STOCK0 = {&quot;S1&quot;: 880.0, &quot;S2&quot;: 70.0, &quot;S3&quot;: 50.0}
+M12, M2, TR21, VIDA = 1.5, 3.0, 0.20, 3    # TR12 = M12*PD1; PD2 = M2*PD1; cura S2-&gt;S1; vida residual
+EXTRA = 12                                 # anos de sendas tras el horizonte
+
+
+def logistica(z):
+    return 1 / (1 + np.exp(-z))
+
+
+def lgd(paro):
+    return min(0.85, 0.70 + 0.01 * (paro - 3.5))
+
+
+def sendas(esc):
+    &quot;&quot;&quot;PD1 y LGD para t = 0 (partida), 1-3 (horizonte) y 4.. (tras el horizonte).&quot;&quot;&quot;
+    a, b, c = SATELITE
+    paro_prev = [PARO_0] + ESC[esc][&quot;paro&quot;][:-1]
+    pd = [logistica(a + b * PARO_0 + c * ESC[&quot;base&quot;][&quot;pib&quot;][0])]
+    pd += [logistica(a + b * pp + c * g) for pp, g in zip(paro_prev, ESC[esc][&quot;pib&quot;])]
+    lg = [lgd(ESC[&quot;base&quot;][&quot;paro&quot;][0])] + [lgd(p) for p in ESC[esc][&quot;paro&quot;]]
+    return pd, lg
+
+
+PD_B, LGD_B = sendas(&quot;base&quot;)
+
+
+def extender(pd, lg, esc):
+    &quot;&quot;&quot;Tras el ano 3: base plano; adverso revierte linealmente en 6 anos al base del ano 3.&quot;&quot;&quot;
+    pd, lg = list(pd), list(lg)
+    for k in range(1, EXTRA + 1):
+        if esc == &quot;adverso&quot;:
+            w = max(0.0, 1 - k / 6)
+            pd.append(PD_B[3] + (pd[3] - PD_B[3]) * w)
+            lg.append(LGD_B[3] + (lg[3] - LGD_B[3]) * w)
+        else:
+            pd.append(pd[3])
+            lg.append(lg[3])
+    return pd, lg
+
+
+def lrlt_s2(pd, lg, t, prevision_perfecta=True):
+    &quot;&quot;&quot;Perdida a vida de S2 medida al final del ano t (vida residual VIDA).&quot;&quot;&quot;
+    sup, perd = 1.0, 0.0
+    for j in range(1, VIDA + 1):
+        k = t + j if prevision_perfecta else t + 1
+        p2 = min(0.6, M2 * pd[k])
+        perd += sup * p2 * lg[k]
+        sup *= 1 - p2
+    return perd
+
+
+def proyectar(esc, m12=M12, prevision_perfecta=True, reversion_5_6=True, lgd_s3_vieja=None):
+    pd, lg = extender(*sendas(esc), esc)
+    # parametro &quot;del ano siguiente&quot; en el ano 3: la nota pondera 5/6 adverso y 1/6 base
+    def el_sig(t):
+        if t + 1 &lt;= 3 or esc == &quot;base&quot;:
+            return pd[t + 1] * lg[t + 1]
+        if reversion_5_6:
+            return 5 / 6 * pd[3] * lg[3] + 1 / 6 * PD_B[3] * LGD_B[3]
+        return pd[3] * lg[3]
+
+    s1, s2 = STOCK0[&quot;S1&quot;], STOCK0[&quot;S2&quot;]
+    s3_viejo = STOCK0[&quot;S3&quot;]
+    # partida: se provisiona con el escenario interno del banco (aqui, el base), igual en los dos
+    prov_s3_0 = s3_viejo * LGD_B[0]
+    prov0 = (s1 * PD_B[1] * LGD_B[1]
+             + s2 * lrlt_s2(*extender(PD_B, LGD_B, &quot;base&quot;), 0)
+             + prov_s3_0)
+    lgd_s3_1 = lg[1] if lgd_s3_vieja is None else lgd_s3_vieja
+    prov_viejo = max(s3_viejo * lgd_s3_1, prov_s3_0)            # recuadro 9
+    cum_nuevo_s3, prov_cum_s3 = 0.0, 0.0
+    filas, prov_ant = [], prov0
+    for t in range(0, 3):                                         # de t a t+1
+        p1, p2 = pd[t + 1], min(0.6, M2 * pd[t + 1])
+        tr12 = m12 * p1
+        flujo_13, flujo_23 = s1 * p1, s2 * p2
+        flujo_12, flujo_21 = s1 * tr12, s2 * TR21
+        prov_13 = flujo_13 * lg[t + 1]
+        prov_23 = flujo_23 * lg[t + 1]
+        lrlt = lrlt_s2(pd, lg, t + 1, prevision_perfecta)
+        prov_11 = s1 * (1 - tr12 - p1) * el_sig(t + 1)
+        prov_21 = flujo_21 * el_sig(t + 1)
+        prov_12 = flujo_12 * lrlt
+        prov_22 = s2 * (1 - TR21 - p2) * lrlt
+        s1, s2 = s1 - flujo_13 - flujo_12 + flujo_21, s2 + flujo_12 - flujo_23 - flujo_21
+        cum_nuevo_s3 += flujo_13 + flujo_23
+        prov_cum_s3 += prov_13 + prov_23
+        stock = {&quot;S1&quot;: prov_11 + prov_21, &quot;S2&quot;: prov_12 + prov_22, &quot;S3&quot;: prov_cum_s3 + prov_viejo}
+        total = sum(stock.values())
+        filas.append({&quot;ano&quot;: t + 1, &quot;S1&quot;: s1, &quot;S2&quot;: s2, &quot;S3&quot;: s3_viejo + cum_nuevo_s3,
+                      &quot;prov&quot;: total, &quot;deterioro&quot;: total - prov_ant, &quot;pd1&quot;: p1, &quot;lrlt&quot;: lrlt,
+                      **{f&quot;prov_{k}&quot;: v for k, v in stock.items()}})
+        prov_ant = total
+    return prov0, filas
+
+
+def resumen(etiqueta, filas, exp=1000.0):
+    det = [f[&quot;deterioro&quot;] for f in filas]
+    print(f&quot;  {etiqueta:44} &quot; + &quot; / &quot;.join(f&quot;{d:6.1f}&quot; for d in det)
+          + f&quot;   total {sum(det):6.1f} ({sum(det) / exp:.2%})  primer ano {det[0] / sum(det):.0%}&quot;
+          + f&quot;  S2 final {filas[-1][&#x27;S2&#x27;]:5.1f}  S3 final {filas[-1][&#x27;S3&#x27;] / exp:.1%}&quot;)
+    return sum(det)
+
+
+def main():
+    print(&quot;Parametros (PD12M S1 y LGD) por ano, 0 = partida:&quot;)
+    for esc in ESC:
+        pd, lg = sendas(esc)
+        print(f&quot;  {esc:8} PD1 &quot; + &quot; &quot;.join(f&quot;{p:6.2%}&quot; for p in pd) + &quot;   LGD &quot; + &quot; &quot;.join(f&quot;{x:5.1%}&quot; for x in lg))
+
+    print(&quot;\nDeterioro por ano, anos 1 / 2 / 3 (millones de EUR; exposicion 1.000):&quot;)
+    tot = {}
+    for esc in ESC:
+        prov0, filas = proyectar(esc)
+        tot[esc] = resumen(f&quot;{esc}, formulas EBA&quot;, filas)
+    print(f&quot;  Adverso menos base: {(tot[&#x27;adverso&#x27;] - tot[&#x27;base&#x27;]) / 10:.2f} pp de la exposicion&quot;)
+    print(f&quot;  Stock de provisiones de partida: {prov0:.1f}&quot;)
+
+    print(&quot;\nPrevision perfecta (adverso):&quot;)
+    _, con = proyectar(&quot;adverso&quot;)
+    _, sin = proyectar(&quot;adverso&quot;, prevision_perfecta=False)
+    a = resumen(&quot;con prevision perfecta&quot;, con)
+    b = resumen(&quot;sin ella (PD del ano siguiente, plana)&quot;, sin)
+    print(f&quot;  LRLT S2 al final del ano 1: {con[0][&#x27;lrlt&#x27;]:.2%} con, {sin[0][&#x27;lrlt&#x27;]:.2%} sin&quot;)
+    print(f&quot;  El primer ano pasa de {sin[0][&#x27;deterioro&#x27;]:.1f} a {con[0][&#x27;deterioro&#x27;]:.1f} &quot;
+          f&quot;(+{con[0][&#x27;deterioro&#x27;] - sin[0][&#x27;deterioro&#x27;]:.1f}); el total cambia {a - b:+.1f}&quot;)
+
+    print(&quot;\nReversion 5/6 - 1/6 en el ultimo ano (adverso):&quot;)
+    _, sin_rev = proyectar(&quot;adverso&quot;, reversion_5_6=False)
+    print(f&quot;  Stock de S1 al final del ano 3: {con[2][&#x27;prov_S1&#x27;]:.2f} con la ponderacion, &quot;
+          f&quot;{sin_rev[2][&#x27;prov_S1&#x27;]:.2f} con el adverso plano&quot;)
+
+    print(&quot;\nSICR sin backstop: dos bancos con distinto criterio (adverso):&quot;)
+    for m in (1.0, 1.5, 2.5):
+        _, f = proyectar(&quot;adverso&quot;, m12=m)
+        _, fb = proyectar(&quot;base&quot;, m12=m)
+        resumen(f&quot;TR12 = {m:.1f} x PD1&quot;, f)
+        print(f&quot;      S2 al final del ano 1: {f[0][&#x27;S2&#x27;]:.1f} (partida 70,0); &quot;
+              f&quot;adverso menos base {(sum(x[&#x27;deterioro&#x27;] for x in f) - sum(x[&#x27;deterioro&#x27;] for x in fb)) / 10:.2f} pp&quot;)
+
+    print(&quot;\nSuelo del S3 antiguo (recuadro 9):&quot;)
+    for lgd_v in (0.65, 0.70, 0.80):
+        _, f = proyectar(&quot;adverso&quot;, lgd_s3_vieja=lgd_v)
+        print(f&quot;  LGD S3 del ano 1 {lgd_v:.0%}: provision del S3 antiguo &quot;
+              f&quot;{max(STOCK0[&#x27;S3&#x27;] * lgd_v, STOCK0[&#x27;S3&#x27;] * LGD_B[0]):.1f} (partida {STOCK0[&#x27;S3&#x27;] * LGD_B[0]:.1f})&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+<pre class="salida">Parametros (PD12M S1 y LGD) por ano, 0 = partida:
+  base     PD1  4.86%  4.86%  4.90%  4.89%   LGD 69.8% 69.8% 69.9% 70.0%
+  adverso  PD1  4.86%  7.64%  9.80% 13.33%   LGD 69.8% 71.7% 74.1% 75.3%
+
+Deterioro por ano, anos 1 / 2 / 3 (millones de EUR; exposicion 1.000):
+  base, formulas EBA                             44.8 /   40.9 /   37.6   total  123.3 (12.33%)  primer ano 36%  S2 final 137.0  S3 final 21.2%
+  adverso, formulas EBA                         141.5 /  110.0 /   86.8   total  338.3 (33.83%)  primer ano 42%  S2 final 186.4  S3 final 39.4%
+  Adverso menos base: 21.50 pp de la exposicion
+  Stock de provisiones de partida: 83.3
+
+Prevision perfecta (adverso):
+  con prevision perfecta                        141.5 /  110.0 /   86.8   total  338.3 (33.83%)  primer ano 42%  S2 final 186.4  S3 final 39.4%
+  sin ella (PD del ano siguiente, plana)        132.6 /  125.9 /   88.0   total  346.6 (34.66%)  primer ano 38%  S2 final 186.4  S3 final 39.4%
+  LRLT S2 al final del ano 1: 54.33% con, 48.03% sin
+  El primer ano pasa de 132.6 a 141.5 (+8.9); el total cambia -8.3
+
+Reversion 5/6 - 1/6 en el ultimo ano (adverso):
+  Stock de S1 al final del ano 3: 37.51 con la ponderacion, 42.14 con el adverso plano
+
+SICR sin backstop: dos bancos con distinto criterio (adverso):
+  TR12 = 1.0 x PD1                              125.7 /   99.4 /   79.9   total  304.9 (30.49%)  primer ano 41%  S2 final 135.7  S3 final 37.5%
+      S2 al final del ano 1: 107.2 (partida 70,0); adverso menos base 19.36 pp
+  TR12 = 1.5 x PD1                              141.5 /  110.0 /   86.8   total  338.3 (33.83%)  primer ano 42%  S2 final 186.4  S3 final 39.4%
+      S2 al final del ano 1: 140.8 (partida 70,0); adverso menos base 21.50 pp
+  TR12 = 2.5 x PD1                              173.1 /  126.7 /   94.0   total  393.8 (39.38%)  primer ano 44%  S2 final 264.8  S3 final 42.9%
+      S2 al final del ano 1: 208.1 (partida 70,0); adverso menos base 24.84 pp
+
+Suelo del S3 antiguo (recuadro 9):
+  LGD S3 del ano 1 65%: provision del S3 antiguo 34.9 (partida 34.9)
+  LGD S3 del ano 1 70%: provision del S3 antiguo 35.0 (partida 34.9)
+  LGD S3 del ano 1 80%: provision del S3 antiguo 40.0 (partida 34.9)</pre>
+<!-- ============================================================ -->
+<h2 id="S3">Anexo S3 &mdash; Traslación del escenario a geografías no UE</h2>
+<p>Severidad por país en acumulado y en desviación, la vivienda turca en nominal y frente al base, tres traslaciones para Argentina (que no tiene fila en el escenario) y la asimetría del tipo de cambio en la filial del juguete.</p>
+<p class="small">Se usa en: capítulo 31. Ejecución: <code>.venv/bin/python -I anexos/s3_traslacion.py</code>.</p>
+<h3>s3_traslacion.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S3: traslacion del escenario de la JERS a las geografias de fuera de la UE.
+
+Datos: escenario macrofinanciero de la JERS para el ejercicio europeo de 2025 (tablas 4.1.1,
+4.1.2 y 4.1.4 y tipos de cambio), transcritos y validados en investigacion/jers-escenario.md.
+
+Cuatro piezas:
+  1. Severidad: acumulado frente a desviacion sobre el base, por pais.
+  2. Turkiye: por que una variable nominal engana con inflacion alta.
+  3. Argentina, que no tiene fila: la fila &quot;Rest of the world&quot; frente a aplicar la desviacion
+     regional a un base propio (ilustrativo).
+  4. La asimetria del tipo de cambio en la filial del juguete (anexo S0): los saldos se quedan
+     al tipo de cierre, el margen se convierte con la senda del escenario.
+&quot;&quot;&quot;
+# PIB (tasa anual, %) y paro (media anual, %): base 25-27 y adverso 25-27
+ESC = {
+    &quot;Espana&quot;:  {&quot;pib_b&quot;: [2.5, 1.9, 1.7], &quot;pib_a&quot;: [-2.5, -3.5, 2.0], &quot;paro_b&quot;: [10.8, 10.4, 9.9], &quot;paro_a&quot;: [14.1, 16.8, 15.6], &quot;paro0&quot;: 11.5},
+    &quot;Mexico&quot;:  {&quot;pib_b&quot;: [1.3, 2.0, 2.3], &quot;pib_a&quot;: [-4.7, -2.2, -0.1], &quot;paro_b&quot;: [3.3, 3.4, 3.5], &quot;paro_a&quot;: [5.2, 7.6, 8.8], &quot;paro0&quot;: 3.0},
+    &quot;Brasil&quot;:  {&quot;pib_b&quot;: [2.2, 2.3, 2.4], &quot;pib_a&quot;: [-3.3, -0.6, 1.0], &quot;paro_b&quot;: [7.2, 7.3, 7.4], &quot;paro_a&quot;: [11.6, 12.1, 11.7], &quot;paro0&quot;: 7.2},
+    &quot;Chile&quot;:   {&quot;pib_b&quot;: [2.4, 2.5, 2.4], &quot;pib_a&quot;: [-5.1, -0.2, 2.1], &quot;paro_b&quot;: [8.0, 7.8, 7.7], &quot;paro_a&quot;: [11.8, 12.5, 12.1], &quot;paro0&quot;: 8.5},
+    &quot;Turkiye&quot;: {&quot;pib_b&quot;: [2.7, 3.2, 3.4], &quot;pib_a&quot;: [-4.9, -2.7, 1.0], &quot;paro_b&quot;: [9.9, 9.6, 9.5], &quot;paro_a&quot;: [15.6, 16.2, 15.6], &quot;paro0&quot;: 9.3},
+    &quot;EE. UU.&quot;: {&quot;pib_b&quot;: [2.2, 2.0, 2.1], &quot;pib_a&quot;: [-5.1, -2.5, 4.3], &quot;paro_b&quot;: [4.4, 4.3, 4.2], &quot;paro_a&quot;: [8.9, 10.0, 8.6], &quot;paro0&quot;: 4.1},
+    &quot;Resto del mundo&quot;: {&quot;pib_b&quot;: [3.9, 4.2, 3.9], &quot;pib_a&quot;: [-3.2, -1.5, 1.5], &quot;paro_b&quot;: [9.9, 9.6, 9.5], &quot;paro_a&quot;: [15.6, 16.1, 15.4], &quot;paro0&quot;: 9.3},
+    &quot;America Latina&quot;: {&quot;pib_b&quot;: [2.3, 2.5, 2.6], &quot;pib_a&quot;: [-2.7, -0.6, 0.9], &quot;paro_b&quot;: [6.2, 6.3, 6.3], &quot;paro_a&quot;: [9.2, 10.5, 10.7], &quot;paro0&quot;: 6.2},
+}
+FX_MXN = [8.9, 7.3, 6.0]          # depreciacion media anual EUR/MXN frente al punto de partida, %
+
+
+def nivel(tasas):
+    n = 1.0
+    for x in tasas:
+        n *= 1 + x / 100
+    return n
+
+
+def severidad():
+    print(&quot;1. Severidad del adverso: acumulado frente a desviacion sobre el base en el ano 3&quot;)
+    for pais, e in ESC.items():
+        acum = (nivel(e[&quot;pib_a&quot;]) - 1) * 100
+        desv = (nivel(e[&quot;pib_a&quot;]) / nivel(e[&quot;pib_b&quot;]) - 1) * 100
+        dparo = e[&quot;paro_a&quot;][2] - e[&quot;paro_b&quot;][2]
+        print(f&quot;  {pais:16} PIB acumulado {acum:6.1f} %  desviacion {desv:6.1f} %  paro +{dparo:.1f} pp sobre el base&quot;)
+
+
+def turkiye():
+    print(&quot;\n2. Turkiye: vivienda nominal frente a desviacion (escenario de 2025)&quot;)
+    nominal, desviacion = 128.7, -19.3
+    base_implicito = (1 + nominal / 100) / (1 + desviacion / 100) - 1
+    print(f&quot;  Adverso: +{nominal} % nominal acumulado; desviacion frente al base {desviacion} %&quot;)
+    print(f&quot;  Base implicito: +{base_implicito * 100:.1f} % nominal en tres anos&quot;)
+    print(&quot;  Un satelite que lea la variable nominal &#x27;ve&#x27; una subida del 129 %: senal de signo equivocado&quot;)
+
+
+def argentina():
+    print(&quot;\n3. Argentina sin fila: dos traslaciones (base argentino supuesto, ilustrativo)&quot;)
+    base_ar_pib, base_ar_paro = [3.0, 3.0, 3.0], [7.0, 7.0, 7.0]
+    for fuente in (&quot;Resto del mundo&quot;, &quot;America Latina&quot;):
+        e = ESC[fuente]
+        dpib = [a - b for a, b in zip(e[&quot;pib_a&quot;], e[&quot;pib_b&quot;])]
+        dparo = [a - b for a, b in zip(e[&quot;paro_a&quot;], e[&quot;paro_b&quot;])]
+        pib = [b + d for b, d in zip(base_ar_pib, dpib)]
+        paro = [b + d for b, d in zip(base_ar_paro, dparo)]
+        print(f&quot;  Desviacion de &#x27;{fuente}&#x27;: PIB {&#x27; / &#x27;.join(f&#x27;{x:.1f}&#x27; for x in pib)} %; &quot;
+              f&quot;paro {&#x27; / &#x27;.join(f&#x27;{x:.1f}&#x27; for x in paro)} %&quot;)
+    e = ESC[&quot;Resto del mundo&quot;]
+    print(f&quot;  Fila &#x27;Resto del mundo&#x27; tal cual: PIB {&#x27; / &#x27;.join(f&#x27;{x:.1f}&#x27; for x in e[&#x27;pib_a&#x27;])} %; &quot;
+          f&quot;paro {&#x27; / &#x27;.join(f&#x27;{x:.1f}&#x27; for x in e[&#x27;paro_a&#x27;])} % (el paro replica el de Turkiye)&quot;)
+
+
+def tipo_cambio():
+    print(&quot;\n4. Asimetria del tipo de cambio en la filial del juguete (anexo S0)&quot;)
+    margen_eur = 1000 * 0.075 + 1000 * 0.012           # margen adverso dado, al tipo de cierre
+    rwa0, impuesto = 1722.0, 0.30                       # RWA de partida de la filial (anexo S0)
+    perdido = 0.0
+    for t, dep in enumerate(FX_MXN, start=1):
+        convertido = margen_eur / (1 + dep / 100)
+        perdido += margen_eur - convertido
+        print(f&quot;  Ano {t}: EUR/MXN +{dep:.1f} %: margen {margen_eur:.1f} -&gt; {convertido:.1f} M EUR&quot;)
+    print(f&quot;  Margen perdido en tres anos: {perdido:.1f} M EUR = {perdido * (1 - impuesto) / rwa0 * 1e4:.0f} pb &quot;
+          f&quot;de CET1 de la filial sobre sus RWA de partida, que no se mueven&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    severidad()
+    turkiye()
+    argentina()
+    tipo_cambio()</code></pre>
+<pre class="salida">1. Severidad del adverso: acumulado frente a desviacion sobre el base en el ano 3
+  Espana           PIB acumulado   -4.0 %  desviacion   -9.7 %  paro +5.7 pp sobre el base
+  Mexico           PIB acumulado   -6.9 %  desviacion  -11.9 %  paro +5.3 pp sobre el base
+  Brasil           PIB acumulado   -2.9 %  desviacion   -9.3 %  paro +4.3 pp sobre el base
+  Chile            PIB acumulado   -3.3 %  desviacion  -10.0 %  paro +4.4 pp sobre el base
+  Turkiye          PIB acumulado   -6.5 %  desviacion  -14.7 %  paro +6.1 pp sobre el base
+  EE. UU.          PIB acumulado   -3.5 %  desviacion   -9.3 %  paro +4.4 pp sobre el base
+  Resto del mundo  PIB acumulado   -3.2 %  desviacion  -14.0 %  paro +5.9 pp sobre el base
+  America Latina   PIB acumulado   -2.4 %  desviacion   -9.3 %  paro +4.4 pp sobre el base
+
+2. Turkiye: vivienda nominal frente a desviacion (escenario de 2025)
+  Adverso: +128.7 % nominal acumulado; desviacion frente al base -19.3 %
+  Base implicito: +183.4 % nominal en tres anos
+  Un satelite que lea la variable nominal &#x27;ve&#x27; una subida del 129 %: senal de signo equivocado
+
+3. Argentina sin fila: dos traslaciones (base argentino supuesto, ilustrativo)
+  Desviacion de &#x27;Resto del mundo&#x27;: PIB -4.1 / -2.7 / 0.6 %; paro 12.7 / 13.5 / 12.9 %
+  Desviacion de &#x27;America Latina&#x27;: PIB -2.0 / -0.1 / 1.3 %; paro 10.0 / 11.2 / 11.4 %
+  Fila &#x27;Resto del mundo&#x27; tal cual: PIB -3.2 / -1.5 / 1.5 %; paro 15.6 / 16.1 / 15.4 % (el paro replica el de Turkiye)
+
+4. Asimetria del tipo de cambio en la filial del juguete (anexo S0)
+  Ano 1: EUR/MXN +8.9 %: margen 87.0 -&gt; 79.9 M EUR
+  Ano 2: EUR/MXN +7.3 %: margen 87.0 -&gt; 81.1 M EUR
+  Ano 3: EUR/MXN +6.0 %: margen 87.0 -&gt; 82.1 M EUR
+  Margen perdido en tres anos: 18.0 M EUR = 73 pb de CET1 de la filial sobre sus RWA de partida, que no se mueven</pre>
+<!-- ============================================================ -->
+<h2 id="S4">Anexo S4 &mdash; Puente de comparabilidad España–México</h2>
+<p>Los pasos 1 a 3 del puente con los datos publicados por la EBA del ejercicio de 2025 para Santander y BBVA en España y México: cocientes, severidad neta, denominador y descomposición en mezcla e intensidad.</p>
+<p class="small">Se usa en: capítulos 31 y 32. Ejecución: <code>.venv/bin/python -I anexos/s4_puente.py</code>.</p>
+<h3>s4_puente.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S4: puente de comparabilidad Espana-Mexico con los datos publicos del EBA 2025.
+
+Datos: base de datos de transparencia del ejercicio europeo de 2025 (EBA, 1-ago-2025),
+recalculada por pais y segmento en la validacion de la F1
+(investigacion/research_notes/Validacion F1 stress test/datos-publicos.md, seccion 2).
+Metrica: aumento del stock de provisiones (S1+S2+S3) entre el punto de partida (31-dic-2024)
+y el final de 2027, sobre la exposicion de partida. Con balance estatico, sin workout ni
+liberacion de provisiones de S3, aproxima el deterioro acumulado.
+
+Para regenerar las cifras desde los CSV de la EBA (TRA_CRE_IRB.csv, TRA_CRE_STA.csv), ver
+herramientas/validacion_f1/ (csv_check.py, retail_split.py, shift_share.py).
+
+Puente en cuatro pasos:
+  1. Severidad neta: adverso menos base.
+  2. Denominador: hogares + empresas, sin soberanos, bancos centrales ni entidades.
+  3. Mezcla frente a intensidad entre segmentos (hipotecas, resto minorista, empresas).
+  4. Mecanica EBA frente a local: no se puede hacer con datos publicos; ver anexo S6.
+&quot;&quot;&quot;
+# exposicion (M EUR) y tasa (%) adversa y base, por banco y pais
+TODO = {  # todas las carteras
+    (&quot;Santander&quot;, &quot;Espana&quot;): (309_960, 1.8522, 1.1269),
+    (&quot;Santander&quot;, &quot;Mexico&quot;): (65_678, 5.9974, 3.4136),
+    (&quot;BBVA&quot;, &quot;Espana&quot;): (250_029, 4.3027, 2.1581),
+    (&quot;BBVA&quot;, &quot;Mexico&quot;): (108_478, 13.6691, 10.1182),
+}
+HE = {  # hogares + empresas
+    (&quot;Santander&quot;, &quot;Espana&quot;): (157_612, 3.4534, 2.11),
+    (&quot;Santander&quot;, &quot;Mexico&quot;): (41_495, 9.1481, 5.24),
+    (&quot;BBVA&quot;, &quot;Espana&quot;): (160_804, 6.3842, 3.07),
+    (&quot;BBVA&quot;, &quot;Mexico&quot;): (89_244, 16.5344, 12.25),
+}
+SEG = {  # segmento: (exposicion, adverso, base)
+    (&quot;Santander&quot;, &quot;Espana&quot;): {&quot;hipotecas&quot;: (64_414, 1.55, 0.83), &quot;resto minorista&quot;: (32_548, 9.29, 6.15), &quot;empresas&quot;: (60_650, 2.34, 1.29)},
+    (&quot;Santander&quot;, &quot;Mexico&quot;): {&quot;hipotecas&quot;: (10_125, 3.53, 2.73), &quot;resto minorista&quot;: (15_648, 21.55, 11.84), &quot;empresas&quot;: (15_722, 0.41, 0.27)},
+    (&quot;BBVA&quot;, &quot;Espana&quot;): {&quot;hipotecas&quot;: (71_704, 1.80, 0.68), &quot;resto minorista&quot;: (28_352, 13.79, 7.71), &quot;empresas&quot;: (60_747, 8.33, 3.72)},
+    (&quot;BBVA&quot;, &quot;Mexico&quot;): {&quot;hipotecas&quot;: (16_786, 4.71, 3.08), &quot;resto minorista&quot;: (33_313, 37.67, 28.56), &quot;empresas&quot;: (39_145, 3.61, 2.31)},
+}
+JERS = {  # desviacion frente al base en 2027 (escenario JERS 2025)
+    &quot;Espana&quot;: {&quot;PIB&quot;: -9.8, &quot;paro (pp)&quot;: 5.7, &quot;vivienda&quot;: -30.1, &quot;inmobiliario comercial&quot;: -28.8},
+    &quot;Mexico&quot;: {&quot;PIB&quot;: -11.9, &quot;paro (pp)&quot;: 5.3, &quot;vivienda&quot;: -22.1, &quot;inmobiliario comercial&quot;: -42.1},
+}
+
+
+def cociente(tabla, banco, idx):
+    return tabla[(banco, &quot;Mexico&quot;)][idx] / tabla[(banco, &quot;Espana&quot;)][idx]
+
+
+def paso0():
+    print(&quot;0. El cociente de partida: Mexico / Espana, todas las carteras, adverso&quot;)
+    for b in (&quot;Santander&quot;, &quot;BBVA&quot;):
+        print(f&quot;  {b:9} {TODO[(b, &#x27;Mexico&#x27;)][1]:.2f} % / {TODO[(b, &#x27;Espana&#x27;)][1]:.2f} % = {cociente(TODO, b, 1):.2f}&quot;)
+
+
+def paso1():
+    print(&quot;\n1. Severidad neta: el escenario no es mucho mas duro para Mexico&quot;)
+    for p, v in JERS.items():
+        print(f&quot;  JERS {p:7}: &quot; + &quot;, &quot;.join(f&quot;{k} {x:+.1f}&quot; for k, x in v.items()))
+    for b in (&quot;Santander&quot;, &quot;BBVA&quot;):
+        print(f&quot;  {b:9} base: Mexico {TODO[(b, &#x27;Mexico&#x27;)][2]:.2f} %, Espana {TODO[(b, &#x27;Espana&#x27;)][2]:.2f} % &quot;
+              f&quot;(cociente {cociente(TODO, b, 2):.2f})&quot;)
+        am = TODO[(b, &quot;Mexico&quot;)][1] - TODO[(b, &quot;Mexico&quot;)][2]
+        ae = TODO[(b, &quot;Espana&quot;)][1] - TODO[(b, &quot;Espana&quot;)][2]
+        print(f&quot;  {b:9} adverso menos base: Mexico {am:.2f} pp, Espana {ae:.2f} pp (cociente {am / ae:.2f})&quot;)
+
+
+def paso2():
+    print(&quot;\n2. Denominador: hogares + empresas&quot;)
+    for b in (&quot;Santander&quot;, &quot;BBVA&quot;):
+        for p in (&quot;Espana&quot;, &quot;Mexico&quot;):
+            peso = HE[(b, p)][0] / TODO[(b, p)][0]
+            print(f&quot;  {b:9} {p:7} peso de hogares + empresas {peso:.1%}; tasa adversa {HE[(b, p)][1]:.2f} %&quot;)
+        print(f&quot;  {b:9} cociente Mexico / Espana con hogares + empresas: {cociente(HE, b, 1):.2f}&quot;)
+
+
+def paso3():
+    print(&quot;\n3. Mezcla frente a intensidad (BBVA - Santander, hogares + empresas, adverso)&quot;)
+    for p in (&quot;Espana&quot;, &quot;Mexico&quot;):
+        s, bb = SEG[(&quot;Santander&quot;, p)], SEG[(&quot;BBVA&quot;, p)]
+        ts, tb = sum(v[0] for v in s.values()), sum(v[0] for v in bb.values())
+        mezcla = intensidad = 0.0
+        for seg in s:
+            ws, wb = s[seg][0] / ts, bb[seg][0] / tb
+            mezcla += (wb - ws) * s[seg][1]
+            intensidad += wb * (bb[seg][1] - s[seg][1])
+            print(f&quot;  {p:7} {seg:16} peso S {ws:5.1%} / B {wb:5.1%}   tasa S {s[seg][1]:5.2f} % / B {bb[seg][1]:5.2f} %&quot;)
+        tasa_s = sum(v[0] * v[1] for v in s.values()) / ts
+        tasa_b = sum(v[0] * v[1] for v in bb.values()) / tb
+        print(f&quot;  {p:7} diferencia {tasa_b - tasa_s:+.2f} pp = mezcla {mezcla:+.2f} + intensidad {intensidad:+.2f}&quot;)
+
+
+def pesos():
+    print(&quot;\nPeso de Mexico en exposicion y en perdidas (todas las carteras, adverso)&quot;)
+    datos = {&quot;Santander&quot;: (65_678, 3_939, 1_384_138, 44_090), &quot;BBVA&quot;: (108_478, 14_828, 643_928, 35_593)}
+    for b, (e_mx, d_mx, e_g, d_g) in datos.items():
+        print(f&quot;  {b:9} exposicion {e_mx / e_g:.1%}; aumento de provisiones {d_mx / d_g:.1%}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    paso0()
+    paso1()
+    paso2()
+    paso3()
+    pesos()</code></pre>
+<pre class="salida">0. El cociente de partida: Mexico / Espana, todas las carteras, adverso
+  Santander 6.00 % / 1.85 % = 3.24
+  BBVA      13.67 % / 4.30 % = 3.18
+
+1. Severidad neta: el escenario no es mucho mas duro para Mexico
+  JERS Espana : PIB -9.8, paro (pp) +5.7, vivienda -30.1, inmobiliario comercial -28.8
+  JERS Mexico : PIB -11.9, paro (pp) +5.3, vivienda -22.1, inmobiliario comercial -42.1
+  Santander base: Mexico 3.41 %, Espana 1.13 % (cociente 3.03)
+  Santander adverso menos base: Mexico 2.58 pp, Espana 0.73 pp (cociente 3.56)
+  BBVA      base: Mexico 10.12 %, Espana 2.16 % (cociente 4.69)
+  BBVA      adverso menos base: Mexico 3.55 pp, Espana 2.14 pp (cociente 1.66)
+
+2. Denominador: hogares + empresas
+  Santander Espana  peso de hogares + empresas 50.8%; tasa adversa 3.45 %
+  Santander Mexico  peso de hogares + empresas 63.2%; tasa adversa 9.15 %
+  Santander cociente Mexico / Espana con hogares + empresas: 2.65
+  BBVA      Espana  peso de hogares + empresas 64.3%; tasa adversa 6.38 %
+  BBVA      Mexico  peso de hogares + empresas 82.3%; tasa adversa 16.53 %
+  BBVA      cociente Mexico / Espana con hogares + empresas: 2.59
+
+3. Mezcla frente a intensidad (BBVA - Santander, hogares + empresas, adverso)
+  Espana  hipotecas        peso S 40.9% / B 44.6%   tasa S  1.55 % / B  1.80 %
+  Espana  resto minorista  peso S 20.7% / B 17.6%   tasa S  9.29 % / B 13.79 %
+  Espana  empresas         peso S 38.5% / B 37.8%   tasa S  2.34 % / B  8.33 %
+  Espana  diferencia +2.93 pp = mezcla -0.24 + intensidad +3.17
+  Mexico  hipotecas        peso S 24.4% / B 18.8%   tasa S  3.53 % / B  4.71 %
+  Mexico  resto minorista  peso S 37.7% / B 37.3%   tasa S 21.55 % / B 37.67 %
+  Mexico  empresas         peso S 37.9% / B 43.9%   tasa S  0.41 % / B  3.61 %
+  Mexico  diferencia +7.39 pp = mezcla -0.26 + intensidad +7.64
+
+Peso de Mexico en exposicion y en perdidas (todas las carteras, adverso)
+  Santander exposicion 4.7%; aumento de provisiones 8.9%
+  BBVA      exposicion 16.8%; aumento de provisiones 41.7%</pre>
+<!-- ============================================================ -->
+<h2 id="S5">Anexo S5 &mdash; <i>Reverse stress test</i></h2>
+<p>Sobre el juguete del anexo S0: el múltiplo del adverso que produce una caída objetivo y, moviendo por separado paro y PIB, el escenario más plausible en distancia de Mahalanobis.</p>
+<p class="small">Se usa en: capítulo 21. Ejecución: <code>.venv/bin/python -I anexos/s5_reverse.py</code>.</p>
+<h3>s5_reverse.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S5: reverse stress test sobre la filial del hilo conductor.
+
+Pregunta inversa: en lugar de &quot;cuanto cae el CET1 con este escenario&quot;, &quot;que escenario hace
+caer el CET1 tanto&quot;. Usa el stress test de juguete del anexo S0 (filial mexicana, consumo y
+empresas, margen dado) y dos herramientas:
+
+1. Escalar el escenario: el adverso se escribe como base + k * (adverso - base) y se busca la
+   k que produce la caida objetivo. k = 1 es el adverso de la JERS.
+2. El escenario mas plausible: se mueven por separado el choque de paro y el de PIB, se
+   trazan las combinaciones que producen la misma caida y se elige la que esta mas cerca del
+   base en distancia de Mahalanobis (desviaciones tipicas y correlacion supuestas, ilustrativas).
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+import numpy as np
+from scipy.optimize import brentq
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import s0_juguete as s0  # noqa: E402
+
+BASE = {k: list(v) for k, v in s0.ESC[&quot;base&quot;].items()}
+ADV = {k: list(v) for k, v in s0.ESC[&quot;adverso&quot;].items()}
+
+
+def caida_maxima(k_paro, k_pib):
+    &quot;&quot;&quot;Caida maxima de CET1 (pb) de la filial con el adverso escalado, margen adverso dado.&quot;&quot;&quot;
+    s0.ESC[&quot;adverso&quot;] = {
+        &quot;paro&quot;: [b + k_paro * (a - b) for a, b in zip(ADV[&quot;paro&quot;], BASE[&quot;paro&quot;])],
+        &quot;pib&quot;: [b + k_pib * (a - b) for a, b in zip(ADV[&quot;pib&quot;], BASE[&quot;pib&quot;])],
+    }
+    tot = None
+    for nombre in s0.CARTERAS:
+        df, _ = s0.proyectar(nombre, &quot;adverso&quot;)
+        cols = df[[&quot;deterioro&quot;, &quot;rwa&quot;, &quot;margen&quot;]]
+        tot = cols if tot is None else tot + cols
+    rwa0 = tot.rwa.iloc[0]
+    cet1 = s0.CET1_INICIAL_SOBRE_RWA * rwa0
+    ratios = [cet1 / rwa0]
+    for t in (1, 2, 3):
+        cet1 += (-tot.deterioro.iloc[t] + tot.margen.iloc[t]) * (1 - s0.TIPO_FISCAL)
+        ratios.append(cet1 / max(tot.rwa.iloc[t], rwa0))
+    s0.ESC[&quot;adverso&quot;] = {k: list(v) for k, v in ADV.items()}
+    return (ratios[0] - min(ratios)) * 1e4
+
+
+def main():
+    ref = caida_maxima(1.0, 1.0)
+    print(f&quot;Adverso JERS (k = 1): caida maxima {ref:.0f} pb&quot;)
+    print(&quot;\n1. Escalar el escenario entero&quot;)
+    for objetivo in (300, 600, 800):
+        k = brentq(lambda x: caida_maxima(x, x) - objetivo, 0.0, 3.0)
+        paro3 = BASE[&quot;paro&quot;][2] + k * (ADV[&quot;paro&quot;][2] - BASE[&quot;paro&quot;][2])
+        pib1 = BASE[&quot;pib&quot;][0] + k * (ADV[&quot;pib&quot;][0] - BASE[&quot;pib&quot;][0])
+        print(f&quot;  Caida de {objetivo} pb: k = {k:.2f} (paro del ano 3 {paro3:.1f} %, PIB del ano 1 {pib1:.1f} %)&quot;)
+
+    print(&quot;\n2. El escenario mas plausible para una caida de 600 pb&quot;)
+    # desviaciones tipicas del choque (en unidades de k) y correlacion, supuestas
+    sd_paro, sd_pib, rho = 1.0, 1.0, 0.6
+    cov = np.array([[sd_paro ** 2, rho * sd_paro * sd_pib], [rho * sd_paro * sd_pib, sd_pib ** 2]])
+    inv = np.linalg.inv(cov)
+    mejor = None
+    for kp in np.linspace(0.0, 3.0, 61):
+        f = lambda kg: caida_maxima(kp, kg) - 600  # noqa: E731
+        if f(-1.0) * f(6.0) &gt; 0:
+            continue
+        kg = brentq(f, -1.0, 6.0)
+        d = float(np.sqrt(np.array([kp, kg]) @ inv @ np.array([kp, kg])))
+        if mejor is None or d &lt; mejor[2]:
+            mejor = (kp, kg, d)
+        if abs(kp - round(kp * 2) / 2) &lt; 1e-9:
+            print(f&quot;  choque de paro x{kp:.1f} -&gt; hace falta choque de PIB x{kg:.2f}  (distancia {d:.2f})&quot;)
+    kp, kg, d = mejor
+    print(f&quot;  Mas plausible: paro x{kp:.2f}, PIB x{kg:.2f} (distancia {d:.2f}); &quot;
+          f&quot;escalado uniforme: x{brentq(lambda x: caida_maxima(x, x) - 600, 0, 3):.2f}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+<pre class="salida">Adverso JERS (k = 1): caida maxima 523 pb
+
+1. Escalar el escenario entero
+  Caida de 300 pb: k = 0.83 (paro del ano 3 7.9 %, PIB del ano 1 -3.7 %)
+  Caida de 600 pb: k = 1.06 (paro del ano 3 9.1 %, PIB del ano 1 -5.0 %)
+  Caida de 800 pb: k = 1.19 (paro del ano 3 9.8 %, PIB del ano 1 -5.9 %)
+
+2. El escenario mas plausible para una caida de 600 pb
+  choque de paro x0.0 -&gt; hace falta choque de PIB x2.12  (distancia 2.65)
+  choque de paro x0.5 -&gt; hace falta choque de PIB x1.83  (distancia 1.98)
+  choque de paro x1.0 -&gt; hace falta choque de PIB x1.17  (distancia 1.23)
+  choque de paro x1.5 -&gt; hace falta choque de PIB x-0.06  (distancia 1.92)
+  Mas plausible: paro x1.10, PIB x0.96 (distancia 1.16); escalado uniforme: x1.06</pre>
+<!-- ============================================================ -->
+<h2 id="S6">Anexo S6 &mdash; Coherencia entre ICAAP y ejercicio europeo</h2>
+<p>La misma cartera con los mismos modelos en tres ejercicios (europeo, ICAAP y local tipo supervisor mexicano) y el puente con el europeo en dos pasos, escenario y balance.</p>
+<p class="small">Se usa en: capítulo 25 y sección 32.5. Ejecución: <code>.venv/bin/python -I anexos/s6_coherencia.py</code>.</p>
+<h3>s6_coherencia.py</h3>
+<pre><code>&quot;&quot;&quot;Anexo S6: la misma cartera en tres ejercicios, y el puente entre ellos.
+
+La cartera de consumo de la filial mexicana del hilo conductor (1.000 M EUR: 880 / 70 / 50)
+se proyecta tres veces con la misma maquinaria (satelite del anexo S1, formulas de provisiones
+del anexo S2) y supuestos distintos:
+
+  1. Europeo (EBA): adverso JERS (k = 1), balance estatico, sin acciones de gestion.
+  2. ICAAP: escenario propio mas severo (k = 1,15), balance dinamico: vence un 30 % de lo sano
+     cada ano y se repone con produccion nueva mas selectiva (PD x 0,85), sin crecimiento.
+  3. Local tipo supervisor mexicano: escenario del supervisor (k = 0,90), plan de negocio con
+     crecimiento del 8 % anual de la cartera sana; misma admision que hoy.
+
+k escala la desviacion del adverso sobre el base (paro y PIB). Todos los supuestos de los
+ejercicios 2 y 3 son ilustrativos: los escenarios locales y los planes reales no son publicos.
+El puente descompone la diferencia con el europeo en efecto escenario y efecto balance.
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import s2_migracion as s2  # noqa: E402
+
+BASE = {k: list(v) for k, v in s2.ESC[&quot;base&quot;].items()}
+ADV = {k: list(v) for k, v in s2.ESC[&quot;adverso&quot;].items()}
+
+
+def sendas_k(k):
+    s2.ESC[&quot;adverso&quot;] = {v: [b + k * (a - b) for a, b in zip(ADV[v], BASE[v])] for v in ADV}
+    pd, lg = s2.extender(*s2.sendas(&quot;adverso&quot;), &quot;adverso&quot;)
+    s2.ESC[&quot;adverso&quot;] = {v: list(x) for v, x in ADV.items()}
+    return pd, lg
+
+
+def proyectar(k, vence=0.0, crece=0.0, m_nueva=1.0):
+    &quot;&quot;&quot;Perdida acumulada (deterioro de 3 anos) y exposicion media; formulas del anexo S2.&quot;&quot;&quot;
+    pd, lg = sendas_k(k)
+    s1v, s1n, s2_ = s2.STOCK0[&quot;S1&quot;], 0.0, s2.STOCK0[&quot;S2&quot;]
+    s3_viejo = s2.STOCK0[&quot;S3&quot;]
+    prov_s3_0 = s3_viejo * s2.LGD_B[0]
+    prov_ant = (s1v * s2.PD_B[1] * s2.LGD_B[1]
+                + s2_ * s2.lrlt_s2(*s2.extender(s2.PD_B, s2.LGD_B, &quot;base&quot;), 0) + prov_s3_0)
+    prov_viejo = max(s3_viejo * lg[1], prov_s3_0)
+    prov_cum_s3, det_total, expos = 0.0, 0.0, []
+    for t in range(3):
+        sig = lambda m: m * (pd[t + 2] * lg[t + 2] if t &lt; 2 else  # noqa: E731
+                             5 / 6 * pd[3] * lg[3] + 1 / 6 * s2.PD_B[3] * s2.LGD_B[3])
+        nuevos = 0.0
+        for cohorte, m in ((&quot;v&quot;, 1.0), (&quot;n&quot;, m_nueva)):
+            stock = s1v if cohorte == &quot;v&quot; else s1n
+            p1 = m * pd[t + 1]
+            f13, f12 = stock * p1, stock * s2.M12 * p1
+            prov_cum_s3 += f13 * lg[t + 1]
+            nuevos += f12
+            if cohorte == &quot;v&quot;:
+                s1v = stock - f13 - f12
+            else:
+                s1n = stock - f13 - f12
+        p2 = min(0.6, s2.M2 * pd[t + 1])
+        f23, f21 = s2_ * p2, s2_ * s2.TR21
+        prov_cum_s3 += f23 * lg[t + 1]
+        s2_ = s2_ - f23 - f21 + nuevos
+        s1v += f21
+        # vencimientos y produccion nueva (balance dinamico)
+        sano_ini = s1v + s1n + s2_
+        s1v, s1n, s2_ = (x * (1 - vence) for x in (s1v, s1n, s2_))
+        objetivo = (s2.STOCK0[&quot;S1&quot;] + s2.STOCK0[&quot;S2&quot;]) * (1 + crece) ** (t + 1)
+        if vence &gt; 0 or crece &gt; 0:
+            s1n += max(0.0, objetivo - (s1v + s1n + s2_)) if crece &gt; 0 else sano_ini * vence
+        prov = ((s1v * sig(1.0) + s1n * sig(m_nueva))
+                + s2_ * s2.lrlt_s2(pd, lg, t + 1) + prov_cum_s3 + prov_viejo)
+        det_total += prov - prov_ant
+        prov_ant = prov
+        expos.append(s1v + s1n + s2_)
+    return det_total, sum(expos) / 3
+
+
+CASOS = {
+    &quot;europeo&quot;: dict(k=1.00),
+    &quot;icaap&quot;: dict(k=1.15, vence=0.30, m_nueva=0.85),
+    &quot;local&quot;: dict(k=0.90, vence=0.30, crece=0.08),
+}
+
+
+def main():
+    res = {}
+    for nombre, kw in CASOS.items():
+        det, media = proyectar(**kw)
+        res[nombre] = det
+        print(f&quot;{nombre:8} deterioro 3 anos {det:6.1f} M EUR = {det / 1000:.2%} de la exposicion inicial; &quot;
+              f&quot;exposicion sana media {media:6.1f}&quot;)
+    print(&quot;\nPuente con el europeo (puntos de perdida sobre la exposicion inicial):&quot;)
+    for nombre in (&quot;icaap&quot;, &quot;local&quot;):
+        kw = CASOS[nombre]
+        solo_esc, _ = proyectar(k=kw[&quot;k&quot;])
+        e_esc = (solo_esc - res[&quot;europeo&quot;]) / 10
+        e_bal = (res[nombre] - solo_esc) / 10
+        print(f&quot;  {nombre:6}: europeo {res[&#x27;europeo&#x27;] / 10:5.2f} + escenario {e_esc:+5.2f} + balance {e_bal:+5.2f}&quot;
+              f&quot; = {res[nombre] / 10:5.2f}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+<pre class="salida">europeo  deterioro 3 anos  338.3 M EUR = 33.83% de la exposicion inicial; exposicion sana media  742.3
+icaap    deterioro 3 anos  319.0 M EUR = 31.90% de la exposicion inicial; exposicion sana media  739.3
+local    deterioro 3 anos  375.8 M EUR = 37.58% de la exposicion inicial; exposicion sana media 1110.3
+
+Puente con el europeo (puntos de perdida sobre la exposicion inicial):
+  icaap : europeo 33.83 + escenario +4.38 + balance -6.31 = 31.90
+  local : europeo 33.83 + escenario -2.79 + balance +6.54 = 37.58</pre>
+
+<!-- ============================================================ -->
+<h2 id="cifras">Cifras de los ejemplos de cada parte</h2>
+<p>Los ejemplos que no forman parte de un anexo tienen su propio programa por parte. Se reproduce solo su salida; el código está en <code>anexos/</code>.</p>
+<h3>cifras_parte01.py (Parte I)</h3>
+<pre class="salida">== Cap. 2: un banco de 100.000 M EUR y 1.000 M EUR de perdidas ==
+Partida: CET1 4,550 / RWA 35,000 = 13.00%
+Perdida antes de impuestos 1,000, despues de impuestos (30 %) 700
+Solo numerador: 3,850 / 35,000 = 11.00% (200 pb)
+Y si los RWA suben un 5 %: 3,850 / 36,750 = 10.48% (252 pb en total, 52 pb de denominador)
+Regla rapida: 100 M EUR de perdida antes de impuestos = 20 pb de CET1 en este banco
+
+== Cap. 3: matriz de transicion de tres estados ==
+Ano 1: S1   862.0  S2  101.0  S3   37.0
+Ano 2: S1   830.5  S2  113.8  S3   55.7
+Ano 3: S1   803.4  S2  121.2  S3   75.4
+Con transiciones de estres, tras 3 anos: S1 667.3  S2 185.1  S3 147.6
+
+== Cap. 4: 1.000 M EUR que pasan de stage 1 a stage 2 ==
+PD a 12 meses 3.0%; PD a vida (5 anos) 14.13%; LGD 45%
+Provision en stage 1: 13.5 M EUR;  en stage 2: 63.6 M EUR;  salto x4.7 (+50.1 M EUR)
+Si ademas la PD anual pasa al 6%: stage 2 = 119.7 M EUR (x8.9 sobre la provision de partida)
+
+== Cap. 3: de TTC a PiT con el desplazamiento de Vasicek ==
+PD TTC 2.00%, correlacion 0.15
+  factor sistematico Z = +1.0: PD PiT = 0.41%
+  factor sistematico Z = +0.0: PD PiT = 1.30%
+  factor sistematico Z = -1.0: PD PiT = 3.53%
+  factor sistematico Z = -2.0: PD PiT = 8.27%
+  una tasa observada del 1.2% implica Z = +0.07
+  una tasa observada del 3.5% implica Z = -0.99
+
+== Cap. 3: anual frente a trimestral ==
+PD trimestral 1.2% -&gt; anual 1-(1-q)^4 = 4.714% (no 4q = 4.8%)
+PD anual 10% -&gt; trimestral 1-(1-a)^(1/4) = 2.600% (no a/4 = 2.50%)
+
+== Cap. 4: estructura temporal y prevision perfecta ==
+  PD plana del 3 %                 PD marginales: 3.00% 2.91% 2.82% 2.74% 2.66%  -&gt; PD a vida 14.13%, provision stage 2 63.6
+  adverso conocido (3,6,8,6,4 %)   PD marginales: 3.00% 5.82% 7.29% 5.03% 3.15%  -&gt; PD a vida 24.30%, provision stage 2 109.4</pre>
+<h3>cifras_parte02.py (Parte II)</h3>
+<pre class="salida">== Cap. 9: el mismo grupo, tres ejercicios ==
+Santander, EBA 2025 (CET1 FL): 12.19 -&gt; 10.46 %  caida 173 pb
+Santander, EBA 2025 (CET1 transitorio): 12.78 -&gt; 10.91 %  caida 187 pb
+SHUSA, Fed 2026 (CET1): 12.60 -&gt; 11.70 %  caida 90 pb; referencia 7.9 %, holgura en el minimo 380 pb
+Santander UK, BCST 2025 (CET1): 14.80 -&gt; 9.70 %  caida 510 pb; con acciones 10.30 % (caida 450 pb); referencia 6.9 %, holgura en el minimo 280 pb
+SCB de SHUSA: 4,5 % + 3,4 % = 7.9 % de CET1
+
+== Cap. 11: comprobacion de grupo con la base de datos de la EBA ==
+Santander: aumento de provisiones 44,090 frente a deterioro 44,852 M EUR; diferencia 762 M EUR (1.7%)
+BBVA: aumento de provisiones 35,593 frente a deterioro 35,594 M EUR; diferencia 1 M EUR (0.0%)
+
+== Cap. 12: tramos de la P2G (BCE) ==
+Santander EBA 2025: caida 1.73 pp -&gt; tramo 1, P2G hasta 1,00 %
+BBVA EBA 2025: caida 2.18 pp -&gt; tramo 1, P2G hasta 1,00 %
+Ejemplo del BCE: caida 8.00 pp -&gt; tramo 3, P2G 1,00-2,75 %
+Muestra BCE 2025 (FL, maximo): caida 3.50 pp -&gt; tramo 2, P2G 0,50-2,00 %
+
+-- PALANCA: 50 pb a cada lado del corte de 3 pp --
+Banco de referencia (RWA 35,000): 50 pb de CET1 = 175 M EUR despues de impuestos = 250 M EUR antes de impuestos
+  caida 2.00 pp -&gt; tramo 1 (hasta 1,00 %)
+  caida 2.50 pp -&gt; tramo 1 (hasta 1,00 %)
+  caida 2.99 pp -&gt; tramo 1 (hasta 1,00 %)
+  caida 3.01 pp -&gt; tramo 2 (0,50-2,00 %)
+  caida 3.50 pp -&gt; tramo 2 (0,50-2,00 %)
+  caida 4.00 pp -&gt; tramo 2 (0,50-2,00 %)
+
+-- Caida maxima frente a caida a fin de horizonte (EBA 2025, FL) --
+Santander: maxima 173 pb; a fin de 2027 173 pb
+BBVA: maxima 218 pb; a fin de 2027 186 pb
+
+-- Lo que no dice el tramo: la media de comparables de BBVA --
+Media de 10 comparables: 227.8 pb; sin el que mas cae (478 pb): 200.0 pb
+
+-- QA del BCE de 2025 --
+Caida del sistema antes del QA 308 pb, despues 396 pb: +88 pb (28.6% sobre la cifra inicial)
+
+-- Contraste: SCB de la Fed, anual frente a promediado (ilustrativo) --
+Caidas supuestas: 2.4 / 4.6 / 3.1 / 4.2
+SCB anual:        3.0 / 5.2 / 3.7 / 4.8
+SCB promediado:     -  / 4.10 / 4.45 / 4.25
+Salto medio de un ano a otro (tests 3 y 4): anual 1.30 pp, promediado 0.27 pp
+
+== Cap. 13: Brasil, la misma prueba en dos ediciones ==
+REF abr-2025, Crise de Confianca: 44 % del activo con restricciones; necesidad 9,9 % del PR
+REF may-2026, Crise de Confianca: 68,7 % del activo por encima del 10,5 %; necesidad 3,1 % del PR
+Necesidad de capital: 3.2 veces mayor en la edicion de 2025</pre>
+<h3>cifras_parte03a.py (Parte III-A)</h3>
+<pre class="salida">== Cap. 15: la regla del 10 % de la clase pivote ==
+  Modelo cubre 8% de 1,000 M EUR -&gt; benchmark para toda la clase: PD 18.95%
+  Modelo cubre 40% de 1,000 M EUR -&gt; media ponderada justificada: PD 16.70%
+
+== Cap. 16: concentracion del deterioro en el primer ano (EBA 2025, adverso) ==
+  Santander: 21,120 / 10,342 / 13,390 = 44,852 M EUR; primer ano 47.1%
+  BBVA: 14,481 / 11,154 / 9,959 = 35,594 M EUR; primer ano 40.7%
+
+== Cap. 17: los nuevos S3 del primer ano con la formula del recuadro 8 (S2, adverso) ==
+  S1: 880 x 7.64% x 71.7% = 48.2
+  S2: 70 x 22.93% x 71.7% = 11.5
+  Total provision de nuevos S3 del ano 1: 59.7; exposicion que entra en S3: 83.3
+
+== Cap. 18: el QA de 2025 en el banco de referencia ==
+  88 pb sobre 35,000 M EUR de RWA = 308 M EUR de CET1 = 440 M EUR antes de impuestos
+
+== Cap. 19: REA de un S3 IRB con LGD propia (recuadro 10) ==
+  LGD reg 45%, ELBE 38%: REA = (0.45 - 0.38) x 12,5 x 100 = 87.5
+  LGD reg 45%, ELBE 42%: REA = (0.45 - 0.42) x 12,5 x 100 = 37.5
+  LGD reg 50%, ELBE 42%: REA = (0.50 - 0.42) x 12,5 x 100 = 100.0
+
+-- Exceso y deficit (simplificado, antes de impuestos) --
+  Partida: EL reg 1,000, provisiones 900 -&gt; deficit deducido 100
+  Estres: EL reg 1,150, provisiones 1,200 -&gt; deficit 0, exceso 50 (a nivel 2, con limite)
+  Efecto en CET1: -300 de provisiones + 100 de deficit que desaparece = -200
+
+-- Descomposicion de la caida de CET1 de la filial (anexo S0, adverso, con margen) --
+  RWA de partida 1,722.0; final sin suelo 1,513.1; con suelo 1,722.0
+  CET1 13.00% -&gt; 7.77% (-523 pb en el ano 3)
+    deterioro de credito, neto de impuestos: -1584 pb (389.7 M EUR antes de impuestos)
+    margen dado, neto de impuestos:           +1061 pb (261.0 M EUR)
+    denominador (RWA):                        +0 pb
+    suma: -523 pb
+  Sin el suelo del REA de partida: CET1 final 8.84% (-416 pb); el suelo cuesta 107 pb</pre>
+<h3>cifras_parte03b.py (Parte III-B)</h3>
+<pre class="salida">== Cap. 22: ventanas y periodos atipicos ==
+  20 anos: paro 0.215, PIB -0.0802
+  ventana de 4 anos sin recesion: paro 0.243 (error 0.025), PIB -0.0679 (error 0.0089); paro de la ventana 4.1-5.1 %; punto adverso 22.80% frente a 22.36%
+  pandemia sin tratar          paro 0.153, PIB -0.0406; tasa en el punto adverso 14.35%
+  con variable ficticia        paro 0.211, PIB -0.0648; tasa en el punto adverso 20.38%
+  excluyendo esos trimestres   paro 0.215, PIB -0.0802; tasa en el punto adverso 22.36%
+
+== Cap. 23: no linealidad ==
+  termino de recesion estimado: 0.0541 (error 0.0140)
+  lineal     punto adverso (paro 8,8, PIB -4,7): 22.36%; punto extremo (paro 10,5, PIB -8): 35.10%
+  no lineal  punto adverso (paro 8,8, PIB -4,7): 23.30%; punto extremo (paro 10,5, PIB -8): 38.35%
+  rango de la muestra: paro 3.9-5.5 %, PIB -7.4 a 4.9 %
+
+== Cap. 26: choque de valor anadido sectorial (ilustrativo) ==
+  VAB -3 pp frente al base: PD 2.00% -&gt; 2.53%
+  VAB -8 pp frente al base: PD 2.00% -&gt; 3.73%
+  VAB -15 pp frente al base: PD 2.00% -&gt; 6.36%
+
+== Cap. 27: un modelo por tramos (como un arbol) no extrapola ==
+  4x4 tramos de paro y PIB; tasa media en el tramo mas adverso (paro alto, PIB bajo): 7.64%
+  maxima tasa observada en la muestra: 13.85%
+  punto paro 8.8, PIB -4.7: modelo por tramos 7.64% (cae en el tramo extremo); logit lineal 22.36%
+  punto paro 10.5, PIB -8.0: modelo por tramos 7.64% (cae en el tramo extremo); logit lineal 35.10%</pre>
+<h3>cifras_parte04.py (Parte IV)</h3>
+<pre class="salida">Tasa de perdida 1.9%: 1,900 M EUR antes de impuestos = 380 pb de CET1
+Tasa de perdida 2.5%: 2,500 M EUR antes de impuestos = 500 pb de CET1
+Tasa de perdida 3.0%: 3,000 M EUR antes de impuestos = 600 pb de CET1</pre>
+<h3>cifras_parte05.py (Parte V)</h3>
+<pre class="salida">Grupo 2025:        exposicion 1,384,138; adverso 3.19%; base 1.80%
+Bloque Polonia:    exposicion 52,704 (3.8% del grupo); adverso 3.42%; aumento de provisiones 1,803 M EUR
+Grupo sin Polonia: exposicion 1,331,434; adverso 3.18%; base 1.81%
+Efecto en la tasa del grupo: -0.9 pb de exposicion; en importe: -1,803 M EUR de perdidas adversas menos
+Perdidas de Polonia despues de impuestos sobre los RWA del grupo: 20 pb (antes de contar su margen y sus RWA)</pre>
+
+<nav class="nav">
+<p><a href="parte-06.html">← Parte VI</a> · <a href="index.html">Índice</a> · <a href="anexos-referencia.html">Anexos de referencia →</a></p>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte IV — El ejercicio frente al JST</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte IV · Nivel 3</p>
+<h1>El ejercicio frente al JST: situaciones prácticas</h1>
+<p class="subtitulo">Cómo se organiza un ejercicio, cómo funciona el QA y qué situaciones con el supervisor se repiten en todos los ciclos.</p>
+
+<p class="lead">Las partes anteriores trataron el ejercicio como un problema de método. En la práctica es también un proyecto de nueve meses con decenas de personas, plazos que no se mueven y un supervisor que pregunta por escrito y espera respuesta en días. Esta parte recoge lo que se aprende haciendo ejercicios: cómo se organizan, cómo funciona el QA y qué situaciones aparecen una y otra vez. Los bloques CASO JST de esta parte son patrones anonimizados de encargos reales; no describen a ningún banco concreto. El supervisor no publica sus <i>flags</i>, el número de rondas ni los plazos de respuesta, así que donde se habla de ellos se describe el patrón, no una regla.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap28">28. El ejercicio como proyecto <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Un ejercicio europeo se pierde más veces por organización que por metodología. La mayoría de los problemas que acaban en una carta del JST &mdash; datos que no cuadran, respuestas tardías, incoherencias entre filiales &mdash; nacen de cómo se repartió el trabajo y de cuándo empezó.</p>
+
+<h3 id="s28-1">28.1 Organización</h3>
+
+<h4 id="s28-1-1">28.1.1 Planificación, riesgos, finanzas y filiales: quién hace qué</h4>
+
+<p>La sección 7.2.3 enumeró los dueños de cada eslabón de la cadena. En un gran grupo la estructura habitual tiene un núcleo coordinador, normalmente en planificación de capital o en riesgos, que es el interlocutor único con el JST; equipos de proyección por riesgo (crédito, mercado, operacional, margen) en las áreas que tienen los modelos; información financiera para el punto de partida y la conciliación; y un equipo espejo en cada filial relevante, que proyecta sus carteras con los criterios del grupo y entrega en un formato común.</p>
+
+<p>Tres decisiones de organización marcan el ejercicio. <strong>Quién habla con el JST</strong>: una sola voz, que recibe todas las preguntas, las asigna, revisa todas las respuestas antes de enviarlas y lleva un registro. Dos áreas que contestan por separado al supervisor acaban contradiciéndose. <strong>Quién decide los criterios</strong>: un comité del ejercicio con capacidad para cerrar en días las decisiones de método (qué <i>benchmark</i>, qué tratamiento de la pandemia, qué ajuste) y que deja acta. <strong>Cómo entra la filial</strong>: con plantillas, calendario y criterios del grupo desde el principio, no al final como un dato más.</p>
+
+<h4 id="s28-1-2">28.1.2 Equipos mixtos internos y externos</h4>
+
+<p>Casi todos los grandes bancos refuerzan el ejercicio con consultores, y el reparto que funciona es el que deja dentro lo que no se puede delegar: las decisiones de criterio, la relación con el supervisor y el conocimiento de los modelos. Fuera se puede llevar la ejecución de las plantillas, los controles de calidad, la nota explicativa en borrador, el <i>benchmarking</i> frente a pares y la validación independiente, si se separa de la ejecución.</p>
+
+<p>El error típico es el contrario: un equipo externo que conoce la metodología mejor que el banco pero no conoce sus carteras, y un equipo interno que conoce las carteras pero ha delegado la metodología. Cuando llega una pregunta del JST que mezcla las dos cosas &mdash; casi todas &mdash;, nadie puede contestarla sola. La regla práctica es que cada cartera tenga un responsable interno que firma su proyección y un consultor que la ejecuta con él, no en lugar de él.</p>
+
+<h4 id="s28-1-3">28.1.3 El calendario real de nueve meses y sus picos</h4>
+
+<p>El calendario oficial empieza con el lanzamiento y el escenario (sección 11.2.1). El real empieza mucho antes:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Calendario típico de un ejercicio europeo para un gran grupo, con las fases del ciclo de 2025 como referencia. Las fechas oficiales del ciclo de 2027 no estaban anunciadas a mediados de octubre de 2026.</caption>
+<thead><tr><th>Fase</th><th>Cuándo (ciclo tipo)</th><th>Qué se hace</th><th>Riesgo principal</th></tr></thead>
+<tbody>
+<tr><td>Preparación</td><td>Del borrador de la nota a final de año</td><td>Análisis de diferencias, recalibración de satélites, elección modelo o <i>benchmark</i>, simulación previa</td><td>Empezar tarde: lo que no está listo aquí se hace mal después</td></tr>
+<tr><td>Punto de partida</td><td>Cierre contable a lanzamiento</td><td>Foto de partida, parámetros, conciliación con FINREP y COREP</td><td>Cierres de las filiales que llegan tarde</td></tr>
+<tr><td>Proyección</td><td>Lanzamiento al primer envío</td><td>Escenario a variables, satélites, plantillas, primera nota explicativa</td><td>El pico de carga; pocas semanas</td></tr>
+<tr><td>QA</td><td>Del primer envío al último</td><td>Rondas de preguntas, reenvíos, ajustes</td><td>Respuestas tardías o contradictorias</td></tr>
+<tr><td>Cierre</td><td>Último envío a publicación</td><td>Resultado final, comunicación interna y externa</td><td>Cifras que salen fuera de contexto</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>El pico de carga está entre el lanzamiento y los primeros envíos, que en el ciclo de 2025 cayó entre febrero y abril. Es entonces cuando se descubre lo que la preparación dejó sin hacer.</p>
+
+<h3 id="s28-2">28.2 Preparación</h3>
+
+<h4 id="s28-2-1">28.2.1 Análisis de diferencias de datos y herramientas</h4>
+
+<p>Con el borrador de la nota en la mano, el primer trabajo es una lista de lo que cambia frente al ejercicio anterior (sección 11.3) y de lo que cada cambio exige en datos, modelos y herramientas. Para 2027: dos puntos de partida, el país inmediato en las plantillas de pérdidas, el stage 3 como deterioro de IFRS 9, el criterio de SICR de cada banco en lugar del <i>backstop</i>, las titulizaciones proyectadas, el módulo climático con su geolocalización. Cada línea de la lista necesita un responsable, una fecha y una forma de comprobar que está hecha antes del lanzamiento.</p>
+
+<h4 id="s28-2-2">28.2.2 Simulación previa de impactos y posición frente a pares</h4>
+
+<p>Antes de conocer el escenario se puede saber bastante del resultado. Con el escenario del ciclo anterior, los satélites recalibrados y el punto de partida provisional, se obtiene una primera estimación; con los datos publicados por la EBA del ciclo anterior, una posición frente a los pares. El objetivo no es acertar la cifra, sino detectar antes del primer envío las carteras que quedarán lejos de la referencia y tener preparada su explicación.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Una primera estimación de orden de magnitud con datos públicos. En el ejercicio de 2025, las pérdidas de crédito del conjunto de bancos fueron el 1,9 % de la exposición y restaron 437 puntos básicos de CET1 de media, con un rango por banco de 10 a 828 (informe de resultados de la EBA, pp. 39-40). Para el banco de referencia de la sección 2.1.4, una tasa de pérdida del 1,9 % sobre 100.000 millones son 1.900 millones antes de impuestos y unos 380 puntos básicos; con un 2,5 %, 500; con un 3,0 %, 600 (<code>anexos/cifras_parte04.py</code>). Si la simulación previa del banco da una tasa claramente inferior a la media con una cartera más arriesgada que la media, hay algo que explicar o que corregir, y es mejor saberlo en diciembre que en marzo.</p>
+</div>
+
+<h4 id="s28-2-3">28.2.3 Modelizar antes de cerrar el punto de partida</h4>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Empezar a proyectar con un punto de partida provisional y no volver a rehacer la proyección cuando se cierra el definitivo. Pasa en todos los ejercicios: la presión del calendario empuja a los equipos de modelos a trabajar con la foto de noviembre, el cierre contable cambia la clasificación de unas cuantas carteras, y la proyección enviada parte de unos stocks que no son los de la plantilla de partida. El primer control automático lo detecta y el primer envío se convierte en un reenvío. La regla es separar la preparación de la ejecución: con datos provisionales se preparan herramientas y se ensayan; la proyección que se envía se hace con el punto de partida cerrado y conciliado, aunque eso comprima el calendario.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap29">29. El ciclo de QA <span class="nivel n3">N3</span></h2>
+
+<p class="lead">El QA es la parte del ejercicio en la que se decide el número. En 2025 sumó 88 puntos básicos a la caída del conjunto de bancos del BCE (sección 18.2.3). Este capítulo describe cómo funciona y cómo se responde.</p>
+
+<h3 id="s29-1">29.1 Cómo funciona</h3>
+
+<h4 id="s29-1-1">29.1.1 Envíos, controles automáticos y rondas</h4>
+
+<p>El banco envía sus plantillas varias veces a lo largo del ejercicio. Cada envío pasa primero por controles automáticos de la EBA y del supervisor &mdash; coherencia interna, cuadres entre plantillas, valores fuera de rango &mdash; y después por la revisión de los analistas, que comparan con los <i>benchmarks</i> y con los pares (capítulo 18). Del resultado salen preguntas, y las respuestas y los ajustes van al envío siguiente. El BCE no publica cuántas rondas hay ni con qué plazos; en ciclos anteriores se ha descrito un esquema de varias rondas en el que las primeras admiten explicar en lugar de corregir y la última exige corregir. Lo seguro es que cada ronda deja menos margen que la anterior.</p>
+
+<h4 id="s29-1-2">29.1.2 <i>Flags</i>, preguntas y plazos</h4>
+
+<p>Lo que llega del supervisor tiene dos formas. Los <i>flags</i> automáticos señalan una celda o una relación entre celdas que no cumple un control: un stock que no cuadra con sus flujos, una provisión de stage 3 que baja, una tasa fuera del rango de la muestra. Las preguntas de los analistas son más abiertas: piden explicar una cifra, una evolución o una diferencia con los pares. Los plazos de respuesta son cortos, de días, y se acumulan, porque las preguntas de una ronda llegan a la vez. Un banco que no tiene preparado el sistema de respuesta &mdash; quién recibe, quién contesta, quién revisa &mdash; se ahoga en la segunda ronda.</p>
+
+<h4 id="s29-1-3">29.1.3 La nota explicativa como pieza de defensa</h4>
+
+<p>La nota explicativa es el documento que el analista del supervisor lee antes de preguntar (sección 11.2.3). Una buena nota contesta de antemano las preguntas previsibles: por qué esta cartera usa el modelo propio y aquella el <i>benchmark</i>, cómo se han obtenido los parámetros de partida, cómo se ha tratado la pandemia, qué ajustes se han aplicado y cómo se han cuantificado, por qué tal cartera queda lejos de la referencia. Cada pregunta que la nota contesta es una pregunta que no llega, y cada pregunta que llega y cuya respuesta estaba en la nota es una oportunidad de remitir a ella en lugar de improvisar.</p>
+
+<p>La nota se escribe a la vez que la proyección, por el mismo equipo, y se actualiza en cada envío. Escrita al final por alguien que no ha proyectado, describe lo que debería haberse hecho y no lo que se hizo, y el supervisor lo nota.</p>
+
+<h3 id="s29-2">29.2 Cómo se responde</h3>
+
+<h4 id="s29-2-1">29.2.1 Clasificar el <i>flag</i>: dato, método o criterio</h4>
+
+<p>Antes de contestar, se clasifica. Un <strong><i>flag</i> de dato</strong> señala un error: un cuadre que no sale, una celda mal rellenada, una cartera mal clasificada. Se corrige, sin discusión, y se explica la causa si puede repetirse. Un <strong><i>flag</i> de método</strong> señala una aplicación de la metodología que el supervisor cree incorrecta: una provisión que no sigue la fórmula, un suelo que no se ha aplicado. Se comprueba contra el párrafo de la nota y se corrige o se defiende con la cita exacta. Un <strong><i>flag</i> de criterio</strong> señala una decisión del banco que el supervisor considera optimista: una sensibilidad, un ajuste, una elección de modelo. Es el único que se discute, y se discute con datos.</p>
+
+<p>Mezclar los tres tipos es el error más caro: discutir un error de dato como si fuera un criterio quema credibilidad, y aceptar un <i>flag</i> de criterio como si fuera un error de dato renuncia sin necesidad a un margen que la metodología da.</p>
+
+<h4 id="s29-2-2">29.2.2 La escalera argumental aplicada al QA</h4>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>Una respuesta a un <i>flag</i> de criterio se construye de abajo arriba, y cada peldaño solo se sube si el anterior no basta:</p>
+<ol>
+<li><strong>El dato.</strong> Lo que el supervisor puede verificar: composición de la cartera, morosidad observada, garantías, cosechas.</li>
+<li><strong>La norma.</strong> El párrafo de la nota que ampara la decisión, citado con su número.</li>
+<li><strong>La comparación.</strong> El <i>benchmark</i>, los pares, el episodio histórico, y en qué se diferencia la cartera de ellos.</li>
+<li><strong>La sensibilidad.</strong> Cuánto cambiaría el resultado con la alternativa que propone el supervisor, para que la discusión sea sobre un importe y no sobre un principio.</li>
+<li><strong>La concesión.</strong> Si después de los cuatro peldaños la diferencia sigue sin explicarse, se ajusta, por iniciativa propia, y se dice.</li>
+</ol>
+<p>Las respuestas que empiezan por el quinto peldaño regalan margen; las que nunca llegan a él pierden credibilidad para la siguiente pregunta.</p>
+</div>
+
+<h4 id="s29-2-3">29.2.3 El reenvío de última hora</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>A tres días del último envío, el equipo de una filial detecta que el punto de partida de una cartera incluía exposiciones que la consolidación del grupo había dado de baja. Corregirlo cambia el resultado de esa cartera y, en menor medida, el del grupo. El JST no lo sabe.</dd>
+<dt>Qué hay detrás</dt>
+<dd>El dilema es real: corregir obliga a un reenvío tardío que penaliza la nota cualitativa (capítulo 12); no corregir deja un error conocido en un resultado que se publica y que alimenta el SREP. Lo que el supervisor evalúa, si se entera, no es el error, sino lo que el banco hizo cuando lo encontró.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Avisar al JST el mismo día, con el error descrito, su causa, su efecto estimado y el plan para corregirlo en plazo. Un reenvío anunciado y explicado se valora de otra forma que uno que aparece sin aviso, y mucho mejor que un error que el supervisor descubre después. Después, añadir el control que lo habría detectado al proceso del siguiente ciclo.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>No decir nada y confiar en que el efecto sea pequeño. Si el error aparece en la conciliación posterior con el reporting ordinario &mdash; y más aún cuando los puntos de partida salgan del propio FINREP, como propone la EBA (sección 11.3.5) &mdash;, la conversación deja de ser sobre una cartera y pasa a ser sobre la fiabilidad del banco.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap30">30. Situaciones recurrentes <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Hay situaciones que aparecen en casi todos los ejercicios, en casi todos los bancos. Este capítulo recoge seis, las ordena por lo que el supervisor está comprobando de verdad y cierra con lo que pasa después del resultado.</p>
+
+<h3 id="s30-1">30.1 Catálogo</h3>
+
+<h4 id="s30-1-1">30.1.1 La proyección por debajo del <i>benchmark</i></h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>Tras el segundo envío, una tabla con las carteras del banco cuya pérdida acumulada en el adverso queda más de un 25 % por debajo de la que resulta del <i>benchmark</i>, y la petición de revisarlas o justificarlas antes del siguiente.</dd>
+<dt>Qué hay detrás</dt>
+<dd>Es la aplicación sistemática del párrafo 118 a todo el banco. El supervisor ha ordenado las carteras por distancia al <i>benchmark</i> y pregunta por las primeras de la lista. No espera que todas converjan; espera que el banco sepa explicar cada una o corregirla.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Tratar la tabla como una cartera de decisiones. Para cada línea, la descomposición de la diferencia (sección 18.3.2), una decisión (defender, corregir parcialmente, aceptar el <i>benchmark</i>) y su efecto en puntos básicos. Presentar el conjunto con el efecto total de lo que se corrige. Un banco que corrige las tres carteras que no puede defender y defiende con datos las dos que sí suele cerrar la ronda.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Defenderlas todas con el mismo argumento genérico sobre la calidad de los modelos, o corregirlas todas sin discutir ninguna. Lo primero convierte el QA en un pulso; lo segundo, en una renuncia que el supervisor tampoco valora, porque no le dice nada de la capacidad del banco.</dd>
+</dl>
+</div>
+
+<h4 id="s30-1-2">30.1.2 El punto de partida que no cuadra con FINREP</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«La exposición bruta en stage 2 de hogares reportada en su punto de partida difiere en un 6 % de la reportada en FINREP a la misma fecha. Explique la diferencia».</dd>
+<dt>Qué hay detrás</dt>
+<dd>Un dato del ejercicio que no cuadra con el reporting ordinario pone en duda todos los demás. El supervisor no sabe si la diferencia es de perímetro, de definición, de fecha o de error, y quiere saberlo antes de mirar la proyección.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Una conciliación línea a línea entre las dos cifras, con cada partida explicada: diferencias de perímetro de consolidación, carteras a valor razonable que FINREP incluye y el ejercicio no, reclasificaciones posteriores al cierre, filiales con fecha de datos distinta. Si queda una diferencia sin explicar, decirlo y corregirla. Y, para el siguiente ciclo, hacer esa conciliación antes del primer envío (sección 14.1.3).</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Atribuir la diferencia a «criterios distintos» sin cuantificarlos. Es lo que el supervisor lee como «no sabemos».</dd>
+</dl>
+</div>
+
+<h4 id="s30-1-3">30.1.3 El <i>overlay</i> que no se compra</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«El ajuste negativo aplicado a las LGD proyectadas de su cartera hipotecaria, que reduce la pérdida del adverso en 40 puntos básicos de CET1, no cuenta con justificación suficiente. Elimínelo o aporte evidencia adicional».</dd>
+<dt>Qué hay detrás</dt>
+<dd>Un ajuste que reduce la pérdida pasa por un filtro más estricto que uno que la aumenta (sección 24.3). El supervisor quiere ver que el banco ha identificado una limitación real del modelo, que la ha cuantificado con un método y que no ha aplicado ajustes solo en esta dirección.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Si el ajuste corrige una limitación real &mdash; por ejemplo, un modelo de LGD que no recoge una mejora estructural de las recuperaciones por un cambio en el proceso de ejecución &mdash;, aportar la evidencia de esa mejora en datos observados y el inventario de ajustes del banco, que debe incluir también los que aumentan la pérdida. Si no se puede aportar en el plazo, retirarlo y documentarlo para el siguiente ejercicio.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Mantenerlo con la misma justificación en el siguiente envío. Un ajuste rechazado que reaparece igual pasa de ser un desacuerdo técnico a ser un problema de cooperación.</dd>
+</dl>
+</div>
+
+<h4 id="s30-1-4">30.1.4 La filial que trae su propio modelo</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«Las tasas de transición proyectadas para la cartera de consumo de su filial en América Latina responden al paro con una elasticidad que es la mitad de la que el propio grupo utiliza para carteras comparables en Europa. Explique la diferencia y el proceso de revisión de los modelos de la filial por parte del grupo».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor pregunta por la gobernanza tanto como por el modelo: quiere saber si el grupo revisa los modelos que le entregan sus filiales o se limita a consolidar sus resultados. En el ejercicio europeo el responsable es el grupo, aunque el modelo sea de la filial.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Enseñar la revisión del grupo: qué pruebas aplica a los modelos de la filial (las del capítulo 6 y las del 23), qué encontró y qué se decidió. Si la elasticidad menor se debe a la cartera local (más nómina domiciliada, menos tarjetas), demostrarlo con los datos de la filial. Si se debe a una historia corta o a un episodio atípico local, aplicar las soluciones del capítulo 22, como una sensibilidad estimada en un panel regional.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Responder que el modelo está aprobado por el supervisor local. Lo está para el uso local; el JST pregunta por su uso en el ejercicio del grupo, con un escenario y una métrica distintos (capítulo 13).</dd>
+</dl>
+</div>
+
+<h4 id="s30-1-5">30.1.5 La nota explicativa que no explica</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«La nota explicativa no describe la metodología de obtención de los parámetros <i>point-in-time</i> de partida para las carteras de empresas, ni el método de reparto sectorial de las pérdidas. Complete la información».</dd>
+<dt>Qué hay detrás</dt>
+<dd>La nota tiene contenidos obligatorios: el método de los parámetros de partida (párrafo 111), el reparto sectorial (párrafo 114), la mezcla de modelo y <i>benchmark</i> (párrafo 117), entre otros. Una nota que no los cubre obliga al supervisor a preguntarlos uno a uno, y eso se refleja en la evaluación cualitativa.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Completarla con una lista de comprobación construida a partir de la nota metodológica: cada párrafo que pide documentar algo, con la sección de la nota explicativa que lo hace. Para el siguiente ciclo, esa lista se hace al principio, no al final.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Contestar la pregunta en el correo y no en la nota. La nota es el documento que queda; el correo, no.</dd>
+</dl>
+</div>
+
+<h4 id="s30-1-6">30.1.6 El cambio de perímetro a mitad de ejercicio</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>Una venta relevante de una filial se cierra en febrero, con el ejercicio en marcha y la fecha de referencia en diciembre. La dirección pregunta si se puede sacar del ejercicio, porque mejora el resultado.</dd>
+<dt>Qué hay detrás</dt>
+<dd>La nota es clara: las desinversiones que no estén cerradas antes de la fecha de referencia no se tienen en cuenta, y los ajustes pro forma solo se admiten en una lista cerrada de eventos de más del 12,5 % del activo, presentados por la autoridad a la EBA antes del primer envío (sección 11.1.3). El supervisor sí tendrá en cuenta la venta al fijar la P2G, porque los cambios materiales del perfil desde la fecha de referencia son uno de sus criterios (sección 12.1.1).</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Explicar a la dirección que el ejercicio se hace con el perímetro de diciembre, cuantificar el efecto de la venta en la caída de capital como información complementaria y presentarlo al JST como cambio material del perfil, con su cifra, para que lo considere en la P2G. Es el canal previsto, y funciona.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Intentar recoger la venta en las proyecciones por la vía de los supuestos (reduciendo la exposición de la filial o sus pérdidas). Es incumplir el balance estático, y el control de coherencia con el punto de partida lo detecta.</dd>
+</dl>
+</div>
+
+<h3 id="s30-2">30.2 Patrones</h3>
+
+<h4 id="s30-2-1">30.2.1 Lo que el JST está comprobando de verdad</h4>
+
+<p>Detrás de casi todas las preguntas hay una de cuatro comprobaciones. <strong>Que el dato es fiable:</strong> cuadres, conciliaciones, perímetros. <strong>Que el modelo responde:</strong> sensibilidad frente a <i>benchmarks</i>, pares e historia. <strong>Que las decisiones del banco no son sistemáticamente favorables:</strong> ajustes, elecciones de modelo, interpretaciones de silencios. <strong>Que el banco controla su ejercicio:</strong> que sabe explicar cada cifra, que el grupo revisa a las filiales, que las respuestas llegan a tiempo y son coherentes entre sí. Identificar cuál de las cuatro hay detrás de una pregunta es la mitad de la respuesta.</p>
+
+<h4 id="s30-2-2">30.2.2 Respuestas que empeoran las cosas</h4>
+
+<p>Los bloques CASO de este manual repiten una lista corta de respuestas que no funcionan, y conviene tenerla delante: defender el origen del dato en lugar de su nivel («sale del modelo validado»); refugiarse en la autoridad de otro («lo aprobó el supervisor local», «la metodología lo permite»); discutir la herramienta del supervisor en lugar de la cifra («el <i>benchmark</i> no conoce la cartera»); declarar irrepetible lo que el escenario repite («la pandemia fue única», «2008 no volverá»); y contestar tarde o fuera del documento. Todas tienen en común que no aportan un dato nuevo, y el supervisor solo cambia de opinión con datos.</p>
+
+<h3 id="s30-3">30.3 Después del resultado</h3>
+
+<h4 id="s30-3-1">30.3.1 P2G, P2R y hallazgos; carta de resultados</h4>
+
+<p>Terminado el ejercicio, el banco recibe sus consecuencias por varios canales. La caída de capital entra en la decisión de SREP como base de la P2G (capítulo 12). La evaluación cualitativa del ejercicio se integra en la del gobierno interno y puede afectar a la P2R. Y las deficiencias concretas detectadas &mdash; en datos, en modelos, en proceso &mdash; llegan como hallazgos o recomendaciones, con un plazo para corregirlas. Lo que no está publicado banco a banco es la forma exacta de esas comunicaciones, pero el contenido es siempre el mismo: qué se encontró, qué se espera y cuándo.</p>
+
+<h4 id="s30-3-2">30.3.2 Remediación y preparación del siguiente ciclo</h4>
+
+<p>El siguiente ejercicio empieza el día en que se publica el resultado del anterior. Las deficiencias que el supervisor señaló se convierten en un plan de remediación con responsable, fecha y evidencia de cierre, y ese plan es lo primero que el JST mirará en el siguiente ciclo. A la vez, el equipo hace su propio balance: qué preguntas llegaron, cuáles se podían haber anticipado en la nota explicativa, qué controles habrían evitado los reenvíos, qué carteras quedaron lejos del <i>benchmark</i> y por qué. Ese balance, escrito, es la base de la preparación del ciclo siguiente.</p>
+
+<h4 id="s30-3-3">30.3.3 «Las deficiencias de 2025 siguen abiertas»</h4>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>En el QA del ejercicio de 2027: «En el ejercicio de 2025 se señalaron deficiencias en la calidad de los datos de partida de dos filiales y en la sensibilidad de los modelos de consumo. Las mismas incidencias se observan en el primer envío de 2027. Informe del estado del plan de remediación».</dd>
+<dt>Qué hay detrás</dt>
+<dd>La reincidencia cambia la naturaleza de la conversación. Una deficiencia en un ejercicio es un problema técnico; la misma en dos ejercicios es un problema de gobierno, y entra de lleno en la evaluación del gobierno interno, con la P2R y, en el límite, las medidas de ejecución como consecuencias posibles (sección 12.2.2). La agregación de datos de riesgo, además, es una de las prioridades supervisoras del BCE.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Un estado del plan con hechos: qué se ha corregido y con qué evidencia, qué no y por qué, y cuándo se completará, con un responsable a nivel de dirección. Si alguna deficiencia no se ha corregido por una causa estructural (sistemas de una filial en migración, por ejemplo), decirlo con su plan y su fecha.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Presentar como resueltas deficiencias que el propio primer envío demuestra que no lo están, o atribuir la reincidencia al calendario del ejercicio. El supervisor tiene los dos envíos delante.</dd>
+</dl>
+</div>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Organizar un ejercicio en un gran grupo: núcleo coordinador, una sola voz ante el JST, comité de criterio, filiales con plantillas y calendario del grupo.</li>
+<li>Planificar la preparación desde el borrador de la nota, con análisis de diferencias, simulación previa y posición frente a pares.</li>
+<li>Escribir una nota explicativa que conteste de antemano las preguntas previsibles.</li>
+<li>Clasificar cualquier <i>flag</i> como dato, método o criterio y responderlo con la escalera argumental.</li>
+<li>Reconocer en cualquier pregunta del JST cuál de las cuatro comprobaciones hay detrás.</li>
+<li>Convertir los hallazgos de un ejercicio en un plan de remediación que resista la siguiente revisión.</li>
+</ul>
+</div>
+
+<p>La Parte V sube un nivel: del ejercicio de un banco al de un grupo con filiales en varios continentes, sus datos repartidos y la pregunta que motivó este manual, cómo se compara el número de España con el de México.</p>
+
+<nav class="nav">
+<p><a href="parte-03b.html">← Parte III-B</a> · <a href="index.html">Índice</a> · <a href="parte-05.html">Parte V: Grupos internacionales →</a></p>
+</nav>
+
+</body>
+</html>

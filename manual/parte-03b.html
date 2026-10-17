@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte III-B — Retos metodológicos</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte III · Bloque B · Nivel 3</p>
+<h1>Retos metodológicos y cómo abordarlos</h1>
+<p class="subtitulo">Los problemas que la metodología no resuelve, por qué aparecen en todos los ejercicios y qué se hace con ellos en un proyecto.</p>
+
+<p class="lead">El bloque A explicó cómo se aplica la metodología. Este explica dónde no basta. Cada capítulo sigue el mismo esquema: el problema, cómo se aborda en la práctica y la situación con el supervisor en la que el problema aflora. Son los temas en los que se separa quien ejecuta un ejercicio de quien sabe defenderlo: series que no tienen crisis, modelos que responden de menos fuera de la muestra, ajustes de experto, ejercicios que no casan entre sí, clima y aprendizaje automático. Las cifras vuelven a salir de datos sintéticos ejecutados (anexos S1 y S6 y <code>anexos/cifras_parte03b.py</code>); el objetivo no es la cifra, sino ver el mecanismo.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap22">22. Series cortas y rupturas estructurales <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Un satélite aprende cómo responden los impagos al ciclo a partir de la historia. Si la historia tiene pocas recesiones, o recesiones en las que los impagos no respondieron por razones que no se repetirán, el satélite aprende mal. Es el problema más común y el menos visible, porque un modelo estimado sobre una historia engañosa puede tener un ajuste excelente.</p>
+
+<h3 id="s22-1">22.1 El problema</h3>
+
+<p><strong>Pocas recesiones.</strong> Un satélite trimestral estimado sobre quince o veinte años tiene, con suerte, dos episodios de estrés. Todo lo que sabe de cómo responde una cartera a una recesión lo aprende de ellos. Para muchas carteras la historia es aún más corta: una cartera de consumo digital lanzada en 2019, una filial adquirida en 2021 o un producto que cambió de política de admisión en 2023 no tienen ningún ciclo completo.</p>
+
+<p><strong>La pandemia, las moratorias y los avales.</strong> En 2020 el PIB cayó como en una gran recesión y los impagos apenas se movieron, porque las moratorias, los avales públicos y los programas de mantenimiento del empleo cortaron la transmisión. Para un satélite, esos trimestres dicen que una caída del PIB del 10 % no produce impagos. Es falso como regla general, y el escenario adverso del ejercicio no trae moratorias.</p>
+
+<p><strong>El ciclo de tipos.</strong> La subida de tipos de 2022-2023 fue la primera en quince años. Para las hipotecas a tipo variable y para las empresas endeudadas, la carga financiera es un canal del escenario que la mayoría de satélites, estimados con tipos cerca de cero, no ha visto nunca operar.</p>
+
+<p><strong>Rupturas de definición.</strong> Las series de impago cambiaron con la nueva definición de <i>default</i> de la EBA, aplicada desde 2021; las de stage solo existen desde la entrada en vigor de IFRS 9 en 2018; y en las filiales de fuera de la Unión la historia local puede tener sus propias rupturas, como el paso de México a un esquema de provisiones por etapas hace pocos años (sección 13.2.3). Una serie de tasa de entrada en stage 2 de ocho años, con una pandemia en medio, no da para estimar gran cosa.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Con los veinte años de datos sintéticos del anexo S1, el satélite de consumo tiene un coeficiente del paro de 0,215 y del PIB de −0,0802, y en el punto adverso (paro del 8,8 %, PIB del −4,7 %) proyecta una tasa de impago del 22,36 %. Añadimos al final seis trimestres tipo pandemia: el PIB cae hasta un 10 %, el paro sube un punto y la tasa de impago no se mueve (anexo <code>cifras_parte03b.py</code>):</p>
+<ul>
+<li><strong>Sin tratar esos trimestres</strong>, el coeficiente del paro baja a 0,153 y el del PIB a −0,0406, la mitad. En el punto adverso el satélite proyecta un 14,35 %: ocho puntos menos.</li>
+<li><strong>Con una variable ficticia</strong> para el periodo, se recupera casi todo: 0,211, −0,0648 y un 20,38 % en el punto adverso. La ficticia absorbe el nivel, pero no del todo la pendiente.</li>
+<li><strong>Excluyendo los trimestres</strong>, se vuelve exactamente al 22,36 %.</li>
+</ul>
+<p>Una ventana corta tiene otro problema. Estimado solo con cuatro años sin recesión, el coeficiente del paro sale parecido (0,243), pero con un error un 50 % mayor y sobre un paro que solo se ha movido entre el 4,1 % y el 5,1 %. Proyectar con él un paro del 8,8 % es extrapolar muy lejos de lo que el modelo ha visto (capítulo 23).</p>
+</div>
+
+<h3 id="s22-2">22.2 Cómo se aborda</h3>
+
+<p><strong>Ventanas.</strong> La regla es la ventana más larga que tenga datos comparables y que incluya al menos una recesión que transmita. Si la serie del banco es corta, se alarga con series del sistema: las tasas de dudosos o de impago que publican los bancos centrales y los supervisores por segmento llegan mucho más atrás que la historia de la cartera, y permiten estimar la sensibilidad al ciclo con la historia del país y el nivel con la de la cartera.</p>
+
+<p><strong>Periodos atípicos.</strong> Hay tres tratamientos, en orden de preferencia: excluir los trimestres afectados, con la exclusión documentada y su efecto cuantificado; modelizarlos con una variable ficticia o con una variable que mida el apoyo público (el saldo de préstamos con moratoria o aval); o corregir la serie objetivo, reasignando los impagos que las moratorias retrasaron a los trimestres en que se habrían producido. Lo que no se hace es dejar la pandemia dentro sin tratamiento y sin decir nada.</p>
+
+<p><strong>Información externa.</strong> Paneles de varios países o segmentos con efectos fijos, que comparten la sensibilidad y dejan libre el nivel; episodios históricos de otros países con la misma estructura de cartera; y los propios <i>benchmarks</i> del BCE de ejercicios anteriores como referencia de la sensibilidad mínima creíble. En una filial con historia corta, la combinación más defendible suele ser la sensibilidad estimada en un panel regional y el nivel estimado con los datos propios.</p>
+
+<p><strong>Rupturas de definición.</strong> Se reconstruye la serie con la definición nueva hacia atrás, al menos de forma aproximada, o se estima con la definición antigua y se traslada el nivel. En las series de stage, se aproximan los años anteriores a IFRS 9 con la morosidad y las refinanciaciones de entonces. En todos los casos, se documenta el puente y su efecto.</p>
+
+<h3 id="s22-3">22.3 «Su modelo se estima sin la pandemia»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«El satélite de su cartera de pymes excluye el periodo 2020-2021. Justifique la exclusión y cuantifique su efecto en las proyecciones. Explique cómo se recoge en el modelo el efecto de las medidas de apoyo público y de su retirada».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor no discute que haya que tratar la pandemia; quiere saber si el tratamiento elegido es el que más favorece al banco. Excluir puede subir o bajar la sensibilidad según la cartera: en las pymes con avales, los impagos llegaron tarde, al vencer las carencias, y excluir 2020-2021 sin mirar 2022-2023 puede dejar dentro un repunte que no tiene explicación macroeconómica.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Presentar los tres tratamientos posibles (exclusión, variable de apoyo, serie corregida) con sus coeficientes y su proyección en el adverso, y explicar por qué se eligió uno. Si el elegido no es el más conservador, la diferencia tiene que ser pequeña o tener una razón fuerte. Y enseñar qué pasó con la cartera cuando se retiraron los avales: es la mejor prueba de cómo habría respondido sin ellos.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Decir que la pandemia fue un evento único que no se repetirá. Es verdad en la forma y no en el fondo: el escenario adverso tampoco tiene apoyo público, y lo que el supervisor pregunta es si el modelo sabe responder a una recesión sin él.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap23">23. No linealidad, colas y escenarios fuera de la muestra <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Los escenarios adversos están diseñados para ser más duros que lo que la mayoría de bancos ha vivido. Un satélite que funciona bien dentro de la muestra puede responder de menos justo donde importa, fuera de ella. Es el problema que hay detrás de la mitad de las preguntas sobre sensibilidad.</p>
+
+<h3 id="s23-1">23.1 El problema</h3>
+
+<p>Las elasticidades se estiman sobre todo con trimestres normales, porque son la mayoría. Si la respuesta de los impagos al paro es más fuerte cuando el paro es alto &mdash; porque se agotan los ahorros, porque el desempleo se alarga, porque los LTV se salen del agua &mdash;, un modelo lineal en el logit captura parte de esa aceleración, pero no toda. Y el escenario lleva las variables a niveles que la muestra no ha visto: en los datos del anexo S1, el paro retardado se mueve entre el 3,9 % y el 5,5 %; el punto adverso del capítulo 6 pide un 8,8 %.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Los datos del anexo S1 se generaron con una pequeña no linealidad en recesión. En el punto adverso, el modelo verdadero da una tasa de impago del 24,10 %; el satélite lineal estimado con las dos recesiones, un 22,36 %; y el estimado sin ellas, un 21,37 % (sección 6.2.1). Si se añade al satélite un término que solo actúa cuando el PIB cae, sale significativo (0,054, con un error de 0,014) y la proyección sube al 23,30 %, más cerca del verdadero (<code>anexos/cifras_parte03b.py</code>).</p>
+<p>La diferencia crece cuanto más lejos va el escenario. En un punto más extremo, con un paro del 10,5 % y el PIB cayendo un 8 %, el lineal da un 35,10 % y el no lineal un 38,35 %. Tres puntos de tasa de impago en una cartera de consumo son, con la LGD del juguete, unos dos puntos de pérdida sobre la cartera.</p>
+</div>
+
+<h3 id="s23-2">23.2 Cómo se aborda</h3>
+
+<p><strong>Especificaciones no lineales.</strong> Términos que solo actúan en recesión, umbrales en las variables (el paro por encima de su media, el LTV por encima del 80 %), interacciones entre paro y tipos para las hipotecas variables, o modelos de régimen. Con pocas recesiones, cada parámetro adicional se estima mal; la regla práctica es añadir la no linealidad que tenga sentido económico y soporte estadístico, y contrastarla con lo que se sabe de fuera.</p>
+
+<p><strong>Contraste con referencias externas.</strong> Tres referencias, por este orden: los <i>benchmarks</i> del BCE del ejercicio (capítulo 18); los episodios históricos relevantes, como la crisis española de 2008-2013 para las carteras de vivienda y promoción o las crisis mexicanas que usa el Banco de México en sus escenarios históricos (sección 13.2.3); y la elasticidad implícita en el propio escenario: si el adverso multiplica por dos la tasa de impago del sistema en los modelos del supervisor, una cartera que multiplica por 1,2 necesita explicación.</p>
+
+<p><strong>Pruebas fuera del rango.</strong> Proyectar el satélite con escenarios más extremos que el adverso y comprobar que la respuesta sigue creciendo y no se aplana, que es lo que haría un modelo mal especificado o, como muestra el capítulo 27, un modelo por tramos.</p>
+
+<p><strong>Ajuste explícito.</strong> Si nada de lo anterior es posible, un ajuste cuantificado a la sensibilidad, documentado como tal y con su método de cálculo (capítulo 24). Es mejor que un modelo que responde de menos sin que nadie lo diga.</p>
+
+<h3 id="s23-3">23.3 «Su sensibilidad es la mitad que en 2008»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«En el adverso, la tasa de entrada en stage 3 de su cartera hipotecaria se multiplica por 1,6 entre el punto de partida y el segundo año, mientras que entre 2008 y 2010 la tasa de dudosos de esa cartera se multiplicó por más de tres con una caída del precio de la vivienda comparable. Explique».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor ha encontrado el episodio histórico más parecido al escenario y lo usa como vara. La pregunta es si la cartera de hoy es menos sensible que la de entonces o si el modelo ha aprendido de una historia sin crisis.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Reconocer el episodio y explicar con datos qué ha cambiado: LTV de originación, porcentaje a tipo variable, esfuerzo financiero, concentración en promoción. Si la cartera es estructuralmente distinta, la diferencia de sensibilidad se cuantifica segmento a segmento. La parte que no se explica por la cartera se corrige, con una especificación no lineal o con un ajuste de sensibilidad documentado.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Argumentar que 2008 es irrepetible porque la regulación de la admisión es hoy mucho más estricta. Es una parte de la respuesta, pero si no se demuestra con la composición de la cartera, suena a lo que el supervisor teme: que el banco no quiere que su modelo responda.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap24">24. Ajustes de experto y <i>overlays</i> <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Ningún modelo recoge todo. Los ajustes de experto existen para cubrir lo que el modelo no ve, y el supervisor los acepta cuando están cuantificados, documentados y van en la dirección del riesgo. Cuando no lo están, son lo primero que discute.</p>
+
+<h3 id="s24-1">24.1 Cuándo son legítimos; <i>overlays</i> por stage en las plantillas</h3>
+
+<p>Un ajuste es legítimo cuando corrige una limitación identificada del modelo: un riesgo que no está en los datos históricos (la retirada de un apoyo público, un riesgo geopolítico sectorial, el clima), una cartera nueva sin historia, un cambio de política de admisión que el modelo aún no recoge, o una sensibilidad que el banco sabe insuficiente y no ha podido reestimar. No lo es cuando corrige el resultado porque no gusta.</p>
+
+<p>El ejercicio de 2027 da a los ajustes un sitio explícito. En el punto de partida, el banco reporta por separado, por stage, los ajustes de gestión contabilizados a cierre de 2026, con la definición de la propuesta de modificación de FINREP (párrafo 63). En la proyección, las tasas de transición y las LGD que reporta incluyen cualquier ajuste aplicado al nivel del parámetro (párrafos 66 y 67). Es decir: el supervisor ve el ajuste de partida y ve el parámetro ajustado, y puede preguntar por la relación entre los dos. El BCE ha dicho en su revisión del SREP de 2025 que los ajustes de provisiones de los bancos tienen margen de mejora en su cuantificación y en su implantación.</p>
+
+<h3 id="s24-2">24.2 Documentación: cuantificación, dirección, reversión</h3>
+
+<p>Un ajuste defendible tiene cinco piezas escritas: <strong>qué limitación corrige</strong>, con la evidencia de que existe; <strong>cómo se cuantifica</strong>, con un método reproducible (una sensibilidad de referencia, un episodio histórico, un análisis de cartera) y no con una cifra redonda; <strong>en qué dirección actúa</strong> en el base y en el adverso, y por qué; <strong>cuándo se revierte</strong>, con la condición que lo haría innecesario; y <strong>quién lo aprobó</strong>, en qué comité. A esto se añade la coherencia: un ajuste del ejercicio que no tiene equivalente en la contabilidad, o al revés, necesita una explicación propia.</p>
+
+<p>En el ejercicio pesa además la simetría entre escenarios. Un ajuste que existe por un riesgo que el modelo no ve debería ser mayor en el adverso que en el base, porque el riesgo es mayor. Un ajuste igual en los dos escenarios es una constante, no una corrección del modelo.</p>
+
+<h3 id="s24-3">24.3 El <i>overlay</i> que solo baja la pérdida</h3>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Usar los ajustes solo en una dirección. Un banco que detecta que su modelo sobreestima la pérdida de las hipotecas con LTV bajo y lo corrige a la baja, pero no mira si el mismo modelo subestima la de las de LTV alto, está aplicando un ajuste selectivo. El supervisor no lo detecta mirando el ajuste, sino mirando el conjunto: si todos los ajustes de un banco reducen la pérdida, la conclusión es inmediata, y el siguiente paso es revisar los modelos que se ajustaron. La regla de higiene es inventariar cada año todas las limitaciones conocidas de los modelos y decidir qué se hace con cada una, en las dos direcciones.</p>
+</div>
+
+<h3 id="s24-4">24.4 «Su <i>overlay</i> no tiene soporte cuantitativo»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«El ajuste de 150 millones aplicado al stage 2 de su cartera de empresas en el adverso se justifica en la nota explicativa como "juicio experto sobre la incertidumbre geopolítica". Aporte el método de cuantificación y su relación con el ajuste contable equivalente».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor no rechaza el ajuste; rechaza no poder reproducirlo. Si no sabe de dónde salen los 150 millones, no puede saber si deberían ser 300, y no puede comparar con el banco de al lado que ha hecho lo mismo con un método.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Reconstruir el ajuste con un método explícito: qué sectores, qué exposición, qué choque adicional sobre las tasas de transición o qué migración a stage 2, con qué fuente (por ejemplo, las sensibilidades sectoriales del ejercicio geopolítico de 2026). Si el resultado no es 150, decir cuál es y corregirlo. Y conectar con el ajuste contable de cierre: mismo riesgo, mismo método, cifras distintas solo por el escenario.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Defender que el juicio experto no se puede cuantificar. Si no se puede cuantificar, no se puede contabilizar; y si se ha contabilizado, alguien lo cuantificó.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap25">25. Coherencia entre ejercicios <span class="nivel n3">N3</span></h2>
+
+<p class="lead">El capítulo 9 explicó por qué un grupo tiene seis números de estrés y el 13 que las filiales tienen los suyos. Este explica dónde se rompe la coherencia entre ellos, cómo se gobierna y cómo se construye el puente que el supervisor acabará pidiendo.</p>
+
+<h3 id="s25-1">25.1 Dónde se rompe</h3>
+
+<p><strong>Entre ejercicios.</strong> El ejercicio europeo, el ICAAP, los escenarios de IFRS 9, el plan de recuperación y los ejercicios locales proyectan las mismas carteras con supuestos distintos. Las diferencias de supuestos son legítimas; las de modelo, casi nunca. La ruptura típica es que cada ejercicio lo hace un equipo con su versión del satélite (sección 9.2.4), y la prueba de que hay un problema es que nadie puede decir, para una cartera, cuál es su elasticidad al paro en cada ejercicio.</p>
+
+<p><strong>Dentro del mismo ejercicio.</strong> La filial proyecta su cartera con sus modelos y la matriz la consolida; si la filial usa para el ejercicio local un satélite y entrega al grupo otro, el grupo tiene dos opiniones sobre el mismo riesgo en dos sitios.</p>
+
+<p><strong>El tipo de cambio.</strong> Es la fuente de incoherencia más sutil. En el ejercicio europeo, los saldos y los activos ponderados se quedan al tipo de cierre, mientras que el margen, las comisiones y los gastos se convierten con la senda de divisa del escenario, y el euro no se mueve frente al dólar ni a la libra (sección 11.1.2). En el ejercicio local, todo está en moneda local y la depreciación entra, si entra, por el escenario macroeconómico del supervisor local. El mismo choque cambiario puede así reducir el margen en euros en el ejercicio del grupo y no aparecer en el local, o al revés. Cualquier comparación entre los dos que no lo corrija mezcla riesgo de crédito con conversión de divisa.</p>
+
+<h3 id="s25-2">25.2 Cómo se gobierna: inventario de modelos y usos</h3>
+
+<p>La herramienta es un inventario de modelos que registre, para cada satélite, en qué ejercicios se usa, con qué versión, con qué ventana de estimación y con qué elasticidades. Con él se pueden hacer tres cosas que sin él son imposibles: detectar que dos ejercicios usan versiones distintas del mismo modelo; explicar cada diferencia entre ejercicios como diferencia de supuesto y no de modelo; y responder al supervisor en horas y no en semanas. A esto se añaden dos reglas de proceso: una sola traslación del escenario a las variables de cada filial, que comparten todos los ejercicios del grupo (capítulo 31); y un puente documentado entre el ejercicio europeo y el ICAAP en cada ciclo, aunque nadie lo pida.</p>
+
+<h3 id="s25-3">25.3 La misma cartera mexicana en tres ejercicios</h3>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>La cartera de consumo de la filial mexicana, con los mismos satélites y las mismas fórmulas de provisiones, en tres ejercicios (anexo S6; los supuestos del ICAAP y del ejercicio local son ilustrativos):</p>
+<div class="tabla-scroll">
+<table>
+<caption>Pérdida acumulada en tres años sobre la exposición inicial de 1.000 millones. <i>k</i>: múltiplo de la desviación adversa sobre el base del escenario de la JERS para México.</caption>
+<thead><tr><th>Ejercicio</th><th>Escenario</th><th>Balance</th><th>Pérdida</th><th>Puente desde el europeo</th></tr></thead>
+<tbody>
+<tr><td>Europeo</td><td>JERS (<i>k</i> = 1)</td><td>Estático</td><td>33,83 %</td><td>&mdash;</td></tr>
+<tr><td>ICAAP</td><td>Propio, más severo (<i>k</i> = 1,15)</td><td>Dinámico: vence un 30 % al año, producción nueva más selectiva (PD × 0,85)</td><td>31,90 %</td><td>Escenario +4,38; balance −6,31</td></tr>
+<tr><td>Local</td><td>Del supervisor (<i>k</i> = 0,90)</td><td>Plan de negocio: la cartera sana crece un 8 % al año</td><td>37,58 %</td><td>Escenario −2,79; balance +6,54</td></tr>
+</tbody>
+</table>
+</div>
+<p>El ICAAP tiene un escenario más severo, como pide la guía, y aun así pierde menos que el ejercicio europeo: el balance dinámico le quita 6,31 puntos, porque parte de la cartera vence durante la crisis y se sustituye por crédito nuevo de mejor calidad. El ejercicio local tiene un escenario más suave y pierde más, porque el plan de negocio hace crecer la cartera y el crédito nuevo también entra en impago. Ninguno de los tres números está mal. Lo que estaría mal es presentarlos sin el puente.</p>
+</div>
+
+<h3 id="s25-4">25.4 Código</h3>
+
+<div class="bloque b-codigo">
+<span class="etiqueta">Código</span>
+<p>Anexo S6 (<code>anexos/s6_coherencia.py</code>): la misma cartera en tres ejercicios con los satélites del anexo S1 y las fórmulas del anexo S2, y el puente con el europeo en dos pasos, escenario y balance. Cambia el ritmo de vencimiento o la calidad de la producción nueva y comprueba cuánto se mueve el efecto balance.</p>
+</div>
+
+<h3 id="s25-5">25.5 «¿Por qué su ICAAP pierde menos que su ejercicio europeo?»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>En la evaluación del ICAAP: «La caída de capital de su escenario adverso interno es inferior a la del ejercicio europeo, pese a que su narrativa describe una crisis más severa en América Latina. Concilie ambos resultados».</dd>
+<dt>Qué hay detrás</dt>
+<dd>La guía del ICAAP pide escenarios más severos y específicos que el adverso genérico. Si el resultado es menor, el supervisor sospecha que la severidad del escenario se ha compensado con supuestos de balance o acciones de gestión optimistas, que es exactamente la debilidad que señaló en el ejercicio geopolítico de 2026 (capítulo 20).</dd>
+<dt>La respuesta que funciona</dt>
+<dd>El puente del anexo S6, a escala de grupo: partir de la caída del ejercicio europeo y llegar a la del ICAAP con cada efecto cuantificado y justificado (escenario por geografía, vencimientos, producción nueva, crecimiento, acciones de gestión, horizonte). Si el efecto balance es grande, enseñar que los vencimientos y la calidad de la producción nueva son los del comportamiento observado de la cartera en el último episodio de estrés, no los del plan estratégico. Y ofrecer la sensibilidad con balance estático, que es la comparación más limpia.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Responder que el ICAAP y el ejercicio europeo tienen objetivos y supuestos distintos y que no son comparables. Es cierto y no contesta: la guía pide precisamente que el banco explique la relación entre los dos.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap26">26. Clima: horizontes largos y datos que no existen <span class="nivel n3">N3</span></h2>
+
+<p class="lead">El riesgo climático rompe dos supuestos que el resto del manual da por hechos: que tres años bastan y que los datos existen. Este capítulo trata los dos problemas y cómo se abordan sin inventar.</p>
+
+<h3 id="s26-1">26.1 El problema</h3>
+
+<p><strong>Horizontes.</strong> Los escenarios climáticos se escriben a décadas: la transición energética, el precio del carbono o la frecuencia de los fenómenos extremos cambian a lo largo de veinte o treinta años. Un ejercicio de tres años con balance estático solo capta una parte: el choque inicial de una transición desordenada o un evento físico concreto, como la inundación del módulo de 2027 (sección 21.2.2). La parte más relevante del riesgo, la que se acumula, queda fuera.</p>
+
+<p><strong>Datos.</strong> Para proyectar la pérdida de una hipoteca por su eficiencia energética hace falta la certificación del inmueble, que en muchas carteras no existe o no está informatizada. Para la transición de una empresa hacen falta sus emisiones y su plan de descarbonización, que las pymes no publican. Para el riesgo físico hace falta la geolocalización de cada garantía, que en las carteras antiguas es una dirección postal. Y en las filiales de fuera de la Unión, todo lo anterior es todavía más escaso.</p>
+
+<h3 id="s26-2">26.2 Cómo se aborda</h3>
+
+<p><strong>Aproximaciones trazables.</strong> Donde no hay dato, se estima con una regla explícita y se marca como estimado: la eficiencia energética por año de construcción, zona climática y tipología del inmueble; las emisiones de una empresa por la intensidad media de su sector y su tamaño; la geolocalización por la dirección normalizada. Los estándares de contabilidad de emisiones financiadas, como el de la iniciativa PCAF, asignan a cada dato una puntuación de calidad de 1 (verificado) a 5 (estimado por sector), y es una buena práctica reportar la exposición por nivel de calidad. Lo importante no es que el dato sea perfecto, sino que se pueda reconstruir de dónde sale.</p>
+
+<p><strong>Del choque climático al crédito.</strong> La vía más usada, y la que propone el módulo de 2027, pasa por el valor añadido sectorial: el escenario de transición se traduce en choques sobre el valor añadido de cada sector, y los satélites sectoriales de crédito convierten esos choques en tasas de transición. Así se reutilizan los satélites del ejercicio ordinario, con la ventaja de la coherencia y el inconveniente de que esos satélites se estimaron con ciclos económicos, no con transiciones tecnológicas.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Con la sensibilidad al PIB del satélite del anexo S1 aplicada a una cartera sectorial con una PD de partida del 2 %, un choque de valor añadido de 3 puntos sobre el base la lleva al 2,53 %; uno de 8 puntos, al 3,73 %; y uno de 15 puntos, propio de un sector muy expuesto a una transición desordenada, al 6,36 % (<code>anexos/cifras_parte03b.py</code>). El ejemplo enseña el mecanismo y su límite: la elasticidad se estimó con recesiones, en las que todos los sectores caen a la vez, y un sector que pierde valor añadido porque su tecnología queda obsoleta puede tener impagos más concentrados y LGD mayores que en una recesión.</p>
+</div>
+
+<h3 id="s26-3">26.3 «Su <i>proxy</i> no es trazable»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«Para el 60 % de su cartera hipotecaria, la eficiencia energética reportada en el módulo climático es una estimación. Describa el método, su validación y la distribución de la cartera por fuente del dato».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor sabe que los datos climáticos son escasos y no espera que el banco los tenga todos. Lo que comprueba es si el banco sabe cuánto sabe: qué parte es dato real, qué parte es estimación y con qué método, y si la estimación está sesgada hacia las calificaciones favorables.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Una tabla de la cartera por fuente del dato (certificado real, estimado por modelo, asignado por defecto) con la distribución de calificaciones de cada una, el método de estimación con su validación contra la parte con certificado real y un plan para aumentar la cobertura de datos reales. Si la estimación produce calificaciones mejores que las reales en la muestra de validación, corregirla.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Asignar por defecto la calificación media de la cartera a todo lo que no tiene dato y no decirlo. Es la estimación más fácil y la que más esconde.</dd>
+</dl>
+</div>
+
+<h3 id="s26-4">26.4 El alcance físico fuera del Espacio Económico Europeo</h3>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>El riesgo físico del módulo de 2027 se limita al Espacio Económico Europeo, y el borrador pregunta a los bancos por su alcance. Para Santander y BBVA, lo que queda fuera es justo lo más expuesto: inundaciones y huracanes en México, sequías en Brasil, que una encuesta del banco central brasileño señala como el evento de mayor impacto esperado (sección 13.2.4), y fenómenos extremos en Estados Unidos. Madurez: pregunta abierta en un borrador; puede quedarse como está, ampliarse en la versión final o en ciclos posteriores.</p>
+<p>El proyecto que genera es anticiparse: geolocalizar las garantías de las filiales de fuera de la Unión con los mismos estándares que las europeas, y tener una primera evaluación de su exposición física antes de que se pida, porque el día que se pida no habrá tiempo de construir el dato.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap27">27. <i>Machine learning</i> en modelos satélite <span class="nivel n3">N3</span></h2>
+
+<p class="lead">El aprendizaje automático ha cambiado los modelos de admisión y de calificación. En los satélites de estrés su papel es más modesto, por una razón de fondo que conviene entender antes de proponerlo en un proyecto: un satélite tiene que funcionar justo donde los datos no llegan.</p>
+
+<h3 id="s27-1">27.1 Dónde aporta y dónde no</h3>
+
+<p><strong>Dónde aporta.</strong> Encontrar no linealidades e interacciones que un analista no habría especificado; seleccionar variables entre muchas candidatas; segmentar carteras en grupos que responden distinto al ciclo; y modelizar a nivel de préstamo, donde hay millones de observaciones, la parte microeconómica de la PD que luego se combina con un satélite macroeconómico.</p>
+
+<p><strong>Dónde no.</strong> El satélite macroeconómico de una cartera tiene pocas observaciones &mdash; sesenta u ochenta trimestres &mdash; con dos recesiones. Un modelo flexible sobre una muestra así se ajusta a los datos y no aprende el ciclo. Y hay un problema más grave: muchos modelos de aprendizaje automático no extrapolan. Un árbol de decisión, y los conjuntos de árboles que dominan la práctica, predicen con el valor de la hoja en la que cae la observación; fuera del rango de la muestra, la predicción se queda plana en el valor de la hoja más extrema.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Un modelo por tramos, que reproduce lo esencial de un árbol, estimado con los datos del anexo S1: cuatro tramos de paro por cuatro de PIB, con la tasa de impago media de cada celda. En la celda más adversa (paro alto, PIB bajo), la tasa media es del 7,64 %. En el punto adverso del manual (paro del 8,8 %, PIB del −4,7 %) el modelo por tramos predice un 7,64 %, porque el punto cae en esa celda; en un punto todavía más extremo (paro del 10,5 %, PIB del −8 %), también un 7,64 %. El satélite logit lineal da un 22,36 % y un 35,10 %. El modelo por tramos no está mal estimado: está haciendo exactamente lo que hace por construcción. Y por construcción no puede proyectar un escenario más duro que lo que ha visto (<code>anexos/cifras_parte03b.py</code>).</p>
+</div>
+
+<p>Hay soluciones parciales &mdash; restricciones de monotonía, modelos híbridos con una parte paramétrica que extrapola y una flexible que corrige, aprendizaje sobre paneles de muchos países &mdash;, pero ninguna elimina el problema de fondo: con pocos datos de crisis, la forma de la respuesta en la cola la decide el supuesto, no los datos.</p>
+
+<h3 id="s27-2">27.2 Cómo se defiende: <i>challenger</i> frente a principal</h3>
+
+<p>El uso más defendible hoy es como modelo de contraste. El satélite principal sigue siendo un modelo econométrico interpretable, y un modelo de aprendizaje automático se estima en paralelo para buscar lo que el principal no ve: si encuentra una interacción relevante (paro y tipos en las hipotecas variables, por ejemplo), se incorpora al principal de forma explícita; si su respuesta difiere mucho dentro de la muestra, se investiga por qué. Lo que se presenta al supervisor es el modelo principal, mejorado con lo que reveló el de contraste, y la documentación de ese proceso.</p>
+
+<p>Si se usa como principal, hacen falta tres cosas más: una explicación de la contribución de cada variable a cada proyección (con técnicas de atribución como los valores de Shapley), pruebas de monotonía y de comportamiento fuera de la muestra, y una validación independiente con criterios adaptados al tipo de modelo.</p>
+
+<h3 id="s27-3">27.3 Reglamento de IA y riesgo de modelo</h3>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>El Reglamento europeo de inteligencia artificial, ya aprobado, clasifica como de alto riesgo los sistemas que evalúan la solvencia de las personas físicas, con obligaciones de gobierno, datos, documentación y supervisión humana que se aplican de forma escalonada y cuyo calendario está sujeto a revisión. Un satélite macroeconómico de <i>stress test</i> no evalúa la solvencia de una persona y, en principio, queda fuera; pero los modelos de PD a nivel de préstamo que se reutilizan en el ejercicio pueden no quedar fuera. A eso se suman las expectativas de los supervisores bancarios sobre el aprendizaje automático en modelos internos, que van en la misma dirección: explicabilidad, gobierno y validación reforzados. Madurez: norma aprobada con aplicación gradual; la interacción con la supervisión prudencial de modelos todavía se está concretando.</p>
+<p>El proyecto que genera es un inventario: qué modelos del ejercicio usan técnicas de aprendizaje automático, en qué parte de la cadena, y si alguno cae en el ámbito del reglamento. Hecho una vez, sirve para el riesgo de modelo, para la validación y para la siguiente pregunta del supervisor.</p>
+</div>
+
+<h3 id="s27-4">27.4 «No entendemos por qué su modelo responde así»</h3>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>«Las tasas de transición proyectadas para su cartera de tarjetas crecen en el adverso entre el primer y el segundo año y se estabilizan en el tercero, pese a que el paro sigue subiendo. La nota explicativa indica que el modelo es un conjunto de árboles de decisión. Explique el comportamiento del modelo en la parte alta del rango de las variables».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor ha visto la meseta y sospecha la razón: el escenario ha salido del rango de la muestra y el modelo ha dejado de responder. No le preocupa la técnica; le preocupa que el resultado del tercer año no tenga una relación con el escenario que se pueda explicar.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Reconocer el mecanismo, enseñar el rango de la muestra frente a la senda del escenario y presentar la proyección de un modelo paramétrico de contraste para los años en que el escenario sale del rango. Si la diferencia es material, sustituir la proyección en esa zona por la del modelo que extrapola, o aplicar un ajuste documentado, y reforzar la validación del modelo fuera de la muestra para el siguiente ejercicio.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Defender que el modelo tiene mejor ajuste y mejor capacidad predictiva que el anterior. Dentro de la muestra, probablemente sí; la pregunta es sobre lo que pasa fuera, y ahí la métrica de ajuste no dice nada.</dd>
+</dl>
+</div>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Diagnosticar si la historia de una cartera es suficiente para estimar su sensibilidad al ciclo y elegir, con su efecto cuantificado, cómo tratar la pandemia y las rupturas de definición.</li>
+<li>Comprobar si un satélite responde de menos fuera de la muestra y proponer una especificación no lineal o un contraste externo que lo corrija.</li>
+<li>Documentar un ajuste de experto con sus cinco piezas y detectar un conjunto de ajustes sesgado en una dirección.</li>
+<li>Construir el puente entre dos ejercicios de la misma cartera, separando escenario, balance y tipo de cambio.</li>
+<li>Diseñar aproximaciones trazables para los datos climáticos que faltan y saber hasta dónde llegan los satélites ordinarios con choques sectoriales.</li>
+<li>Decidir dónde aporta el aprendizaje automático en un satélite, y explicar por qué un modelo de árboles puede no responder a un escenario fuera de la muestra.</li>
+</ul>
+</div>
+
+<p>El bloque B termina el recorrido metodológico. La Parte IV deja los modelos y entra en el ejercicio como proyecto: cómo se organiza, cómo funciona el QA y qué situaciones con el supervisor se repiten en todos los ciclos.</p>
+
+<nav class="nav">
+<p><a href="parte-03a.html">← Parte III-A</a> · <a href="index.html">Índice</a> · <a href="parte-04.html">Parte IV: El ejercicio frente al JST →</a></p>
+</nav>
+
+</body>
+</html>

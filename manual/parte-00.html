@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte 0 — Cómo usar este manual</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte 0</p>
+<h1>Cómo usar este manual</h1>
+<p class="subtitulo">Qué se asume de ti, por dónde empezar según lo que necesites y cómo trabajar con unas fuentes que cambian cada dos años.</p>
+
+<p class="lead">El <i>stress test</i> tiene una particularidad que lo hace engañoso para quien llega nuevo: sus reglas se reescriben en cada ciclo, pero sus problemas son siempre los mismos. Quien aprende la nota metodológica de un año como si fuera la materia se queda obsoleto en el siguiente. Quien aprende los problemas &mdash; por qué el supervisor desconfía de un modelo que responde poco al escenario, por qué dos ejercicios del mismo banco no cuadran, qué significa de verdad congelar el balance &mdash; lee la nota nueva en una tarde y sabe dónde mirar. Esta parte explica cómo está construido el manual para que aprendas lo segundo sin dejar de saber lo primero.</p>
+
+<hr/>
+
+<h2 id="s0-1">0.1 Para quién es</h2>
+
+<h3 id="s0-1-1">0.1.1 Lo que se asume y lo que no</h3>
+
+<p>El manual está escrito para alguien que conoce la banca y el IRB en lo básico. En concreto, se da por sabido:</p>
+
+<ul>
+<li><strong>Cómo funciona un banco.</strong> Qué hay en su balance y en su cuenta de resultados, qué es una provisión, de dónde salen los beneficios y por qué el capital es lo que absorbe las pérdidas.</li>
+<li><strong>El IRB en lo básico.</strong> Qué son la probabilidad de impago (PD), la severidad (LGD) y la exposición (EAD); que la fórmula IRB los convierte en un requerimiento de capital; qué son los activos ponderados por riesgo (RWA) y el ratio CET1. No hace falta saber derivar la fórmula ni calibrar un modelo.</li>
+<li><strong>Una hoja de cálculo o un poco de Python.</strong> Los anexos de código están en Python, pero el <i>stress test</i> de juguete del capítulo 8 se puede seguir también en una hoja de cálculo. Lo que no se puede es saltárselo.</li>
+</ul>
+
+<p>Lo que <em>no</em> se asume es todo lo demás. No hace falta conocer IFRS 9: el capítulo 4 explica lo imprescindible. No hace falta haber leído nunca un escenario macroeconómico: el capítulo 5 enseña a leerlo. No hace falta saber econometría de series temporales: el capítulo 6 da la justa para entender, construir y criticar un modelo satélite. Y no hace falta saber nada del <i>stress test</i> en sí, ni de la EBA, ni de qué hace el JST con el resultado.</p>
+
+<p>Si dudas de tu punto de partida, el anexo R6 empieza con una prueba de entrada de diez preguntas. Si fallas más de tres de las de IRB, lee antes las Partes I y II del <i>Manual de Capital y Provisiones</i>; si fallas las de banca general, dedica una tarde al informe anual de un banco cotizado. Las demás preguntas no tienes por qué saberlas todavía: están ahí para que veas qué vas a aprender.</p>
+
+<h3 id="s0-1-2">0.1.2 Lo que este manual no es</h3>
+
+<p><strong>No es una guía del ejercicio de un año.</strong> La EBA publica para cada ejercicio una nota metodológica de doscientas páginas, unas plantillas y una guía de plantillas, y durante el ejercicio responde cientos de preguntas. Ese material es imprescindible y no se sustituye: el manual te dice qué buscar en él y por qué está escrito así. Cuando hace falta concretar, el ejercicio de referencia es el de 2027, cuya metodología se publicó en borrador en junio de 2026, y las cifras reales salen del de 2025, el último cerrado.</p>
+
+<p><strong>No es un curso de econometría.</strong> Hay manuales excelentes de series temporales y de modelos de riesgo de crédito, y este no compite con ellos. Enseña lo necesario para que un modelo satélite no sea una caja negra, para reconocer cuándo un coeficiente no tiene sentido económico y para entender por qué el supervisor te va a preguntar por él.</p>
+
+<p><strong>No es un resumen normativo.</strong> Cuando el manual cita una norma o un párrafo de la nota metodológica, lo hace para decir en una frase qué exige y pasar a lo que importa: qué problema resuelve, qué margen deja y qué se hace con ese margen frente al supervisor.</p>
+
+<p><strong>No es una colección de anécdotas.</strong> Los bloques CASO JST reconstruyen situaciones que se repiten en los ejercicios, pero ninguno identifica a un banco ni a un equipo supervisor. Los bancos reales aparecen con su nombre solo cuando se usan datos públicos &mdash; los resultados que publica la EBA, los informes de los bancos centrales &mdash;, siempre con la fuente y la fecha.</p>
+
+<h3 id="s0-1-3">0.1.3 La meta</h3>
+
+<p>El objetivo no es que sepas qué es un <i>stress test</i>. Es que, al terminar el nivel N3, puedas sostener esta conversación sin pedir tiempo para pensar:</p>
+
+<blockquote>
+&mdash; El JST dice que nuestra pérdida de consumo en México está treinta puntos básicos por debajo de su <i>benchmark</i> en el primer año y nos pide revisarla.<br/>
+&mdash; ¿Por debajo en tasa de entrada en stage 3 o en pérdida total? Porque si es la tasa de entrada, el problema está en el satélite; si es la pérdida, puede estar en la LGD o en cuánto pasa a stage 2.<br/>
+&mdash; En la tasa de entrada.<br/>
+&mdash; Entonces miremos la sensibilidad al paro. El escenario mexicano sube el paro más de cinco puntos sobre la base, y si nuestro modelo se estimó con la serie que tiene la pandemia neutralizada por las moratorias, responde de menos. Eso se puede defender si tenemos una explicación económica y un contraste; si no la tenemos, mejor aceptar el <i>benchmark</i> en esa cartera que gastar la credibilidad en ella y perderla en la de empresas, donde sí tenemos razón.
+</blockquote>
+
+<p>Casi nada de esa conversación es cálculo. Es saber dónde están las decisiones, qué consecuencias arrastra cada una y qué está comprobando de verdad el supervisor cuando pregunta. Esa es la competencia que el manual intenta construir, y por eso cada capítulo de las Partes III a V lleva al menos una situación con el JST.</p>
+
+<p>Hay una segunda meta, propia de los grandes grupos. Un banco con filiales en México, Brasil, Estados Unidos o el Reino Unido no tiene un número de <i>stress test</i>: tiene varios, hechos por supervisores distintos con escenarios, balances y métricas distintos. Saber explicar por qué no coinciden &mdash; y qué parte de la diferencia es escenario, qué parte es cartera y qué parte es método &mdash; es lo que separa a un experto de alguien que sabe ejecutar un ejercicio. El capítulo 32 está dedicado a eso.</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Aprender el <i>stress test</i> por la nota metodológica del año. Funciona hasta el ciclo siguiente, en el que cambian los párrafos, las plantillas y la mitad de las restricciones, y entonces descubres que sabías el texto y no el porqué. Lee la nota, siempre, pero lee primero el capítulo del manual que explica el mecanismo: la nota se entiende entonces como una concreción, no como un reglamento que hay que memorizar.</p>
+</div>
+
+<hr/>
+
+<h2 id="s0-2">0.2 Rutas</h2>
+
+<h3 id="s0-2-1">0.2.1 La ruta completa: de N1 a N3</h3>
+
+<p>Leído por orden, el manual va de lo básico a lo experto. Las partes no son del mismo tamaño ni se leen al mismo ritmo, y conviene saberlo antes de empezar.</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>La ruta completa. El hito es lo que tienes que poder hacer antes de pasar al siguiente tramo; si no puedes, vuelve atrás.</caption>
+<thead>
+<tr><th>Tramo</th><th>Manual</th><th>Hito</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong> <span class="nivel n1">N1</span></td>
+<td>Parte 0 y Parte I, capítulos 1 a 7</td>
+<td>Explicar en cinco minutos, sin notas, cómo un escenario de paro y PIB acaba en una caída de CET1, nombrando cada eslabón.</td>
+</tr>
+<tr>
+<td><strong>2</strong> <span class="nivel n1">N1</span></td>
+<td>Capítulo 8 y anexo S0</td>
+<td>Rehacer el <i>stress test</i> de juguete con otra cartera (caso 1 del anexo R7) y explicar qué variable mueve la mayor parte de la pérdida.</td>
+</tr>
+<tr>
+<td><strong>3</strong> <span class="nivel n2">N2</span></td>
+<td>Parte II</td>
+<td>Leer la nota metodológica del ejercicio en curso por índice y localizar en diez minutos dónde se regula cualquier cosa del capítulo 11.</td>
+</tr>
+<tr>
+<td><strong>4</strong> <span class="nivel n2">N2</span></td>
+<td>Parte III, bloque A, y anexos S1 y S2</td>
+<td>Proyectar una cartera hipotecaria bajo el adverso con las restricciones del ejercicio (caso 2 del anexo R7).</td>
+</tr>
+<tr>
+<td><strong>5</strong> <span class="nivel n3">N3</span></td>
+<td>Parte III, bloque B, y Parte IV</td>
+<td>Responder por escrito a tres preguntas del QA sobre la filial mexicana, distinguiendo en cada una si el problema es de dato, de método o de criterio (caso 3 del anexo R7).</td>
+</tr>
+<tr>
+<td><strong>6</strong> <span class="nivel n3">N3</span></td>
+<td>Partes V y VI, y anexos S3 a S6</td>
+<td>Explicar al JST, con números, por qué la filial mexicana no da lo mismo en el ejercicio europeo que en el local (caso 4 del anexo R7).</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>Con dedicación parcial &mdash; una o dos horas al día &mdash;, los tramos 1 y 2 caben en tres o cuatro semanas, y los cuatro restantes en otros dos o tres meses. Los anexos de código no son opcionales en ningún tramo: una proyección que no has calculado nunca es una proyección que no entiendes, solo reconoces.</p>
+
+<h3 id="s0-2-2">0.2.2 Incorporación urgente a un ejercicio en marcha</h3>
+
+<p>Lo normal no es empezar por el principio, sino llegar a un ejercicio que ya ha empezado y tener que ser útil en una semana. Para eso:</p>
+
+<ol>
+<li><strong>Días 1 y 2.</strong> Capítulos 1, 7 y 8, más el anexo S0. Al final tienes el mapa de la cadena completa y has visto un ejercicio en pequeño. Es lo mínimo para entender de qué se habla en las reuniones.</li>
+<li><strong>Día 3.</strong> Capítulo 11, con la nota metodológica del ejercicio abierta al lado. No la leas entera: localiza en ella cada sección del capítulo.</li>
+<li><strong>Día 4.</strong> El capítulo de la Parte III que corresponda a tu tarea concreta (satélites, stages, provisiones, RWA o ICAAP) y el capítulo 18 sobre <i>benchmarks</i> y revisión del supervisor, que afecta a cualquier tarea.</li>
+<li><strong>Día 5.</strong> Capítulo 29 sobre el ciclo de QA. Es el que te dice qué va a pasar con tu trabajo después de que lo entregues.</li>
+</ol>
+
+<p>Después vuelve a la Parte I y léela entera. Los capítulos 3, 4 y 6 son los que un recién llegado se salta y los que luego explican la mitad de los problemas que ve.</p>
+
+<h3 id="s0-2-3">0.2.3 Por rol</h3>
+
+<div class="tabla-scroll">
+<table>
+<caption>Rutas mínimas por tipo de trabajo. «Núcleo» son los capítulos sin los que no puedes trabajar; «apoyo», los que vas a consultar. La Parte I es núcleo para todos.</caption>
+<thead>
+<tr><th>Rol o encargo</th><th>Núcleo</th><th>Apoyo</th></tr>
+</thead>
+<tbody>
+<tr><td>Proyección de pérdidas de crédito (equipo del ejercicio)</td><td>11, 14, 15, 16, 17, 18</td><td>19, 22, 23, 24</td></tr>
+<tr><td>Validación de segunda línea de modelos de proyección</td><td>15, 16, 22, 23, 24, 27</td><td>18, 25</td></tr>
+<tr><td>Coordinación del ejercicio y relación con el JST</td><td>11, 12, 18, 28, 29, 30</td><td>9, 33</td></tr>
+<tr><td>Filial fuera de la UE</td><td>13, 31, 32</td><td>15, 25</td></tr>
+<tr><td><i>Stress test</i> del ICAAP y <i>reverse stress test</i></td><td>20, 21, 25</td><td>12, 24</td></tr>
+<tr><td>Clima</td><td>21, 26</td><td>15, 34</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="s0-2-4">0.2.4 Modo referencia</h3>
+
+<p>Dentro del ejercicio, el manual deja de leerse y pasa a consultarse. Lo más útil es buscar desde el problema:</p>
+
+<ul>
+<li><strong>Si te llega una pregunta o un <i>flag</i> del supervisor</strong>, busca el bloque CASO JST del capítulo correspondiente; el capítulo 30 reúne los más frecuentes.</li>
+<li><strong>Si no sabes dónde está regulado algo</strong>, el capítulo 11 tiene el mapa de la nota metodológica, y el anexo R2, las fuentes.</li>
+<li><strong>Si tienes que explicar una diferencia entre dos números</strong>, el capítulo 36 es el árbol de diagnóstico y el 32, el puente completo.</li>
+<li><strong>Si dudas de un término</strong>, el glosario del anexo R1 traduce entre la jerga de la EBA, la del BCE y la de los reguladores locales.</li>
+</ul>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>En una discusión con el supervisor o con validación, no cites este manual: cita la fuente primaria que el manual referencia, con su versión y su párrafo. Un manual no tiene valor argumental. Su valor es decirte exactamente dónde mirar, y eso te ahorra las horas que tarda alguien sin el mapa.</p>
+</div>
+
+<hr/>
+
+<h2 id="s0-3">0.3 Cómo trabajar con las fuentes</h2>
+
+<h3 id="s0-3-1">0.3.1 Los documentos de cabecera</h3>
+
+<p>El trabajo de crédito en un ejercicio europeo se hace con un puñado de documentos. Conviene tenerlos localizados desde el primer día.</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>El corpus mínimo de un ejercicio europeo. Los documentos 1 a 4 cambian en cada ciclo; los 5 a 8, mucho más despacio.</caption>
+<thead>
+<tr><th>#</th><th>Documento</th><th>Para qué sirve y cómo se lee</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Nota metodológica</strong> del ejercicio (EBA)</td>
+<td>Las reglas del juego: perímetro, balance estático, restricciones, cómo se proyecta cada riesgo. El capítulo de crédito se lee entero; el resto, por índice. Sus párrafos numerados son la forma de citar en cualquier discusión.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Plantillas y guía de plantillas</strong> (EBA)</td>
+<td>Qué se envía, celda a celda, y con qué definiciones. Es donde se descubre que dos conceptos que parecían iguales no lo son.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Preguntas y respuestas</strong> del ejercicio (EBA)</td>
+<td>La interpretación oficial de los casos que la nota no cierra. Se consulta antes de abrir cualquier debate metodológico: si la pregunta ya está respondida, discutirla es perder el tiempo.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Escenario macrofinanciero</strong> (JERS y BCE)</td>
+<td>Las sendas de las variables en el base y en el adverso, país a país. Se lee la narrativa una vez y las tablas muchas.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Directrices de SREP y <i>stress testing</i> supervisor</strong> (EBA/GL/2026/06)</td>
+<td>Cómo usa el supervisor el resultado. Aplicables desde el 1 de enero de 2027. Se lee la sección de guía de Pilar 2.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Directrices sobre <i>stress testing</i> de las entidades</strong> (EBA/GL/2018/04)</td>
+<td>Lo que se espera del programa de <i>stress test</i> propio del banco: gobierno, escenarios, <i>reverse stress test</i>.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Guía del BCE sobre el ICAAP</strong> (julio de 2026)</td>
+<td>Sustituye a la de 2018. Es la referencia del <i>stress test</i> interno del capítulo 20.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Guía del BCE sobre agregación de datos de riesgo y reporting</strong> (mayo de 2024)</td>
+<td>Incluye expresamente los envíos del <i>stress test</i>. Es la que se invoca cuando los datos llegan tarde o no cuadran.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>Hay un noveno recurso que no es normativo y vale más que muchos que lo son: la <strong>base de datos de resultados</strong> que la EBA publica con cada ejercicio, en ficheros que se pueden descargar y analizar. Contiene, banco a banco y país a país, las exposiciones, las provisiones y su evolución en los dos escenarios. Es lo que permite comparar con los pares antes de que lo haga el supervisor, y es la materia prima de los capítulos 12 y 32.</p>
+
+<p>Para las filiales fuera de la UE, cada regulador tiene su propio corpus. El capítulo 13 da una ficha por jurisdicción y el anexo R3 reúne las fuentes.</p>
+
+<h3 id="s0-3-2">0.3.2 Borrador, versión final, preguntas y respuestas, fe de erratas</h3>
+
+<p>Un ejercicio europeo no tiene un texto, tiene una secuencia de textos. La metodología se publica primero en borrador para consulta; meses después sale la versión final; durante el ejercicio, la EBA va publicando respuestas a las preguntas de los bancos que concretan o corrigen lo que la nota dice; y a veces el escenario o las plantillas llevan una fe de erratas. Trabajar con la versión equivocada es uno de los errores más caros y más silenciosos del oficio.</p>
+
+<p>Tres reglas:</p>
+
+<p><strong>Primera: anota siempre la versión.</strong> En cualquier documento interno, cita el párrafo junto con la versión de la nota de la que sale («borrador del 11 de junio de 2026, párrafo 117»). Los párrafos se renumeran entre el borrador y la versión final, y una cita sin versión no se puede comprobar.</p>
+
+<p><strong>Segunda: las respuestas a preguntas pesan como la nota.</strong> No tienen otro rango, pero en la práctica el supervisor las aplica como si lo tuvieran. Antes de cada envío, alguien del equipo tiene que haber revisado las respuestas publicadas desde el envío anterior.</p>
+
+<p><strong>Tercera: comprueba el alcance de cada fe de erratas.</strong> Una corrección puede ser trivial o cambiar un número que alimenta todo el ejercicio. La del escenario del ejercicio de 2025, por ejemplo, solo corregía algunos tramos de la curva de tipos swap en libras; quien la ignoró no tuvo ningún problema en crédito. Otra corrección puede no ser tan inocua, y la única forma de saberlo es leerla.</p>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>En la segunda ronda de revisión, el supervisor señala que la nota explicativa justifica el reparto de pérdidas entre sectores citando un párrafo que, en la versión final de la nota metodológica, regula otra cosa.</dd>
+<dt>Qué hay detrás</dt>
+<dd>El equipo redactó la nota explicativa sobre el borrador y no actualizó las referencias. El método puede ser correcto; lo que el supervisor está comprobando es si el banco sabe qué reglas está aplicando. Una referencia equivocada le hace dudar de todo lo demás.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Reconocer el error de referencia en una línea, dar el párrafo correcto de la versión final y confirmar que el método cumple con él. Y, sin que nadie lo pida, revisar todas las referencias de la nota explicativa antes del siguiente envío.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Argumentar que el contenido es el mismo y que el número de párrafo es lo de menos. Puede que lo sea, pero el mensaje que recibe el supervisor es que el banco no distingue entre versiones, y eso se paga en la puntuación cualitativa del ejercicio (capítulo 12).</dd>
+</dl>
+</div>
+
+<h3 id="s0-3-3">0.3.3 Qué caduca con cada ciclo</h3>
+
+<p>Una parte del manual envejece más rápido que el resto, y conviene saber cuál es antes de citarlo.</p>
+
+<p><strong>Caduca con cada ejercicio:</strong> las fechas, los números de párrafo, la lista de lo que se proyecta con fórmulas prescritas y lo que proyecta el banco, los umbrales concretos de las plantillas y la composición de la muestra. En el manual aparecen referidos a un ejercicio concreto, casi siempre el de 2027 o el de 2025, y así hay que leerlos.</p>
+
+<p><strong>Caduca más despacio:</strong> la arquitectura del ejercicio (proyección del banco bajo restricciones, balance estático, escenario común, revisión del supervisor, uso en el SREP), la lógica de la guía de Pilar 2 y las expectativas sobre el <i>stress test</i> interno. Cambian, pero en saltos espaciados y anunciados.</p>
+
+<p><strong>No caduca:</strong> los problemas. Que un modelo estimado en tiempos normales responde de menos en una recesión. Que dos ejercicios con supuestos distintos no pueden dar el mismo número. Que el supervisor compara con los pares y desconfía del que sale mejor sin explicación. Que el dato de una filial lejana llega tarde y con definiciones propias. Son el contenido al que el manual dedica más espacio.</p>
+
+<div class="bloque b-viene">
+<span class="etiqueta">Qué viene</span>
+<p>A lo largo del manual encontrarás bloques como este. Señalan cambios anunciados, en consulta o aprobados pero aún no aplicados, y qué trabajo van a generar. Tres cautelas sobre cómo usarlos:</p>
+<ul>
+<li><strong>Caducan antes que el resto del texto.</strong> Un cambio en consulta puede acabar en algo distinto o no llegar.</li>
+<li><strong>Ninguna fecha ni cifra que aparezca en ellos debe usarse en un entregable</strong> sin comprobar antes su estado en la fuente.</li>
+<li><strong>Lo estable es la dirección.</strong> En el <i>stress test</i> europeo, la dirección de los últimos años es clara: menos datos propios del ejercicio y más reporting ordinario, más elementos proyectados por el supervisor, y riesgos nuevos &mdash; clima, geopolítica &mdash; integrados en el ciclo normal. Es la parte que conviene retener.</li>
+</ul>
+</div>
+
+<hr/>
+
+<h2 id="s0-4">Una advertencia antes de empezar</h2>
+
+<p>Este manual se escribe en un momento de cambio. El ejercicio europeo de 2027 llega simplificado y con un primer módulo climático; el supervisor estadounidense va a promediar sus requerimientos y someter sus modelos a comentario público; el británico ha pasado a un ejercicio cada dos años. Cuando leas esto, alguna de esas cosas habrá avanzado y alguna se habrá quedado por el camino.</p>
+
+<p>Lo que no cambia es el oficio: traducir un escenario en pérdidas con modelos que se puedan defender, saber dónde están las decisiones y explicar por qué un número es el que es. Los números concretos están para que puedas trabajar en el ejercicio que tienes delante; el razonamiento, para que puedas hacerlo también en el siguiente.</p>
+
+<nav class="nav">
+<p><a href="index.html">← Índice general</a> · <a href="parte-01.html">Parte I: Fundamentos →</a></p>
+</nav>
+
+</body>
+</html>

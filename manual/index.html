@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de Stress Test</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header id="portada">
+  <p class="eyebrow">Manual de estudio y referencia</p>
+  <h1 style="page-break-before:auto">Stress Test de Riesgo de Crédito</h1>
+  <p class="subtitulo">De conocer la banca a defender un número ante el JST, en grupos con filiales dentro y fuera de Europa</p>
+  <p class="lead">Un manual para quien conoce la banca y el IRB en lo básico y tiene que llegar a experto en <i>stress testing</i>: cómo se traduce un escenario en pérdidas de crédito, provisiones y capital, qué exige el supervisor, dónde están las decisiones y cómo se explica que el mismo grupo dé números distintos en España, en México o en Estados Unidos.</p>
+</header>
+
+<hr/>
+
+<h2 id="que-es">Qué es este manual y qué no es</h2>
+
+<p>Un <i>stress test</i> parece un cálculo y es, sobre todo, una conversación. El cálculo &mdash; coger un escenario macroeconómico, convertirlo en tasas de impago y pérdidas, llevarlas a provisiones y de ahí al capital &mdash; se aprende en unas semanas. Lo que cuesta años es lo que pasa alrededor: por qué tu proyección sale por debajo del <i>benchmark</i> del supervisor y si eso se defiende o se corrige, por qué el ejercicio del ICAAP pierde menos que el europeo, por qué la filial mexicana parece perder el triple que la cartera española con un escenario parecido, y por qué ese cociente engaña, y qué contestar cuando el equipo del BCE te lo pregunta a cuatro días del envío final.</p>
+
+<p>Este manual intenta enseñar las dos cosas, en ese orden. No es una guía de la metodología de un año concreto: la de la Autoridad Bancaria Europea cambia en cada ciclo, y el manual explica los mecanismos para que cada cambio se entienda en una tarde. Tampoco es un curso de econometría: enseña la justa para construir, leer y criticar un modelo satélite. Y no es un resumen normativo: cuando cita una norma es para decir en una frase qué exige y pasar a lo que importa.</p>
+
+<p>Es hermano del <i>Manual de Capital y Provisiones</i> y comparte con él voz, formato y método. Pero se entiende solo: lo que necesitas del otro está explicado aquí, y las remisiones al IRB son para profundizar, no para entender.</p>
+
+<h2 id="para-quien">Para quién es</h2>
+
+<p>Para alguien que conoce la banca y el IRB en lo básico &mdash; sabe qué son la PD, la LGD, la EAD, los activos ponderados por riesgo y el CET1, y que la fórmula IRB convierte parámetros en capital &mdash;, y nada más. No se asume IFRS 9, ni escenarios macro, ni econometría, ni el propio <i>stress test</i>. Todo eso se construye en la Parte I.</p>
+
+<p>El manual está pensado para recorrerse en tres niveles:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Cada capítulo lleva su nivel. Se puede leer por orden o saltar al nivel que toque.</caption>
+<thead><tr><th>Nivel</th><th>Al terminar</th><th>Partes</th></tr></thead>
+<tbody>
+<tr><td><span class="nivel n1">N1</span> Fundamentos</td><td>Entiendes un <i>stress test</i> de crédito de principio a fin y has hecho uno en pequeño.</td><td>0 y I</td></tr>
+<tr><td><span class="nivel n2">N2</span> Practicante</td><td>Puedes trabajar en el equipo de proyección de un ejercicio real sin que te expliquen la mecánica.</td><td>II y III-A</td></tr>
+<tr><td><span class="nivel n3">N3</span> Experto</td><td>Diagnosticas, mejoras y defiendes ante el JST los números de un grupo internacional.</td><td>III-B, IV, V y VI</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Cada parte termina con un recuadro de lo que deberías saber hacer al acabarla, y el anexo R6 tiene una autoevaluación por nivel, incluida una prueba de entrada para comprobar que el punto de partida es el que el manual supone.</p>
+
+<h2 id="sistema">El sistema de bloques</h2>
+
+<p>Cada capítulo alterna exposición con bloques marcados. Si solo lees los bloques de un capítulo, te llevas la mayor parte de lo accionable.</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Los diez bloques. CASO JST es propio de este manual: es la forma de aprender lo que no está escrito en ninguna nota metodológica.</caption>
+<thead><tr><th>Bloque</th><th>Qué contiene</th></tr></thead>
+<tbody>
+<tr><td><strong>NORMA</strong></td><td>Referencia exacta y qué exige en una frase.</td></tr>
+<tr><td><strong>POR QUÉ</strong></td><td>Qué falló o qué se quiso conseguir.</td></tr>
+<tr><td><strong>MARGEN</strong></td><td>Discrecionalidad, silencio normativo, zona gris.</td></tr>
+<tr><td><strong>PALANCA</strong></td><td>Impacto en la caída de CET1 del escenario adverso o en la guía de Pilar 2, con orden de magnitud.</td></tr>
+<tr><td><strong>TRAMPA</strong></td><td>Error frecuente, hallazgo típico de la revisión del supervisor.</td></tr>
+<tr><td><strong>NÚMEROS</strong></td><td>Ejemplo trabajado de principio a fin.</td></tr>
+<tr><td><strong>CÓDIGO</strong></td><td>Remisión al anexo ejecutable.</td></tr>
+<tr><td><strong>DEFENSA</strong></td><td>Cómo se argumenta ante el JST, la validación interna o el auditor.</td></tr>
+<tr><td><strong>QUÉ VIENE</strong></td><td>Cambio en curso o anunciado y qué trabajo va a generar.</td></tr>
+<tr><td><strong>CASO JST</strong></td><td>Una situación con el supervisor en cuatro tiempos: qué llega, qué hay detrás, la respuesta que funciona y la que empeora las cosas.</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Los bloques <strong>QUÉ VIENE</strong> llevan un borde superior distinto porque <strong>caducan antes que el resto del manual</strong>. Describen ejercicios y normas que aún no se aplican, o que pueden cambiar; ninguna fecha ni cifra de esos bloques debe usarse en un entregable sin comprobar antes su estado. Los bloques <strong>CASO JST</strong> reconstruyen situaciones reales de forma anónima: ningún caso identifica a un banco ni a un equipo supervisor.</p>
+
+<h2 id="perimetro">Perímetro</h2>
+
+<p><strong>Dentro:</strong> el riesgo de crédito en los ejercicios de <i>stress test</i> &mdash; pérdidas, provisiones y activos ponderados de crédito, y su llegada al CET1 &mdash; en el ejercicio europeo de la EBA y el BCE, en el <i>stress test</i> del ICAAP, en los ejercicios temáticos del BCE y en los ejercicios locales de las filiales fuera de la Unión Europea.</p>
+
+<p><strong>Fuera:</strong> margen de intereses, riesgo de mercado y de contraparte, riesgo operacional y de conducta, comisiones y liquidez. Aparecen solo donde tocan al crédito, y siempre señalados como remisión.</p>
+
+<p><strong>Jurisdicción:</strong> el Mecanismo Único de Supervisión y la EBA como columna vertebral; la Reserva Federal, el Banco de Inglaterra, la CNBV y Banxico, el Banco Central do Brasil, la CMF chilena, la BDDK turca y el BCRA como segunda capa, a través de las filiales de los grandes grupos españoles. Los bancos reales aparecen con su nombre y solo con datos públicos, citados con su fuente y su fecha.</p>
+
+<p><strong>Ejercicio de referencia:</strong> el ejercicio europeo de 2027, cuya metodología se publicó en borrador en junio de 2026. El de 2025 es el último cerrado y la fuente de las cifras reales del manual.</p>
+
+<hr/>
+
+<h2 id="indice">Índice</h2>
+
+<nav class="toc">
+<ol>
+
+<li>
+<span class="parte">Parte 0 &mdash; Cómo usar este manual</span>
+<ol>
+  <li><a href="parte-00.html#s0-1" class="cap">0.1 Para quién es</a>
+    <span class="secs">Lo que se asume y lo que no · Lo que el manual no es · La meta</span></li>
+  <li><a href="parte-00.html#s0-2" class="cap">0.2 Rutas</a>
+    <span class="secs">La ruta completa · Incorporación urgente · Por rol · Modo referencia</span></li>
+  <li><a href="parte-00.html#s0-3" class="cap">0.3 Cómo trabajar con las fuentes</a>
+    <span class="secs">Los documentos de cabecera · Borrador, final, Q&amp;A y fe de erratas · Qué caduca con cada ciclo</span></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte I &mdash; Fundamentos <span class="nivel n1">N1</span></span>
+<ol>
+  <li><a href="parte-01.html#cap1" class="cap">1. Qué es un <i>stress test</i> y para qué sirve</a>
+    <span class="secs">La idea · Lo que no es · Las piezas de cualquier ejercicio</span></li>
+  <li><a href="parte-01.html#cap2" class="cap">2. El capital que se mueve: lo justo para un <i>stress test</i></a>
+    <span class="secs">Del IRB al ratio que se estresa · Pérdida esperada regulatoria frente a provisión contable</span></li>
+  <li><a href="parte-01.html#cap3" class="cap">3. Del parámetro regulatorio al parámetro del <i>stress test</i></a>
+    <span class="secs">Dos filosofías de PD · De la tasa de <i>default</i> a la tasa de transición</span></li>
+  <li><a href="parte-01.html#cap4" class="cap">4. Provisiones IFRS 9: lo imprescindible</a>
+    <span class="secs">La lógica de los tres stages · Por qué un escenario mueve tanto las provisiones</span></li>
+  <li><a href="parte-01.html#cap5" class="cap">5. Escenarios macro: leerlos y entenderlos</a>
+    <span class="secs">Qué es un escenario · Leer una tabla del escenario de la JERS</span></li>
+  <li><a href="parte-01.html#cap6" class="cap">6. Econometría mínima para modelos satélite</a>
+    <span class="secs">Las herramientas · Lo que suele salir mal</span></li>
+  <li><a href="parte-01.html#cap7" class="cap">7. Cómo se estresa el riesgo de crédito: la cadena completa</a>
+    <span class="secs">La cadena · Dónde están las decisiones</span></li>
+  <li><a href="parte-01.html#cap8" class="cap">8. Un <i>stress test</i> de juguete, de principio a fin</a>
+    <span class="secs">El caso de la filial mexicana · Leer el resultado</span></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte II &mdash; El mapa y los actores <span class="nivel n2">N2</span></span>
+<ol>
+  <li><a href="parte-02.html#cap9" class="cap">9. Un banco, seis números</a>
+    <span class="secs">La familia de ejercicios de un gran grupo · Por qué no coinciden</span></li>
+  <li><a href="parte-02.html#cap10" class="cap">10. Quién decide qué</a>
+    <span class="secs">Los actores · La base normativa · De dónde sale el escenario</span></li>
+  <li><a href="parte-02.html#cap11" class="cap">11. Anatomía de un ejercicio EBA</a>
+    <span class="secs">Rasgos estructurales · Calendario y entregas · Qué cambia de 2025 a 2027 · Publicación</span></li>
+  <li><a href="parte-02.html#cap12" class="cap">12. Qué hace el supervisor con el resultado</a>
+    <span class="secs">De la caída de capital a la P2G · La parte cualitativa · Más allá del SREP</span></li>
+  <li><a href="parte-02.html#cap13" class="cap">13. El grupo multi-regulador</a>
+    <span class="secs">Tres familias de ejercicio · Fichas por jurisdicción · Lo que no se compara sin traducir</span></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte III &mdash; Metodología: de lo que se aplica hoy a los retos</span>
+<ol>
+  <li><a href="parte-03a.html#cap14" class="cap">14. El punto de partida <span class="nivel n2">N2</span></a>
+    <span class="secs">Perímetro y fuentes · Clasificación · Parámetros de partida <i>point-in-time</i></span></li>
+  <li><a href="parte-03a.html#cap15" class="cap">15. Modelos satélite en el ejercicio real <span class="nivel n2">N2</span></a>
+    <span class="secs">Qué se le pide a un satélite · La jerarquía de enfoques · LGD bajo escenario · Sectores y divisa</span></li>
+  <li><a href="parte-03a.html#cap16" class="cap">16. Transiciones entre stages, entradas en S3 y curas <span class="nivel n2">N2</span></a>
+    <span class="secs">La mecánica del ejercicio · SICR sin <i>backstop</i> · El efecto de primer año</span></li>
+  <li><a href="parte-03a.html#cap17" class="cap">17. Pérdidas y provisiones bajo balance estático <span class="nivel n2">N2</span></a>
+    <span class="secs">Las fórmulas prescritas · Exposición · Leer los resultados</span></li>
+  <li><a href="parte-03a.html#cap18" class="cap">18. <i>Benchmarks</i>, pares y QA <span class="nivel n2">N2</span></a>
+    <span class="secs">Lo que no hay · Los <i>benchmarks</i> del BCE · La comparación entre pares</span></li>
+  <li><a href="parte-03a.html#cap19" class="cap">19. RWA bajo estrés y llegada al CET1 <span class="nivel n2">N2</span></a>
+    <span class="secs">RWA · Al CET1</span></li>
+  <li><a href="parte-03a.html#cap20" class="cap">20. El <i>stress test</i> del ICAAP <span class="nivel n2">N2</span></a>
+    <span class="secs">La Guía ICAAP de 2026 · Balance dinámico y acciones de gestión · Coherencia con el ejercicio europeo</span></li>
+  <li><a href="parte-03a.html#cap21" class="cap">21. <i>Reverse stress test</i> y ejercicios temáticos <span class="nivel n2">N2</span></a>
+    <span class="secs"><i>Reverse stress test</i> · Clima</span></li>
+  <li><a href="parte-03b.html#cap22" class="cap">22. Series cortas y rupturas estructurales <span class="nivel n3">N3</span></a></li>
+  <li><a href="parte-03b.html#cap23" class="cap">23. No linealidad, colas y escenarios fuera de la muestra <span class="nivel n3">N3</span></a></li>
+  <li><a href="parte-03b.html#cap24" class="cap">24. Ajustes de experto y <i>overlays</i> <span class="nivel n3">N3</span></a></li>
+  <li><a href="parte-03b.html#cap25" class="cap">25. Coherencia entre ejercicios <span class="nivel n3">N3</span></a></li>
+  <li><a href="parte-03b.html#cap26" class="cap">26. Clima: horizontes largos y datos que no existen <span class="nivel n3">N3</span></a></li>
+  <li><a href="parte-03b.html#cap27" class="cap">27. <i>Machine learning</i> en modelos satélite <span class="nivel n3">N3</span></a></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte IV &mdash; El ejercicio frente al JST: situaciones prácticas <span class="nivel n3">N3</span></span>
+<ol>
+  <li><a href="parte-04.html#cap28" class="cap">28. El ejercicio como proyecto</a>
+    <span class="secs">Organización · Preparación</span></li>
+  <li><a href="parte-04.html#cap29" class="cap">29. El ciclo de QA</a>
+    <span class="secs">Cómo funciona · Cómo se responde</span></li>
+  <li><a href="parte-04.html#cap30" class="cap">30. Situaciones recurrentes</a>
+    <span class="secs">Catálogo de casos · Patrones · Después del resultado</span></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte V &mdash; Avanzada: grupos internacionales y los próximos años <span class="nivel n3">N3</span></span>
+<ol>
+  <li><a href="parte-05.html#cap31" class="cap">31. Arquitectura de un ejercicio de grupo</a>
+    <span class="secs">Matriz y filiales · El escenario fuera de la UE · Divisa, perímetro y contabilidad · Datos repartidos</span></li>
+  <li><a href="parte-05.html#cap32" class="cap">32. Comparabilidad: del cociente al puente</a>
+    <span class="secs">La pregunta del JST · Normalizar la severidad · Limpiar el denominador · Separar mezcla e intensidad · Traducir la mecánica · Por qué la comparación local es sintética</span></li>
+  <li><a href="parte-05.html#cap33" class="cap">33. Cómo compara el supervisor y cómo se defiende un número</a></li>
+  <li><a href="parte-05.html#cap34" class="cap">34. Lo que viene</a></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Parte VI &mdash; El oficio <span class="nivel n3">N3</span></span>
+<ol>
+  <li><a href="parte-06.html#cap35" class="cap">35. Tipologías de encargo y cómo entrar en uno</a></li>
+  <li><a href="parte-06.html#cap36" class="cap">36. El árbol de diagnóstico</a></li>
+</ol>
+</li>
+
+<li>
+<span class="parte">Anexos</span>
+<ol>
+  <li><a href="anexos-codigo.html" class="cap">Anexos de código (Python, ejecutados)</a>
+    <span class="secs">S0 El <i>stress test</i> de juguete · S1 Modelo satélite · S2 Migración de stages · S3 Traslación del escenario fuera de la UE · S4 Puente España–México · S5 <i>Reverse stress test</i> · S6 Coherencia ICAAP–EBA</span></li>
+  <li><a href="anexos-referencia.html" class="cap">Anexos de referencia</a>
+    <span class="secs">R1 Glosario · R2 Fuentes · R3 Mapa de reguladores · R4 Calendario tipo · R5 Remisiones al manual IRB · R6 Autoevaluación · R7 Casos integrados</span></li>
+</ol>
+</li>
+
+</ol>
+</nav>
+
+<nav class="nav">
+<p><a href="parte-00.html">Parte 0: Cómo usar este manual →</a></p>
+</nav>
+
+</body>
+</html>

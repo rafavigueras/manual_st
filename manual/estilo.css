@@ -1,0 +1,405 @@
+/* ============================================================
+   Manual de Stress Test de Riesgo de Credito
+   Hoja de estilo compartida (derivada de la del manual IRB) — compatible con navegador y EPUB
+   Evita grid/flex avanzado por compatibilidad con lectores e-ink
+   ============================================================ */
+
+:root {
+  --tinta:        #1a1a1a;
+  --tinta-suave:  #4a4a4a;
+  --papel:        #ffffff;
+  --regla:        #d8d8d2;
+  --acento:       #1f4e79;
+  --acento-claro: #e9f0f7;
+}
+
+body {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--tinta);
+  background: var(--papel);
+  max-width: 40em;
+  margin: 0 auto;
+  padding: 2em 1.4em 6em 1.4em;
+  hyphens: auto;
+  text-align: left;
+}
+
+/* ---------- Titulares ---------- */
+
+h1, h2, h3, h4, h5 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--tinta);
+  page-break-after: avoid;
+}
+
+h1 {
+  font-size: 1.85rem;
+  margin: 0 0 0.2em 0;
+  padding-bottom: 0.35em;
+  border-bottom: 3px solid var(--acento);
+  page-break-before: always;
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin: 2.4em 0 0.6em 0;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid var(--regla);
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin: 1.9em 0 0.5em 0;
+  color: var(--acento);
+}
+
+h4 {
+  font-size: 0.98rem;
+  margin: 1.5em 0 0.4em 0;
+  color: var(--tinta-suave);
+  font-weight: 600;
+}
+
+/* Antetítulo de parte / capítulo */
+.eyebrow {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin: 0 0 0.6em 0;
+  font-weight: 700;
+}
+
+.subtitulo {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--tinta-suave);
+  margin: 0.5em 0 2.2em 0;
+  font-style: italic;
+}
+
+/* ---------- Texto ---------- */
+
+p { margin: 0 0 1em 0; }
+
+ul, ol { margin: 0 0 1.1em 0; padding-left: 1.5em; }
+li { margin-bottom: 0.4em; }
+
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+a { color: var(--acento); text-decoration: none; border-bottom: 1px solid var(--regla); }
+a:hover { border-bottom-color: var(--acento); }
+
+blockquote {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.2em;
+  border-left: 3px solid var(--regla);
+  color: var(--tinta-suave);
+  font-style: italic;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--regla);
+  margin: 2.6em 0;
+}
+
+code, kbd {
+  font-family: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.86em;
+  background: #f4f4f1;
+  padding: 0.1em 0.32em;
+  border-radius: 2px;
+}
+
+pre {
+  font-family: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  background: #f7f7f4;
+  border: 1px solid var(--regla);
+  border-left: 3px solid var(--acento);
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  margin: 1.3em 0;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+
+/* Salida de programa: se distingue del codigo fuente */
+pre.salida {
+  background: #f0f2f0;
+  border-left-color: #4a4a4a;
+  color: #2a2a2a;
+  font-size: 0.78rem;
+}
+pre.salida::before {
+  content: "salida";
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+  margin-bottom: 0.5em;
+}
+
+/* ---------- Tablas ---------- */
+
+.tabla-scroll { overflow-x: auto; margin: 1.4em 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.88rem;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--acento-claro);
+  border-bottom: 2px solid var(--acento);
+  padding: 0.55em 0.7em;
+  vertical-align: bottom;
+}
+
+td {
+  padding: 0.55em 0.7em;
+  border-bottom: 1px solid var(--regla);
+  vertical-align: top;
+}
+
+caption {
+  caption-side: bottom;
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+  text-align: left;
+  padding-top: 0.6em;
+  font-style: italic;
+}
+
+/* ============================================================
+   BLOQUES MARCADOS — el sistema editorial del manual
+   ============================================================ */
+
+.bloque {
+  margin: 1.5em 0;
+  padding: 0.9em 1.1em;
+  border-left: 4px solid var(--regla);
+  background: #fafaf8;
+  page-break-inside: avoid;
+}
+
+.bloque > .etiqueta {
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 0.5em;
+}
+
+.bloque p:last-child, .bloque ul:last-child, .bloque ol:last-child { margin-bottom: 0; }
+
+.b-norma   { border-left-color: #3f5f8f; background: #f2f5fa; }
+.b-norma   > .etiqueta { color: #3f5f8f; }
+
+.b-porque  { border-left-color: #6b4f9e; background: #f6f3fb; }
+.b-porque  > .etiqueta { color: #6b4f9e; }
+
+.b-margen  { border-left-color: #b07d1a; background: #fdf8ec; }
+.b-margen  > .etiqueta { color: #8a6112; }
+
+.b-palanca { border-left-color: #14524a; background: #eef5f3; }
+.b-palanca > .etiqueta { color: #14524a; }
+
+.b-trampa  { border-left-color: #a83232; background: #fbf1f1; }
+.b-trampa  > .etiqueta { color: #a83232; }
+
+.b-numeros { border-left-color: #4a4a4a; background: #f4f4f2; }
+.b-numeros > .etiqueta { color: #4a4a4a; }
+
+.b-codigo  { border-left-color: #1f6f8b; background: #eef6f8; }
+.b-codigo  > .etiqueta { color: #1f6f8b; }
+
+.b-defensa { border-left-color: #2f6b3a; background: #f0f6f1; }
+.b-defensa > .etiqueta { color: #2f6b3a; }
+
+/* Prospectivo: doble borde para señalar que su contenido caduca antes que el resto */
+.b-viene   { border-left-color: #7a3f9e; background: #f8f4fc; border-top: 1px dashed #c3a6d9; }
+.b-viene   > .etiqueta { color: #7a3f9e; }
+
+
+/* Situacion con el supervisor: el bloque propio de este manual */
+.b-caso    { border-left-color: #9c4a1a; background: #fcf3ec; }
+.b-caso    > .etiqueta { color: #9c4a1a; }
+.b-caso dl { margin: 0; }
+.b-caso dt {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: 0.6em;
+}
+.b-caso dt:first-child { margin-top: 0; }
+.b-caso dd { margin: 0.15em 0 0 0; }
+
+/* Glosario del anexo R1 */
+dl.glosario dt {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-top: 0.8em;
+}
+dl.glosario dd { margin: 0.15em 0 0 1.2em; }
+
+/* ---------- Niveles de lectura ---------- */
+
+.nivel {
+  display: inline-block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.12em 0.5em;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-left: 0.4em;
+}
+.n1 { color: #2f6b3a; }
+.n2 { color: #1f4e79; }
+.n3 { color: #7a2f2f; }
+
+/* Cierre de parte: lo que deberias saber hacer */
+.objetivos {
+  margin: 2.4em 0 1.5em 0;
+  padding: 1em 1.2em;
+  border: 1px solid var(--regla);
+  border-top: 3px solid var(--acento);
+  page-break-inside: avoid;
+}
+.objetivos > .etiqueta {
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 0.5em;
+}
+.objetivos ul:last-child { margin-bottom: 0; }
+
+/* ---------- Notas al pie ---------- */
+
+sup.nota { font-size: 0.7em; line-height: 0; vertical-align: super; }
+sup.nota a { border-bottom: none; font-weight: 600; }
+
+.notas {
+  margin-top: 3.5em;
+  padding-top: 1.2em;
+  border-top: 1px solid var(--regla);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--tinta-suave);
+}
+.notas h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: none;
+  margin: 0 0 0.9em 0;
+  color: var(--tinta-suave);
+}
+.notas ol { padding-left: 1.4em; }
+.notas li { margin-bottom: 0.7em; }
+.notas li:target { background: #fdf8ec; }
+
+/* ---------- Índice ---------- */
+
+.toc { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 0.92rem; }
+.toc ol { list-style: none; padding-left: 0; }
+.toc > ol > li { margin-bottom: 1.6em; }
+.toc .parte {
+  font-weight: 700;
+  font-size: 0.98rem;
+  display: block;
+  margin-bottom: 0.5em;
+  color: var(--acento);
+  border-bottom: 1px solid var(--regla);
+  padding-bottom: 0.25em;
+}
+.toc ol ol { padding-left: 0; margin-top: 0.4em; }
+.toc ol ol li { margin-bottom: 0.55em; }
+.toc .cap { font-weight: 600; }
+.toc .secs { display: block; font-size: 0.84rem; color: var(--tinta-suave); font-weight: 400; margin-top: 0.15em; }
+
+/* ---------- Navegación entre partes ---------- */
+
+.nav {
+  margin-top: 4em;
+  padding-top: 1.2em;
+  border-top: 1px solid var(--regla);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+}
+
+/* ---------- Utilidades ---------- */
+
+.lead { font-size: 1.08rem; color: var(--tinta-suave); }
+.small { font-size: 0.85rem; color: var(--tinta-suave); }
+.centrado { text-align: center; }
+
+/* ---------- Modo oscuro ---------- */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tinta:       #e6e4df;
+    --tinta-suave: #a9a6a0;
+    --papel:       #16181a;
+    --regla:       #34383c;
+    --acento:      #7fb0e0;
+    --acento-claro:#1b2633;
+  }
+  h1, h2, h3, h4 { color: var(--tinta); }
+  h3 { color: var(--acento); }
+  code, kbd { background: #24272a; }
+  pre { background: #1c1f22; }
+  pre.salida { background: #191b1d; color: #c8c6c1; border-left-color: #6a6a6a; }
+  pre.salida::before { color: #7a7a7a; }
+  th { background: var(--acento-claro); }
+  .bloque { background: #1c1f22; }
+  .b-norma   { background: #1a2029; border-left-color: #6a8ec0; }
+  .b-norma   > .etiqueta { color: #8fb0dd; }
+  .b-porque  { background: #221d2b; border-left-color: #9b83c9; }
+  .b-porque  > .etiqueta { color: #b6a2de; }
+  .b-margen  { background: #2a2418; border-left-color: #d4a63f; }
+  .b-margen  > .etiqueta { color: #e0bd6a; }
+  .b-palanca { background: #172523; border-left-color: #5fbfae; }
+  .b-palanca > .etiqueta { color: #7ed3c3; }
+  .b-trampa  { background: #2a1c1c; border-left-color: #d16a6a; }
+  .b-trampa  > .etiqueta { color: #e08c8c; }
+  .b-numeros { background: #202224; border-left-color: #8d8d8d; }
+  .b-numeros > .etiqueta { color: #b0b0b0; }
+  .b-codigo  { background: #17242a; border-left-color: #56a4c0; }
+  .b-codigo  > .etiqueta { color: #7ec2da; }
+  .b-defensa { background: #1a2620; border-left-color: #5ba86e; }
+  .b-defensa > .etiqueta { color: #86c99a; }
+  .b-viene   { background: #221a2b; border-left-color: #a370ce; border-top-color: #4a3560; }
+  .b-viene   > .etiqueta { color: #bd94e0; }
+  .b-caso    { background: #2a1e16; border-left-color: #d0844f; }
+  .b-caso    > .etiqueta { color: #e3a173; }
+  .n1 { color: #86c99a; }
+  .n2 { color: #7fb0e0; }
+  .n3 { color: #e08c8c; }
+  .notas li:target { background: #2a2418; }
+}

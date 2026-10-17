@@ -1,0 +1,73 @@
+/* ============================================================
+   Ajustes especificos para Kindle Paperwhite 6a generacion (2012)
+   Pantalla 758x1024, 212 ppp, E Ink Pearl, 16 tonos de gris, sin luz
+   de fondo a color, sin scroll horizontal en contenido reflowable.
+   Se carga DESPUES de estilo.css y solo se usa para la conversion
+   a AZW3/EPUB de este dispositivo — no afecta a la version web.
+   ============================================================ */
+
+/* Los rellenos de color pastel de los bloques marcados no se distinguen
+   bien en un panel de 16 grises de baja resolucion: se ven como un
+   rectangulo gris sucio en vez de un tono limpio. Se quita el relleno
+   y se deja el peso visual en el borde izquierdo (que si se distingue
+   como una franja gris solida) y en la etiqueta en mayusculas. */
+.bloque {
+  background: transparent !important;
+  border-left-width: 5px;
+}
+
+/* Evita fondos de tabla y de codigo con la misma logica */
+th, code, kbd, pre, pre.salida {
+  background: transparent !important;
+}
+pre, pre.salida {
+  border: 1px solid #4a4a4a;
+  border-left-width: 4px;
+}
+
+/* Sin scroll horizontal posible en un lector: si una linea de codigo no
+   cabe en 758 px se corta y se pierde. Se envuelve siempre. */
+pre, pre code, pre.salida {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.76rem;
+}
+
+/* Mismo problema con tablas anchas: se reduce tipografia y se permite
+   partir palabras largas en vez de desbordar el borde de pagina */
+table {
+  font-size: 0.8rem;
+}
+td, th {
+  word-break: break-word;
+  padding: 0.4em 0.45em;
+}
+
+/* .tabla-scroll no tiene sentido sin puntero ni gesto de scroll dentro
+   del texto reflowable: se desactiva el mecanismo, no aporta nada aqui */
+.tabla-scroll {
+  overflow: visible;
+}
+
+/* Enlaces sin subrayado de color: en un panel sin color el subrayado
+   gris ya cumple la funcion, evita franjas dobles poco nitidas */
+a { border-bottom: none; text-decoration: underline; }
+
+/* La pantalla no tiene backlight de color ni hover: fuera */
+a:hover { border-bottom: none; }
+
+/* max-width en em no aporta nada en una pantalla de 6" y en cambio
+   puede interactuar mal con el motor de maquetacion del firmware
+   antiguo: se deja que el contenido ocupe el ancho disponible */
+body {
+  max-width: none;
+  padding: 0.6em 0.3em 3em 0.3em;
+}
+
+/* Sin justificacion: hyphens:auto no es fiable en firmware de 2012 y una
+   mezcla de lineas justificadas sin guionado se ve peor que alineado
+   a la izquierda simple */
+body {
+  hyphens: none;
+  text-align: left;
+}

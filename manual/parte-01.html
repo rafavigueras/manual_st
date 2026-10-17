@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte I — Fundamentos</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte I · Nivel 1</p>
+<h1>Fundamentos</h1>
+<p class="subtitulo">Todo lo que hace falta para entender un <i>stress test</i> de crédito de principio a fin, y hacer uno en pequeño.</p>
+
+<p class="lead">Quien llega al <i>stress test</i> desde el IRB trae media caja de herramientas: sabe qué son la PD, la LGD y la EAD, y cómo se convierten en capital. Le falta la otra mitad, que es justo la que hace que un escenario macroeconómico se convierta en pérdidas: cómo se pasa de un parámetro pensado para durar todo un ciclo a uno que reacciona al año que viene, cómo funcionan las provisiones contables, cómo se lee un escenario y cómo se construye el modelo que traduce paro y PIB en tasas de impago. Esta parte llena ese hueco en ocho capítulos y termina con un <i>stress test</i> completo de una cartera de juguete. Si al acabarla eres capaz de rehacerlo con otra cartera, tienes el nivel 1.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap1">1. Qué es un <i>stress test</i> y para qué sirve <span class="nivel n1">N1</span></h2>
+
+<h3 id="s1-1">1.1 La idea</h3>
+
+<h4 id="s1-1-1">1.1.1 Una pregunta «¿y si…?» aplicada al balance</h4>
+
+<p>Un <i>stress test</i> responde a una pregunta sencilla: si la economía se comporta de una manera concreta y desfavorable durante los próximos años, ¿cuánto capital pierde el banco y con cuánto se queda? Para contestarla hacen falta tres cosas: una descripción precisa de esa economía desfavorable (el <strong>escenario</strong>), un método para traducir el escenario en pérdidas, ingresos y activos ponderados por riesgo (los <strong>modelos</strong>) y unas reglas que digan qué se puede suponer y qué no sobre el comportamiento del banco mientras tanto (los <strong>supuestos</strong>).</p>
+
+<p>Dicho así parece un ejercicio de previsión, y no lo es. Un escenario adverso no dice qué va a pasar: describe algo que podría pasar, lo bastante grave como para que merezca la pena saber si el banco lo aguanta. Nadie le asigna una probabilidad. Lo que importa no es si ocurrirá, sino qué revela del banco que ocurriera.</p>
+
+<h4 id="s1-1-2">1.1.2 Por qué existe</h4>
+
+<p>Antes de 2008 los bancos ya hacían ejercicios de estrés, pero eran internos, heterogéneos y, en la práctica, poco severos. La crisis financiera reveló dos cosas. La primera, que los ratios de capital que publicaban los bancos no informaban de cuánto aguantarían en una recesión: dos bancos con el mismo ratio podían tener carteras de resistencia muy distinta. La segunda, que cuando el mercado deja de fiarse de los balances, la única forma de devolver la confianza es que un tercero creíble mire todos los bancos con la misma vara y publique el resultado.</p>
+
+<p>De ahí nacen los ejercicios supervisores: en Estados Unidos, en plena crisis; en Europa, poco después, primero con el comité de supervisores que precedió a la Autoridad Bancaria Europea (EBA) y desde 2011 con la propia EBA. La crisis de la deuda soberana añadió una lección más: un ejercicio que se percibe como blando hace más daño que no hacerlo, porque cuando un banco que lo ha superado cae poco después, el mercado deja de creer en todos los demás. Buena parte de lo que hoy parece excesivo en la metodología europea &mdash; restricciones, comparación entre bancos, revisión minuciosa del supervisor &mdash; es la respuesta a aquella pérdida de credibilidad.</p>
+
+<div class="bloque b-porque">
+<span class="etiqueta">Por qué</span>
+<p>El ratio de capital mide la foto de hoy. El <i>stress test</i> mide la película: cuánto de ese capital se consumiría si las cosas fueran mal. Un supervisor que solo mira la foto no sabe qué bancos están cerca del borde. Por eso el resultado del ejercicio no sustituye al ratio, sino que lo completa: le dice al supervisor cuánto colchón adicional tiene sentido pedir a cada banco (capítulo 12).</p>
+</div>
+
+<h4 id="s1-1-3">1.1.3 Tres preguntas distintas</h4>
+
+<p>Bajo el mismo nombre conviven tres preguntas que conviene no confundir, porque cada una se contesta de manera distinta:</p>
+
+<ul>
+<li><strong>¿Cuánto pierdo si pasa esto?</strong> Es el <i>stress test</i> clásico: se fija el escenario y se calcula el impacto. Es lo que hace el ejercicio europeo y la mayor parte de este manual.</li>
+<li><strong>¿Qué tendría que pasar para que pierda tanto?</strong> Es el <i>reverse stress test</i>: se fija el impacto &mdash; por ejemplo, perder 300 puntos básicos de capital &mdash; y se busca el escenario plausible que lo produce. Sirve para encontrar vulnerabilidades que nadie había imaginado (capítulo 21).</li>
+<li><strong>¿Mis modelos responden como deberían?</strong> Es la pregunta que el supervisor se hace en paralelo a la primera: si el modelo de un banco reacciona poco a un escenario muy duro, el resultado no dice que el banco sea resistente, sino que el modelo está mal calibrado. Buena parte del diálogo con el supervisor gira en torno a esta pregunta.</li>
+</ul>
+
+<h3 id="s1-2">1.2 Lo que no es</h3>
+
+<h4 id="s1-2-1">1.2.1 No es una previsión</h4>
+
+<p>El escenario adverso de un ejercicio no es la opinión de nadie sobre el futuro, y el resultado tampoco. Un banco que pierde trescientos puntos básicos de capital en el adverso no espera perderlos; sabe que, si se diera ese escenario y se comportara como el ejercicio supone, los perdería. La distinción parece académica hasta que alguien la olvida en una presentación al consejo y la conversación deriva hacia si el escenario es realista. Casi nunca lo es, y no tiene por qué serlo.</p>
+
+<h4 id="s1-2-2">1.2.2 En la Unión Europea no es un examen</h4>
+
+<p>Los primeros ejercicios europeos fijaban un umbral de capital y se comunicaban como un examen con aprobados y suspensos. Hace años que no es así: el ejercicio de la EBA no tiene umbral, y su resultado sirve como información para la supervisión de cada banco, no como veredicto público. En otras jurisdicciones el planteamiento es distinto &mdash; la Reserva Federal convierte el resultado en un requerimiento de capital vinculante, y el Banco de Inglaterra ha evaluado a sus bancos contra mínimos explícitos &mdash;, y esa diferencia es una de las fuentes de confusión en un grupo con filiales en varios países (capítulo 13).</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Comunicar a la dirección que el banco «ha aprobado» el ejercicio europeo, o que «el umbral» está en tal o cual cifra. No hay umbral. Lo que hay es una caída de capital que el supervisor usa para fijar una guía de capital adicional, y esa guía es mayor cuanto mayor es la caída (capítulo 12). Un banco que cae poco no ha aprobado nada: simplemente necesitará menos colchón. Y el que cae mucho tampoco ha suspendido: necesitará más.</p>
+</div>
+
+<h3 id="s1-3">1.3 Las piezas de cualquier ejercicio</h3>
+
+<h4 id="s1-3-1">1.3.1 Escenario, punto de partida, supuestos, horizonte y métrica</h4>
+
+<p>Todo <i>stress test</i>, sea cual sea quien lo haga, se describe con cinco piezas. Saber identificarlas es la primera competencia del nivel 1, porque es lo que permite comparar dos ejercicios cualesquiera:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Las cinco piezas de un ejercicio, con los valores del ejercicio europeo de 2027 como ejemplo.</caption>
+<thead><tr><th>Pieza</th><th>Qué define</th><th>En el ejercicio europeo de 2027</th></tr></thead>
+<tbody>
+<tr><td><strong>Escenario</strong></td><td>La evolución de las variables macroeconómicas y financieras, normalmente un base y un adverso</td><td>Base del BCE y adverso de la JERS, comunes para todos los bancos</td></tr>
+<tr><td><strong>Punto de partida</strong></td><td>La foto del banco de la que se arranca</td><td>Balance y parámetros a 31 de diciembre de 2026</td></tr>
+<tr><td><strong>Supuestos de balance</strong></td><td>Qué le pasa al banco mientras dura el escenario: si crece, si vende, si reacciona</td><td>Balance estático: el banco no crece, no cambia de negocio y no reacciona</td></tr>
+<tr><td><strong>Horizonte</strong></td><td>Cuántos años se proyectan</td><td>Tres años, 2027 a 2029</td></tr>
+<tr><td><strong>Métrica</strong></td><td>Cómo se mide el resultado</td><td>Caída del ratio CET1, sobre todo en su versión <i>fully loaded</i></td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="s1-3-2">1.3.2 Quién proyecta</h4>
+
+<p>Hay una sexta pieza que no aparece en las notas metodológicas pero lo cambia todo: quién hace los cálculos. En el ejercicio europeo los hace el banco con sus propios modelos, bajo restricciones comunes, y el supervisor los revisa. En el de la Reserva Federal los hace el supervisor con sus propios modelos sobre los datos que le envía el banco. En otros, como los que publican varios bancos centrales latinoamericanos, el supervisor simula el sistema entero sin pedir proyecciones a nadie. Cuando el banco proyecta, hay margen para decisiones propias y, con él, para el diálogo y la discusión con el supervisor. Cuando proyecta el supervisor, el banco no decide nada sobre el método, pero tampoco puede defenderlo.</p>
+
+<h4 id="s1-3-3">1.3.3 Qué hace alguien con el resultado</h4>
+
+<p>Un ejercicio sin consecuencias se hace mal. Antes de entrar en un <i>stress test</i>, conviene saber para qué se va a usar el número: si fija un colchón de capital, si condiciona el reparto de dividendos, si alimenta la planificación interna o si se publica. El capítulo 12 desarrolla los usos del ejercicio europeo; por ahora basta con retener que el resultado del adverso acaba convertido en una guía de capital específica para cada banco, y que la calidad del ejercicio &mdash; datos, plazos, colaboración &mdash; también se evalúa.</p>
+
+<h4 id="s1-3-4">1.3.4 Cómo se lee una ficha de resultados</h4>
+
+<p>La mejor forma de ver las piezas juntas es leer un resultado real. La EBA publica, para cada banco del ejercicio, una ficha con una tabla resumen en la primera página. Esta es la de Banco Santander en el ejercicio de 2025, con las cifras más relevantes:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Banco Santander, ejercicio europeo de 2025, escenario adverso. Millones de euros y porcentajes. Fuente: ficha de resultados de la EBA, publicada el 1 de agosto de 2025.</caption>
+<thead><tr><th>Partida</th><th>2024 (real)</th><th>2025</th><th>2026</th><th>2027</th></tr></thead>
+<tbody>
+<tr><td>Margen de intereses</td><td>46.790</td><td>38.649</td><td>40.247</td><td>40.472</td></tr>
+<tr><td>Deterioro de activos financieros</td><td>−12.284</td><td>−21.120</td><td>−10.342</td><td>−13.390</td></tr>
+<tr><td>Resultado del ejercicio</td><td>13.746</td><td>−3.502</td><td>7.867</td><td>6.404</td></tr>
+<tr><td>Activos ponderados (transitorios)</td><td>627.012*</td><td>640.166</td><td>652.264</td><td>673.752</td></tr>
+<tr><td>CET1 <i>fully loaded</i></td><td>12,19 %*</td><td>10,46 %</td><td>11,12 %</td><td>10,46 %</td></tr>
+</tbody>
+</table>
+</div>
+<p class="small">* Cifras de partida re-expresadas con las reglas de capital vigentes desde 2025 (CRR3); el CET1 <i>fully loaded</i> antes de la re-expresión era del 12,76 %.</p>
+
+<p>Se leen así. El punto de partida es la foto de 2024. En el adverso, el deterioro casi se duplica en el primer año y luego se modera: es la concentración en el primer año que explican los capítulos 4 y 8. El margen de intereses cae unos 8.000 millones, pero sigue siendo positivo y absorbe buena parte de las pérdidas; por eso el resultado solo es negativo el primer año. Los activos ponderados suben un 7,5 % en tres años, y esa subida explica parte de que el ratio no se recupere en 2027 pese a los beneficios. La cifra que resume el ejercicio es la caída máxima del CET1 <i>fully loaded</i>: del 12,19 % al 10,46 %, 173 puntos básicos. Es la que el supervisor usará para la guía de Pilar 2 (capítulo 12).</p>
+
+<p>Leer cuatro o cinco fichas de bancos parecidos es el mejor ejercicio práctico de este capítulo: enseña en una tarde qué es normal y qué llama la atención.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap2">2. El capital que se mueve: lo justo para un <i>stress test</i> <span class="nivel n1">N1</span></h2>
+
+<p class="lead">Del IRB se sabe cómo se calcula un requerimiento. En un <i>stress test</i> lo que interesa es otra cosa: cómo se mueve el ratio de capital cuando llegan las pérdidas, y qué parte de ese movimiento viene de cada sitio.</p>
+
+<h3 id="s2-1">2.1 Del IRB que ya sabes al ratio que se estresa</h3>
+
+<h4 id="s2-1-1">2.1.1 Numerador y denominador</h4>
+
+<p>El ratio CET1 es un cociente: capital ordinario de nivel 1 entre activos ponderados por riesgo. Un escenario adverso lo ataca por los dos lados a la vez.</p>
+
+<p>El <strong>numerador</strong> baja por las pérdidas que pasan por la cuenta de resultados: sobre todo las provisiones de crédito, pero también las pérdidas de mercado, las de riesgo operacional y, al revés, los ingresos que el banco sigue generando. Una pérdida no reduce el capital en su importe bruto, sino neto de impuestos: si el banco tiene beneficios suficientes, una provisión de cien reduce el beneficio de cien y el impuesto de treinta (con el tipo común del 30 % que usa el ejercicio europeo), así que el capital cae setenta.</p>
+
+<p>El <strong>denominador</strong> sube porque los parámetros de riesgo empeoran: los acreditados bajan de calificación, sus PD suben y la fórmula IRB les asigna más capital; en el enfoque estándar, las exposiciones que entran en impago pasan a ponderar más. Es un efecto que se olvida con facilidad, porque no pasa por la cuenta de resultados, y puede explicar una parte sustancial de la caída del ratio.</p>
+
+<h4 id="s2-1-2">2.1.2 La pila de requerimientos</h4>
+
+<p>El ratio CET1 se compara con una pila de requerimientos, que de abajo arriba son: el mínimo de Pilar 1 (4,5 % de los activos ponderados en CET1), el requerimiento de Pilar 2 que el supervisor fija a cada banco (P2R), los colchones (el de conservación del 2,5 %, el anticíclico y los sistémicos, según el banco y el país) y, por encima de todo, la guía de Pilar 2 (P2G). La P2G es la pieza que sale del <i>stress test</i>, y tiene una naturaleza distinta a las demás: no es un requerimiento jurídicamente vinculante, sino una expectativa del supervisor, y caer por debajo de ella no tiene las consecuencias automáticas que tiene caer por debajo de los colchones.</p>
+
+<p>Para un <i>stress test</i> basta con retener dos cosas. La primera, que la caída de capital del adverso es la base de la P2G (capítulo 12). La segunda, que la distancia entre el ratio y la parte alta de la pila de requerimientos vinculantes &mdash; la distancia a partir de la cual el banco ve restringido el reparto de beneficios &mdash; es la unidad con la que la dirección de un banco piensa el resultado. Una caída de 250 puntos básicos significa cosas muy distintas para un banco que está cuatrocientos puntos por encima de esa línea y para uno que está a doscientos.</p>
+
+<h4 id="s2-1-3">2.1.3 <i>Fully loaded</i> frente a transitorio</h4>
+
+<p>El marco de capital europeo tiene disposiciones transitorias: reglas que suavizan durante unos años el efecto de un cambio normativo. La más relevante hoy es la introducción gradual del suelo de activos ponderados (<i>output floor</i>) de la última reforma de Basilea, que se completa a comienzos de la década de 2030. El ratio calculado con esas transiciones es el <strong>transitorio</strong>; el calculado como si ya hubieran terminado es el <strong><i>fully loaded</i></strong>.</p>
+
+<p>El ejercicio europeo publica los dos, pero el supervisor mira sobre todo el segundo, porque quiere medir lo que el escenario hace al banco y no lo que hace el calendario normativo. La diferencia no es menor: en el ejercicio de 2025, Banco Santander partía de un 12,78 % transitorio y de un 12,19 % <i>fully loaded</i> (a fecha de la publicación de resultados, 1 de agosto de 2025, según la ficha de la EBA), y en BBVA ambos coincidían en el 12,88 %.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Un banco con 100.000 millones de euros de activo, 35.000 de activos ponderados y 4.550 de CET1 tiene un ratio del 13,00 %. Si un escenario le genera 1.000 millones de pérdidas antes de impuestos, el capital cae 700 millones después de impuestos, hasta 3.850. Con los activos ponderados sin cambios, el ratio queda en el 11,00 %: una caída de 200 puntos básicos. Si además el empeoramiento de los parámetros sube los activos ponderados un 5 %, hasta 36.750 millones, el ratio queda en el 10,48 %: 252 puntos básicos en total, de los que 52 vienen del denominador.</p>
+<p>Una regla rápida para este banco: cada 100 millones de pérdida antes de impuestos son unos 20 puntos básicos de CET1. Conviene calcularla para el banco en el que trabajes, porque es la forma más rápida de traducir cualquier cifra de pérdidas a la unidad que entiende la dirección.</p>
+</div>
+
+<h4 id="s2-1-5">2.1.5 La distancia a los requerimientos</h4>
+
+<p>Una caída de capital no se valora en abstracto, sino contra la distancia que el banco tiene hasta su requerimiento combinado: el mínimo de Pilar 1, el P2R y los colchones. Por debajo de esa línea el banco ve limitado por ley lo que puede repartir en dividendos, retribución variable y cupones de ciertos instrumentos. En la jerga se llama la <strong>distancia al MDA</strong>, por las siglas inglesas del importe máximo distribuible.</p>
+
+<p>Con el banco del ejemplo, si su requerimiento combinado de CET1 fuera del 10,0 %, partiría con 300 puntos básicos de distancia. Un adverso que le quita 252 lo dejaría en el 10,48 %, 48 puntos por encima de la línea. El mismo adverso aplicado a un banco que parte del 11,5 % lo llevaría por debajo. Por eso la dirección de un banco no pregunta cuánto cae el capital, sino dónde se queda frente a la línea, y por eso la misma caída preocupa más a unos bancos que a otros. Las cifras de requerimientos de este párrafo son ilustrativas: cada banco tiene las suyas, que el supervisor le comunica cada año.</p>
+
+<h4 id="s2-1-6">2.1.6 Impuestos y otros detalles que mueven el número</h4>
+
+<p>El ejemplo aplica un 30 % de impuestos a las pérdidas: es el tipo común que impone el ejercicio europeo para que los bancos de distintos países sean comparables, aunque su tipo real sea otro. En la realidad, una pérdida no genera un ahorro fiscal inmediato, sino un crédito fiscal que el banco podrá compensar con beneficios futuros; esos créditos tienen reglas propias de cómputo en el capital que el capítulo 19 resume. Basta por ahora con saber que el ejercicio simplifica deliberadamente la fiscalidad, los dividendos y otros elementos del capital, para que el resultado refleje sobre todo los riesgos.</p>
+
+<h3 id="s2-2">2.2 Pérdida esperada regulatoria frente a provisión contable</h3>
+
+<h4 id="s2-2-1">2.2.1 Por qué hay dos números de pérdida</h4>
+
+<p>Del IRB se sabe que la fórmula calcula capital para la pérdida inesperada y que la pérdida esperada regulatoria &mdash; PD por LGD por EAD, con parámetros regulatorios &mdash; se supone cubierta por provisiones. Pero las provisiones que el banco contabiliza no se calculan con esos parámetros: se calculan con las reglas contables de IFRS 9, que usan parámetros distintos, más pegados a la situación de cada momento (capítulos 3 y 4). Así que un banco IRB siempre tiene dos números de pérdida para la misma cartera: la pérdida esperada regulatoria y la provisión contable.</p>
+
+<h4 id="s2-2-2">2.2.2 Exceso y déficit</h4>
+
+<p>La comparación entre los dos números tiene consecuencias sobre el capital. Si la provisión contable es menor que la pérdida esperada regulatoria, la diferencia (el <strong>déficit</strong>) se deduce del CET1. Si es mayor, el <strong>exceso</strong> puede computar como capital de nivel 2, con un límite. Para un <i>stress test</i> esto importa porque las provisiones suben en el escenario adverso, y su efecto sobre el CET1 no es siempre el mismo: en un banco con déficit, parte del aumento de provisiones simplemente cierra ese déficit y su efecto neto sobre el CET1 es menor de lo que parece; en uno con exceso, el aumento va íntegro al capital. El ejercicio europeo aplica esta regla en cada año proyectado. Su desarrollo completo está en el <i>Manual de Capital y Provisiones</i>, capítulo 32, para quien quiera profundizar; para seguir este manual basta con saber que existe.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap3">3. Del parámetro regulatorio al parámetro del <i>stress test</i> <span class="nivel n1">N1</span></h2>
+
+<p class="lead">El error más frecuente de quien llega desde el IRB es intentar estresar los parámetros que ya conoce. Esos parámetros están diseñados precisamente para no moverse con el ciclo, y un <i>stress test</i> necesita parámetros que se muevan.</p>
+
+<h3 id="s3-1">3.1 Dos filosofías de PD</h3>
+
+<h4 id="s3-1-1">3.1.1 <i>Through-the-cycle</i> frente a <i>point-in-time</i></h4>
+
+<p>La PD regulatoria del IRB es, en su concepción, <strong><i>through-the-cycle</i></strong> (TTC): una media a largo plazo que intenta representar el riesgo de un acreditado a lo largo de un ciclo económico completo. Se calibra con una serie larga que incluya años buenos y malos, y su objetivo es que el capital no se desplome en las expansiones ni se dispare en las recesiones. Es una virtud para el capital y un defecto para un <i>stress test</i>.</p>
+
+<p>Una PD <strong><i>point-in-time</i></strong> (PiT) intenta medir el riesgo de hoy, condicionado al estado actual de la economía: sube cuando la economía empeora y baja cuando mejora. Es la que usan las provisiones contables y la que necesita un <i>stress test</i>, porque la pregunta es justamente qué pasaría con el riesgo si la economía empeorara de una forma concreta.</p>
+
+<h4 id="s3-1-2">3.1.2 Por qué un <i>stress test</i> necesita parámetros PiT</h4>
+
+<p>Aplicar un escenario adverso a una PD diseñada para no moverse produce un resultado absurdo: o no se mueve, y el banco parece invulnerable, o se fuerza a moverse con un factor arbitrario. Por eso los ejercicios de estrés se construyen sobre parámetros PiT, y la metodología europea pide que los parámetros de partida salgan de los modelos que el banco usa para sus provisiones contables, que ya son PiT, y no de los de capital.</p>
+
+<p>Esto tiene una consecuencia práctica que conviene conocer desde el principio: en un banco hay dos familias de modelos de riesgo de crédito, los de capital y los de provisiones, y el <i>stress test</i> se apoya en la segunda para las pérdidas y en la primera para los activos ponderados. Que ambas sean coherentes entre sí es un problema permanente (capítulo 25).</p>
+
+<h4 id="s3-1-3">3.1.3 <i>Downturn</i> no es estrés</h4>
+
+<p>Del IRB se conoce la LGD <i>downturn</i>: una LGD calibrada con los años de recesión, más alta que la media. Es tentador pensar que ya es una LGD estresada y usarla en el adverso. No lo es. La LGD <i>downturn</i> responde a una recesión histórica concreta, elegida con criterios normativos, y se aplica siempre, haya o no recesión; una LGD estresada responde al escenario que se está proyectando, con su caída concreta del precio de la vivienda, su paro concreto y su duración concreta. Pueden coincidir por casualidad, pero miden cosas distintas.</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Proyectar el escenario sobre la PD regulatoria, o usar la LGD <i>downturn</i> como LGD del adverso. Es el error de encuadre típico de quien viene del IRB. Produce proyecciones que no responden al escenario &mdash; la PD TTC está diseñada para no hacerlo &mdash; y el supervisor lo detecta al instante comparando la sensibilidad del banco con la de sus pares. Los parámetros de un <i>stress test</i> son PiT y salen de los modelos de provisiones; los regulatorios se usan solo para recalcular los activos ponderados.</p>
+</div>
+
+<h4 id="s3-1-5">3.1.5 Cómo se pasa de TTC a PiT</h4>
+
+<p>En la práctica, el banco no construye los parámetros PiT desde cero para el <i>stress test</i>: los toma de sus modelos de provisiones, que ya lo son. Pero conviene entender cómo se relacionan las dos filosofías, porque es la base de muchos satélites y de muchas preguntas del supervisor. Hay tres caminos habituales:</p>
+
+<ul>
+<li><strong>Desplazar la PD con un factor del ciclo.</strong> Es la lógica del modelo de Vasicek que hay detrás de la fórmula IRB: la PD de un acreditado en un año concreto depende de un factor sistemático común (el estado de la economía) y de la correlación del acreditado con ese factor. Si se conoce el factor, se obtiene la PD condicionada, que es PiT. El satélite, en esta versión, lo que estima es cómo se mueve el factor con el paro y el PIB.</li>
+<li><strong>Escalar por segmentos.</strong> Se calcula la relación entre la tasa de impago observada en cada momento y la media a largo plazo, y se aplica como multiplicador a las PD de la escala. Es tosco, pero transparente y fácil de explicar.</li>
+<li><strong>Modelizar directamente las transiciones.</strong> En lugar de convertir una PD, se estiman matrices de transición condicionadas al ciclo (sección 3.2). Es lo que pide la metodología europea cuando el banco tiene modelos a nivel de calificación.</li>
+</ul>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Una cartera con PD TTC del 2 % y correlación del 15 %. Con la fórmula de Vasicek, la PD condicionada a un valor <i>Z</i> del factor sistemático es Φ((Φ<sup>−1</sup>(2 %) − √0,15 · <i>Z</i>) / √0,85), donde Φ es la distribución normal. Para distintos estados de la economía:</p>
+<ul>
+<li><i>Z</i> = +1 (año bueno): PD PiT del 0,41 %;</li>
+<li><i>Z</i> = 0 (año central): 1,30 %;</li>
+<li><i>Z</i> = −1 (año malo): 3,53 %;</li>
+<li><i>Z</i> = −2 (recesión severa): 8,27 %.</li>
+</ul>
+<p>Dos lecturas. La primera, la amplitud: la misma cartera tiene una PD que va del 0,4 % al 8,3 % según el año, mientras que su PD TTC no se mueve del 2 %. La segunda, menos intuitiva: en un año central la PD PiT (1,30 %) es menor que la TTC. La TTC es una media de todos los años, y los años malos tiran de la media hacia arriba; el año típico está por debajo de ella.</p>
+<p>El cálculo también funciona al revés: una tasa de impago observada del 3,5 % en esa cartera implica un factor <i>Z</i> de −0,99, es decir, un año algo peor que uno de cada seis. Así es como se extrae el «estado del ciclo» de una serie de tasas de impago para estimar después un satélite sobre él.</p>
+</div>
+
+<h3 id="s3-2">3.2 De la tasa de <i>default</i> a la tasa de transición</h3>
+
+<h4 id="s3-2-1">3.2.1 Qué es una matriz de transición</h4>
+
+<p>En el IRB, la pregunta es binaria: ¿el acreditado entra en <i>default</i> en el próximo año o no? En un <i>stress test</i> la pregunta tiene más estados, porque las provisiones contables distinguen tres situaciones de una exposición (los <i>stages</i> del capítulo 4): sin deterioro significativo, con deterioro significativo pero sin impago, y en impago. Lo que hay que proyectar es cuánta exposición pasa cada año de un estado a otro.</p>
+
+<p>La herramienta para eso es la <strong>matriz de transición</strong>: una tabla en la que cada fila es el estado de partida, cada columna el estado de llegada, y cada celda la proporción de exposición que hace ese viaje en un año. Las filas suman uno. La fila del impago suele tener un uno en su propia celda, porque en la metodología europea lo que entra en impago no sale.</p>
+
+<h4 id="s3-2-2">3.2.2 Tasas de transición y tasas de pérdida</h4>
+
+<p>Dos familias de parámetros sustituyen en el <i>stress test</i> a la PD y la LGD del IRB. Las <strong>tasas de transición</strong> dicen cuánta exposición se mueve entre estados; la que lleva al impago es el equivalente a la PD, pero condicionada al estado de partida y al año del escenario. Las <strong>tasas de pérdida</strong> dicen cuánto se pierde de lo que llega al impago, y son el equivalente a la LGD, también condicionadas al escenario.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Una cartera de 1.000 millones arranca con 900 sin deterioro (estado 1), 80 con deterioro significativo (estado 2) y 20 en impago (estado 3). La matriz anual es: del estado 1, el 94 % se queda, el 5 % pasa al 2 y el 1 % al impago; del estado 2, el 20 % vuelve al 1, el 70 % se queda y el 10 % entra en impago; del impago no sale nada.</p>
+<p>Aplicándola tres veces: tras el primer año hay 862,0 / 101,0 / 37,0; tras el segundo, 830,5 / 113,8 / 55,7; tras el tercero, 803,4 / 121,2 / 75,4. El impago se ha casi cuadruplicado en tres años sin que la matriz cambie, solo porque la cartera se va desplazando hacia los estados peores.</p>
+<p>Si el escenario duplica las tasas de entrada en impago y empeora las demás (del estado 1: 88 % / 10 % / 2 %; del estado 2: 15 % / 65 % / 20 %), tras tres años la cartera queda en 667,3 / 185,1 / 147,6. Casi el doble de impago que con la matriz base. Eso, en esencia, es un <i>stress test</i>: proyectar la cartera con una matriz que depende del escenario.</p>
+</div>
+
+<h4 id="s3-2-3">3.2.3 Cómo se estima una matriz</h4>
+
+<p>La forma más común es el <strong>método de cohortes</strong>: se toma la foto de la cartera en una fecha, se mira dónde está cada exposición un año después y se calcula, para cada estado de partida, qué proporción ha acabado en cada estado de llegada. Repitiéndolo fecha a fecha se obtiene una serie de matrices, una por año o por trimestre, que es la materia prima de los satélites: se modeliza cómo se mueven sus celdas con el escenario. Dos detalles importan. Las exposiciones que se amortizan o se cancelan durante el año salen de la cohorte y hay que decidir cómo tratarlas. Y las celdas con pocas exposiciones dan tasas muy ruidosas, por lo que es habitual modelizar solo algunas (las de entrada en impago y en stage 2) y derivar el resto.</p>
+
+<h4 id="s3-2-4">3.2.4 Tasas anuales y trimestrales</h4>
+
+<p>Las series de impago suelen estar en frecuencia trimestral y los ejercicios proyectan años. Convertir una cosa en otra no es multiplicar ni dividir por cuatro: una PD trimestral del 1,2 % equivale a una anual de 1 − (1 − 1,2 %)<sup>4</sup> = 4,71 %, no del 4,8 %; una anual del 10 % equivale a una trimestral del 2,60 %, no del 2,5 %. La diferencia parece pequeña, pero en carteras de PD alta y en horizontes de varios años se acumula, y es un error que aparece con frecuencia en hojas de cálculo heredadas.</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Mezclar frecuencias o definiciones entre el satélite y la proyección: estimar sobre tasas trimestrales y proyectar como si fueran anuales, o estimar sobre la tasa de impago de toda la cartera y aplicarla como si fuera la tasa de entrada en stage 3 desde stage 1. Cada tasa tiene un numerador, un denominador y un periodo, y los tres tienen que coincidir entre lo que se estima y lo que se proyecta. Es el primer sitio donde mirar cuando un resultado no cuadra.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap4">4. Provisiones IFRS 9: lo imprescindible para un <i>stress test</i> <span class="nivel n1">N1</span></h2>
+
+<p class="lead">En el ejercicio europeo, la mayor parte de la caída de capital de un banco comercial viene de las provisiones de crédito. Las provisiones se calculan con la norma contable IFRS 9, y no se puede entender un <i>stress test</i> sin entender por qué esa norma hace que un escenario adverso dispare las provisiones tan deprisa.</p>
+
+<h3 id="s4-1">4.1 La lógica</h3>
+
+<h4 id="s4-1-1">4.1.1 Pérdida esperada contable: a doce meses o a toda la vida</h4>
+
+<p>IFRS 9 obliga a provisionar las pérdidas de crédito antes de que ocurran, según la pérdida que se espera. La pregunta clave es: ¿esperada en qué plazo? La norma da dos respuestas según cómo esté la exposición. Si su riesgo no ha empeorado de forma significativa desde que se concedió, se provisiona la pérdida esperada de los próximos <strong>doce meses</strong>. Si ha empeorado de forma significativa, se provisiona la pérdida esperada durante <strong>toda la vida</strong> que le queda a la operación. Esa diferencia entre doce meses y toda la vida es lo que hace que las provisiones salten cuando el escenario se deteriora.</p>
+
+<h4 id="s4-1-2">4.1.2 Los tres stages</h4>
+
+<p>De esa lógica salen tres categorías, que en la jerga se llaman <i>stages</i>:</p>
+
+<ul>
+<li><strong>Stage 1:</strong> exposiciones sin aumento significativo del riesgo desde su origen. Pérdida esperada a doce meses.</li>
+<li><strong>Stage 2:</strong> exposiciones con aumento significativo del riesgo pero sin impago. Pérdida esperada a toda la vida. El criterio que decide el paso de stage 1 a stage 2 se llama <strong>SICR</strong> (<i>significant increase in credit risk</i>) y lo define cada banco, con indicadores como la subida de la PD desde el origen, los días de impago o la entrada en vigilancia especial.</li>
+<li><strong>Stage 3:</strong> exposiciones con deterioro, en la práctica las que están en impago. Pérdida esperada a toda la vida con una PD del cien por cien, es decir, la exposición por la LGD.</li>
+</ul>
+
+<p>Una exposición puede ir y volver entre los stages 1 y 2. En el ejercicio europeo, en cambio, lo que entra en stage 3 no sale: no se suponen curas (capítulo 16).</p>
+
+<h4 id="s4-1-4">4.1.4 El SICR en la práctica</h4>
+
+<p>La norma no dice qué es un aumento «significativo» del riesgo, y cada banco lo define con una combinación de criterios. Los más habituales son:</p>
+
+<ul>
+<li><strong>Un criterio relativo de PD:</strong> la PD actual a vida (o a doce meses) es más de un cierto múltiplo de la que tenía la operación cuando se concedió. Es el criterio principal en la mayoría de los bancos y el que más se mueve en un <i>stress test</i>, porque el escenario sube las PD.</li>
+<li><strong>Un criterio absoluto:</strong> la PD supera un umbral, con independencia de la de origen.</li>
+<li><strong>Los días de impago:</strong> la norma presume que hay aumento significativo cuando un pago lleva más de 30 días vencido, salvo prueba en contrario. Funciona como red de seguridad.</li>
+<li><strong>Criterios cualitativos:</strong> la entrada en una lista de vigilancia, una refinanciación por dificultades, un sector en alerta.</li>
+</ul>
+
+<p>Para un <i>stress test</i> esto tiene una consecuencia importante: dos bancos con carteras idénticas pueden mandar a stage 2 cantidades muy distintas en el mismo escenario, solo porque sus umbrales de SICR son distintos. Hasta el ejercicio de 2025, la metodología europea añadía un criterio común de respaldo; en el de 2027 desaparece y cada banco aplica el suyo, lo que convierte el SICR en una fuente de diferencias entre bancos que el supervisor querrá entender (capítulo 16).</p>
+
+<h4 id="s4-1-3">4.1.3 Varios escenarios en la contabilidad, uno en el <i>stress test</i></h4>
+
+<p>En la contabilidad, la pérdida esperada debe ser una estimación neutral que pondere varios futuros posibles, y por eso los bancos calculan sus provisiones con varios escenarios macroeconómicos ponderados por su probabilidad. En el <i>stress test</i> esto se simplifica: cada escenario del ejercicio (el base y el adverso) se trata como si fuera el único posible, y el banco calcula sus provisiones como si supiera con certeza que va a ocurrir. La metodología europea llama a esto <strong>previsión perfecta</strong>, y es la razón principal de que las pérdidas se concentren al principio del horizonte (capítulos 8 y 16).</p>
+
+<h3 id="s4-2">4.2 Por qué un escenario mueve tanto las provisiones</h3>
+
+<h4 id="s4-2-1">4.2.1 El efecto acantilado</h4>
+
+<p>Cuando una exposición pasa de stage 1 a stage 2, su provisión no aumenta un poco: cambia de naturaleza. Pasa de cubrir un año de pérdida esperada a cubrir toda la vida que le queda. Para un préstamo con varios años por delante, el salto puede multiplicar la provisión. A este efecto se le llama <strong>acantilado</strong>, y es el mecanismo por el que un escenario adverso &mdash; que empuja mucha exposición a stage 2 a la vez &mdash; se traduce en provisiones en el primer año, antes incluso de que los impagos se materialicen.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Un préstamo de 1.000 millones con cinco años de vida, PD anual del 3 % y LGD del 45 %. En stage 1 se provisiona la pérdida de un año: 1.000 × 3 % × 45 % = 13,5 millones. Si pasa a stage 2, se provisiona la de toda la vida: la PD acumulada a cinco años es 1 − (1 − 3 %)<sup>5</sup> = 14,13 %, y la provisión, 1.000 × 14,13 % × 45 % = 63,6 millones. El mismo préstamo, sin que el acreditado haya dejado de pagar, multiplica su provisión por 4,7 y consume 50,1 millones más.</p>
+<p>Si además el escenario duplica la PD anual hasta el 6 %, la provisión de stage 2 sube a 119,7 millones: 8,9 veces la de partida. En un <i>stress test</i> los dos efectos llegan juntos, porque el escenario empuja la exposición a stage 2 y, a la vez, empeora sus parámetros.</p>
+<p class="small">Se ignora el descuento financiero, que la norma exige y que reduce algo las cifras sin cambiar la lógica.</p>
+</div>
+
+<h4 id="s4-2-2">4.2.2 La estructura temporal de la PD y la previsión perfecta</h4>
+
+<p>La pérdida a toda la vida no se calcula con una PD, sino con una curva: la probabilidad de impago de cada año futuro, condicionada a no haber caído antes. Se llama <strong>PD marginal</strong> a la de cada año y <strong>PD acumulada</strong> a la suma de todas ellas hasta el final de la vida de la operación. En la contabilidad, esa curva sale de los escenarios ponderados del banco. En el <i>stress test</i>, con previsión perfecta, sale del escenario del ejercicio: si el adverso dice que los próximos años serán malos, la PD a vida de stage 2 se calcula ya con esos años malos, desde el primer día.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>El préstamo de antes, de 1.000 millones, cinco años de vida y LGD del 45 %, ya en stage 2. Con una PD plana del 3 %, las PD marginales son 3,00 / 2,91 / 2,82 / 2,74 / 2,66 %, la PD a vida es del 14,13 % y la provisión, de 63,6 millones.</p>
+<p>Si el banco sabe que viene un adverso en el que la PD anual pasa por 3, 6, 8, 6 y 4 %, las marginales son 3,00 / 5,82 / 7,29 / 5,03 / 3,15 %, la PD a vida sube al 24,30 % y la provisión a 109,4 millones. Toda esa provisión se dota el primer año, aunque los años peores sean el segundo y el tercero. Es el mecanismo exacto por el que el <i>stress test</i> de juguete del capítulo 8 pierde más en el primer año que en el tercero.</p>
+</div>
+
+<h4 id="s4-2-3">4.2.3 Lo que no hace falta saber de IFRS 9</h4>
+
+<p>IFRS 9 es una norma extensa, y casi toda ella es irrelevante para un <i>stress test</i> de crédito: la clasificación de los activos financieros, la contabilidad de coberturas, el tratamiento de las modificaciones contractuales. Basta con lo de este capítulo y con una advertencia: en el ejercicio europeo, las pérdidas de crédito se calculan sobre las exposiciones a coste amortizado, mientras que las valoradas a valor razonable siguen las reglas del riesgo de mercado (capítulo 14). Quien quiera más detalle sobre la norma tiene la Parte V del <i>Manual de Capital y Provisiones</i>.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap5">5. Escenarios macro: leerlos y entenderlos <span class="nivel n1">N1</span></h2>
+
+<p class="lead">Un escenario son unas tablas de cifras con un relato encima. Leerlo bien es saber qué mide cada cifra, contra qué hay que compararla y qué falta. Es una habilidad que se adquiere en una tarde y que ahorra muchos errores.</p>
+
+<h3 id="s5-1">5.1 Qué es un escenario</h3>
+
+<h4 id="s5-1-1">5.1.1 Variables, sendas, horizonte</h4>
+
+<p>Un escenario es un conjunto de <strong>variables</strong> macroeconómicas y financieras (crecimiento del PIB, tasa de paro, inflación, precios de la vivienda y del inmobiliario comercial, tipos de interés, tipos de cambio, bolsa) con su <strong>senda</strong>, es decir, su valor año a año durante el <strong>horizonte</strong> del ejercicio. En el europeo hay dos escenarios: el <strong>base</strong>, que es la previsión central de los bancos centrales en el momento de lanzarlo, y el <strong>adverso</strong>, que es una desviación severa pero plausible respecto a esa previsión.</p>
+
+<h4 id="s5-1-2">5.1.2 De un relato a unas cifras</h4>
+
+<p>Todo adverso nace de una narrativa: tensiones geopolíticas, una crisis de deuda, un shock de inflación. El del ejercicio de 2025 describía tensiones geopolíticas agravadas, barreras comerciales y un repunte inflacionista por el lado de la oferta. La narrativa se traduce después en cifras con modelos macroeconómicos, país a país. Para el trabajo de crédito, la narrativa sirve sobre todo para entender por qué el escenario castiga más a unos sectores o países que a otros. Lo que entra en los modelos son las cifras.</p>
+
+<h4 id="s5-1-3">5.1.3 Niveles, tasas, acumulados y desviaciones</h4>
+
+<p>La mayor fuente de errores al leer un escenario es confundir cómo está expresada cada cifra. Un mismo escenario puede presentar una variable de cuatro formas:</p>
+
+<ul>
+<li><strong>Tasa anual:</strong> el crecimiento del PIB de cada año respecto al anterior.</li>
+<li><strong>Acumulado:</strong> cuánto ha cambiado el nivel desde el punto de partida hasta el final del horizonte.</li>
+<li><strong>Desviación respecto al base:</strong> cuánto más bajo (o alto) está el nivel en el adverso que en el base al final del horizonte. Es la mejor medida de la severidad, porque descuenta lo que habría pasado de todos modos.</li>
+<li><strong>Nivel:</strong> el valor de la variable, como el paro del 8,8 % o un tipo de cambio de 21,6 pesos por euro.</li>
+</ul>
+
+<h4 id="s5-1-4">5.1.4 Cómo se construye un adverso</h4>
+
+<p>Conocer cómo se fabrica un escenario ayuda a leerlo. El adverso europeo se construye en cuatro pasos. Primero, una narrativa de riesgos: qué amenazas para la estabilidad financiera se consideran más relevantes en ese momento. Segundo, unos choques iniciales que materializan esa narrativa: subidas de primas de riesgo, caídas de la demanda exterior, de los precios de las materias primas o de los activos. Tercero, la propagación de esos choques con modelos macroeconómicos a cada país y a todas las variables, incluidos los efectos de unos países sobre otros. Cuarto, la calibración de la severidad: el escenario tiene que ser grave, pero también plausible y comparable con ejercicios anteriores.</p>
+
+<p>Dos consecuencias prácticas. La primera, que las variables de un mismo país son coherentes entre sí &mdash; el paro sube porque el PIB cae &mdash;, y un satélite que use varias recibe señales que van en la misma dirección. La segunda, que el escenario base de los países no europeos no lo hacen sus bancos centrales sino que sale de las previsiones del Fondo Monetario Internacional, y que en el base los tipos de cambio, la bolsa y las materias primas se mantienen en el nivel de partida. El base de México en el ejercicio europeo no es, por tanto, la previsión de Banxico ni la de la filial: es otra cosa, y conviene tenerlo presente cuando se comparan números (capítulo 32).</p>
+
+<h3 id="s5-2">5.2 Leer una tabla del escenario de la JERS</h3>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>El escenario del ejercicio de 2025, elaborado por la Junta Europea de Riesgo Sistémico (JERS) con el BCE, trae una fila por país. Para España y México:</p>
+<div class="tabla-scroll">
+<table>
+<caption>Escenario JERS del ejercicio 2025 (publicado en enero de 2025, versión corregida de febrero de 2025). Paro en niveles; PIB en tasas anuales.</caption>
+<thead><tr><th>Variable</th><th>España</th><th>México</th></tr></thead>
+<tbody>
+<tr><td>PIB 2025 / 2026 / 2027, base</td><td>2,5 / 1,9 / 1,7 %</td><td>1,3 / 2,0 / 2,3 %</td></tr>
+<tr><td>PIB 2025 / 2026 / 2027, adverso</td><td>−2,5 / −3,5 / +2,0 %</td><td>−4,7 / −2,2 / −0,1 %</td></tr>
+<tr><td>PIB acumulado en el adverso</td><td>−4,1 %</td><td>−6,9 %</td></tr>
+<tr><td>PIB, desviación frente al base en 2027</td><td>−9,8 %</td><td>−11,9 %</td></tr>
+<tr><td>Paro en 2027, base y adverso</td><td>9,9 % y 15,6 %</td><td>3,5 % y 8,8 %</td></tr>
+<tr><td>Vivienda, desviación frente al base en 2027</td><td>−30,1 %</td><td>−22,1 %</td></tr>
+<tr><td>Tipo de cambio frente al euro, adverso (media de 2025)</td><td>&mdash;</td><td>El peso se deprecia un 8,9 %</td></tr>
+</tbody>
+</table>
+</div>
+<p>La lectura depende de la medida. En PIB acumulado, México sufre bastante más que España (−6,9 % frente a −4,1 %). En desviación frente al base, la distancia se reduce mucho (−11,9 % frente a −9,8 %). En paro, los dos países suben algo más de cinco puntos sobre su base. Y en vivienda, España sufre más que México. Quien solo mire el PIB acumulado concluirá que el escenario es mucho más duro para México; quien mire las desviaciones verá que es parecido, y que la diferencia de pérdidas entre los dos países tendrá que explicarse por otra cosa. El capítulo 32 vuelve sobre ello con datos reales.</p>
+</div>
+
+<h4 id="s5-2-2">5.2.2 Comparar severidades sin fijar la métrica</h4>
+
+<p>Lo anterior vale también entre ejercicios. El propio documento del escenario de 2025 compara su severidad con la de los ejercicios de la Reserva Federal y del Banco de Inglaterra de 2024, y concluye que el europeo es más severo en caída del PIB. Pero mide esa caída desde el punto de partida hasta el final del horizonte, y con esa medida un escenario que cae mucho y se recupera pronto parece suave aunque su peor momento sea muy duro.</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Decir que un escenario es «más severo» que otro sin decir con qué medida. Acumulado, de pico a valle, desviación frente al base: cada una puede ordenar los escenarios de forma distinta. Antes de comparar dos ejercicios, o dos países dentro del mismo ejercicio, fija la medida y úsala para todos. La desviación frente al base suele ser la más informativa para el riesgo de crédito.</p>
+</div>
+
+<h4 id="s5-2-3">5.2.3 Lo que el escenario no trae</h4>
+
+<p>Un escenario nunca trae todas las variables que necesitan los modelos de un banco. El europeo trae variables para cada país de la Unión y para las principales economías de fuera, pero no, por ejemplo, el paro por regiones, el precio de los coches usados o la renta disponible de los hogares. Además, para los países que no son de la Unión, el escenario base no sale de los bancos centrales nacionales sino de las previsiones del Fondo Monetario Internacional, y algunas variables, como la bolsa de los países latinoamericanos, se aproximan con un agregado de «resto del mundo». Las variables que faltan las tiene que derivar el banco con modelos auxiliares, y documentar cómo lo ha hecho. Es un trabajo poco visible y lleno de decisiones, que el capítulo 31 trata para las filiales de fuera de Europa.</p>
+
+<p>La herramienta habitual es una <strong>ecuación puente</strong>: una regresión sencilla que relaciona la variable que falta con alguna de las que el escenario sí trae, estimada con datos históricos. Por ejemplo, el paro de una región sobre el paro nacional, o la renta disponible de los hogares sobre el PIB y el paro. Su resultado se usa como si fuera parte del escenario. Las ecuaciones puente tienen los mismos problemas que cualquier satélite (capítulo 6) y uno más: añaden una capa de modelo entre el escenario oficial y el resultado, y el supervisor quiere verla documentada.</p>
+
+<h4 id="s5-2-4">5.2.4 Una lista para leer cualquier escenario</h4>
+
+<p>Antes de usar un escenario en un modelo, conviene contestar a estas preguntas:</p>
+
+<ol>
+<li>¿En qué está expresada cada variable: tasa, acumulado, desviación o nivel? ¿Media anual o fin de año?</li>
+<li>¿Cuál es el punto de partida y de dónde sale: dato observado o estimación?</li>
+<li>¿Qué variables trae para cada país relevante y cuáles faltan?</li>
+<li>¿De dónde sale el base de cada país?</li>
+<li>¿Qué variables se mantienen planas en el base y en el adverso?</li>
+<li>¿Cuál es la severidad en desviación frente al base para las variables que mueven tus carteras?</li>
+<li>¿Hay fe de erratas o versiones posteriores?</li>
+</ol>
+
+<p>Contestarlas lleva una hora y evita la mayoría de los errores de interpretación que luego aparecen en la revisión del supervisor.</p>
+
+<!-- ============================================================ -->
+<h2 id="cap6">6. Econometría mínima para modelos satélite <span class="nivel n1">N1</span></h2>
+
+<p class="lead">Un modelo satélite es la pieza que traduce el escenario en parámetros de riesgo: dice cuánto sube la tasa de impago de una cartera cuando sube el paro o cae el PIB. Se llama así porque gira alrededor de los modelos principales del banco. No hace falta ser econometrista para trabajar con ellos, pero sí entender cómo se construyen, cómo se leen y cómo fallan.</p>
+
+<h3 id="s6-1">6.1 Las herramientas</h3>
+
+<h4 id="s6-1-1">6.1.1 Regresión con series temporales</h4>
+
+<p>Un satélite es casi siempre una regresión: la variable que se quiere explicar es la tasa de impago (o de transición entre stages) de una cartera a lo largo del tiempo, y las variables explicativas son las macroeconómicas del escenario. La diferencia con una regresión de manual es que los datos son series temporales: observaciones de la misma cartera trimestre tras trimestre. Eso trae tres consecuencias. Hay pocas observaciones (veinte años de datos trimestrales son ochenta puntos). Las observaciones no son independientes: un trimestre malo suele ir seguido de otro malo. Y la relación puede tardar en manifestarse: el paro de hoy afecta a los impagos de dentro de unos meses.</p>
+
+<h4 id="s6-1-2">6.1.2 Tasas como variable dependiente</h4>
+
+<p>Una tasa de impago está entre cero y uno, y una regresión lineal sobre ella puede proyectar tasas negativas o mayores que uno. La solución estándar es transformar la tasa antes de la regresión con la función <strong>logit</strong>, ln(<i>p</i> / (1 − <i>p</i>)), que lleva el intervalo de cero a uno a toda la recta real, y deshacer la transformación al proyectar. Otra opción es la transformación <strong>probit</strong>, que usa la inversa de la distribución normal y tiene la ventaja de conectar con la lógica de la fórmula IRB. Para lo que sigue, la diferencia no importa.</p>
+
+<h4 id="s6-1-3">6.1.3 Retardos, tendencias y estacionariedad</h4>
+
+<p>Tres cuidados básicos. <strong>Retardos:</strong> el paro de este trimestre suele explicar mejor los impagos del trimestre siguiente que los de este, y el modelo tiene que reflejarlo. <strong>Tendencias:</strong> si dos series crecen a la vez por razones distintas, la regresión encontrará una relación que no existe; por eso hay que comprobar que las series no tienen tendencias que lo contaminen todo. <strong>Estacionariedad:</strong> es el nombre técnico de esa comprobación. Para el nivel de este manual basta con saber que existe y que un satélite cuyas variables no la cumplen puede dar coeficientes sin sentido.</p>
+
+<h4 id="s6-1-4">6.1.4 Leer una elasticidad</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>El anexo S1 genera veinte años de datos trimestrales sintéticos de una cartera de consumo mexicana, con dos recesiones, y estima este satélite:</p>
+<p>logit(tasa de impago) = −3,514 + 0,215 × paro del trimestre anterior − 0,080 × crecimiento del PIB</p>
+<p>Los signos tienen sentido: más paro, más impago; más crecimiento, menos impago. El ajuste es alto (R² de 0,89), lo normal en series agregadas que se mueven juntas.</p>
+<p>¿Qué significa el 0,215? Por la transformación logit, el efecto de un punto de paro depende de dónde se esté. Con un paro del 3,5 % y el PIB creciendo un 2 %, la tasa de impago es del 5,11 %, y un punto más de paro la lleva al 6,26 %: +1,15 puntos, un 22 % más. Con un paro del 8 %, la tasa es del 12,41 %, y un punto más la lleva al 14,94 %: +2,53 puntos. El mismo punto de paro hace más del doble de daño cuando la cartera ya está mal. Esa no linealidad es una propiedad del logit y una de las razones por las que el adverso pesa tanto.</p>
+<p class="small">Anexo S1, primera parte. Los datos son sintéticos: el modelo verdadero está escrito en el script, lo que permite comprobar qué recupera la estimación.</p>
+</div>
+
+<h4 id="s6-1-5">6.1.5 Cómo se elige un satélite</h4>
+
+<p>Rara vez hay un único satélite posible. Lo normal es probar decenas de combinaciones de variables, transformaciones y retardos, y elegir. El proceso razonable tiene cinco pasos:</p>
+
+<ol>
+<li><strong>Lista larga de variables candidatas</strong> con sentido económico para esa cartera: paro y renta para los hogares, PIB y sector para las empresas, precios de la vivienda para las hipotecas, tipos de interés para la carga de la deuda.</li>
+<li><strong>Signos esperados</strong> escritos antes de estimar: qué dirección debe tener cada efecto. Es la protección más eficaz contra los modelos que ajustan bien por casualidad.</li>
+<li><strong>Transformaciones y retardos:</strong> niveles o variaciones, con qué retardo, y si la variable es estacionaria.</li>
+<li><strong>Estimación y filtrado:</strong> se descartan los modelos con signos equivocados, coeficientes no significativos o variables redundantes.</li>
+<li><strong>Elección entre los supervivientes</strong> con criterios estadísticos y de proyección: no solo el que mejor ajusta, sino el que mejor se comporta fuera de muestra y el que responde al escenario de forma razonable.</li>
+</ol>
+
+<p>Menos variables suele ser mejor. Con ochenta observaciones, un satélite con dos o tres variables bien elegidas es más estable que uno con seis, y mucho más fácil de defender.</p>
+
+<h3 id="s6-2">6.2 Lo que suele salir mal</h3>
+
+<h4 id="s6-2-1">6.2.1 Pocas recesiones y escenarios fuera del rango</h4>
+
+<p>El mayor problema de un satélite no es estadístico sino de muestra: una serie de veinte años tiene, con suerte, dos recesiones, y el escenario adverso suele llevar las variables más allá de lo que se ha visto nunca. En los datos sintéticos del anexo S1, el paro nunca supera el 5,5 %; el adverso de la JERS para México lo lleva al 8,8 %. Proyectar ahí es extrapolar, y la extrapolación es tan buena como la forma del modelo.</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>En el anexo S1, el modelo verdadero tiene una pequeña no linealidad: en recesión, la tasa responde algo más de lo que dice la parte lineal. Se estiman dos satélites lineales, uno con toda la muestra y otro quitando los trimestres de recesión, y se proyectan en un punto adverso (paro del 8,8 % y PIB del −4,7 %):</p>
+<ul>
+<li>modelo verdadero: 24,10 %;</li>
+<li>satélite estimado con las recesiones: 22,36 %;</li>
+<li>satélite estimado sin ellas: 21,37 %.</li>
+</ul>
+<p>Los dos se quedan cortos, porque un modelo lineal no puede captar una respuesta que se acelera en las crisis; el que no ha visto ninguna se queda más corto aún. La diferencia, casi tres puntos de tasa de impago, es exactamente el tipo de infraestimación que el supervisor busca cuando compara la sensibilidad de un banco con la de sus pares (capítulos 18 y 23).</p>
+</div>
+
+<h4 id="s6-2-2">6.2.2 Signos que no tienen sentido económico</h4>
+
+<p>Con pocas observaciones y variables explicativas que se mueven juntas &mdash; el paro y el PIB lo hacen; en la jerga, hay <strong>multicolinealidad</strong> &mdash;, es fácil que una regresión dé un coeficiente con el signo contrario al esperado: que más crecimiento aumente el impago, por ejemplo. Estadísticamente puede ser el mejor ajuste; económicamente es indefendible, y en un escenario adverso produce el resultado absurdo de que la cartera mejora cuando la economía empeora. La regla es sencilla: un satélite con un signo sin sentido económico no se usa, por bien que ajuste. El supervisor lo comprueba siempre.</p>
+
+<h4 id="s6-2-3">6.2.3 Olvidar el retardo</h4>
+
+<p>En el anexo S1, estimar con el paro del mismo trimestre en lugar del anterior reduce poco el ajuste (R² de 0,87 frente a 0,89), pero cambia los coeficientes: el del PIB baja de −0,080 a −0,068. Un modelo así no está mal en el sentido estadístico, pero responde al escenario con un trimestre de adelanto respecto a la realidad, y en un horizonte de tres años eso desplaza pérdidas entre años. No es grave por sí solo; se vuelve grave cuando se suma a otras decisiones que van en la misma dirección.</p>
+
+<h3 id="s6-3">6.3 Cómo se valida un satélite</h3>
+
+<p>Un satélite que ajusta bien no está validado. La validación responde a otra pregunta: ¿es razonable usarlo para proyectar un escenario que no se ha visto? Hay tres pruebas básicas, y el supervisor espera ver las tres.</p>
+
+<h4 id="s6-3-1">6.3.1 <i>Backtest</i> fuera de muestra</h4>
+
+<p>Se estima el modelo con una parte de la historia y se comprueba cómo habría proyectado la otra, usando la macro que realmente se observó. Si el periodo de prueba contiene una recesión, mucho mejor: es la situación para la que se quiere el modelo.</p>
+
+<h4 id="s6-3-2">6.3.2 Estabilidad</h4>
+
+<p>Se reestima el modelo con ventanas distintas de la historia y se comprueba que los coeficientes no cambian mucho. Un coeficiente que cambia de valor según la ventana indica que la relación no es estable, o que depende de un episodio concreto.</p>
+
+<h4 id="s6-3-3">6.3.3 Sensibilidad</h4>
+
+<p>Se aplica al modelo un choque de tamaño conocido en cada variable &mdash; por ejemplo, una desviación típica &mdash; y se mira cuánto se mueve la tasa. Sirve para dos cosas: comprobar que la respuesta tiene un tamaño razonable y comparar con otros modelos o con los <i>benchmarks</i> del supervisor, que es exactamente lo que hará él (capítulo 18).</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>Las tres pruebas sobre el satélite del anexo S1:</p>
+<ul>
+<li><strong><i>Backtest</i>:</strong> estimado con los quince primeros años y proyectado en los cinco últimos, que contienen la segunda recesión, el error medio es de −0,15 puntos y el error absoluto medio de 0,47. Bien en promedio, pero en el pico de la recesión el modelo proyecta un 12,24 % donde se observó un 13,85 %: se queda corto justo cuando importa, por la no linealidad de la sección 6.2.1.</li>
+<li><strong>Estabilidad:</strong> el coeficiente del paro es 0,198, 0,230 y 0,236 en tres ventanas de diez años; el del PIB, −0,080, −0,077 y −0,081. Razonablemente estable, con una deriva al alza del paro que merece un comentario en la documentación.</li>
+<li><strong>Sensibilidad:</strong> en la media de la muestra (tasa del 6,38 %), una desviación típica más de paro sube la tasa 0,72 puntos, y una desviación típica menos de PIB, 1,03 puntos.</li>
+</ul>
+</div>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>Cuando el supervisor cuestione un satélite, la mejor defensa no es el R²: es enseñar las tres pruebas, con sus puntos débiles incluidos. Un modelo que se queda corto en el pico de una recesión y lo dice, con una propuesta de ajuste, es más creíble que uno que presume de ajuste perfecto. El supervisor ha visto cientos de satélites y sabe dónde fallan; lo que valora es que el banco también lo sepa.</p>
+</div>
+
+<div class="bloque b-codigo">
+<span class="etiqueta">Código</span>
+<p>Anexo S1, primera parte: generación de los datos sintéticos, estimación del satélite, lectura de elasticidades, los dos fallos de la sección 6.2 (retardo y muestra sin recesiones) y las tres pruebas de validación de esta sección. Ejecutable tal cual con <code>numpy</code>, <code>pandas</code> y <code>statsmodels</code>.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap7">7. Cómo se estresa el riesgo de crédito: la cadena completa <span class="nivel n1">N1</span></h2>
+
+<p class="lead">Con las piezas de los capítulos anteriores ya se puede ver el mecanismo entero. Es una cadena de seis eslabones, y casi todo lo que se discute en un ejercicio real ocurre en uno de ellos.</p>
+
+<h3 id="s7-1">7.1 La cadena</h3>
+
+<h4 id="s7-1-1">7.1.1 Del escenario al CET1</h4>
+
+<ol>
+<li><strong>Escenario.</strong> Las sendas de paro, PIB, vivienda y demás variables, año a año (capítulo 5).</li>
+<li><strong>Parámetros.</strong> Los satélites traducen el escenario en tasas de transición entre stages y tasas de pérdida para cada cartera y cada año (capítulo 6).</li>
+<li><strong>Flujos entre stages.</strong> Con esas tasas se proyecta cuánta exposición pasa de stage 1 a stage 2, de cada uno a stage 3 y de stage 2 de vuelta a stage 1 (capítulo 3).</li>
+<li><strong>Provisiones.</strong> Al final de cada año se calcula el stock de provisiones: doce meses para stage 1, toda la vida para stage 2, la LGD para stage 3 (capítulo 4).</li>
+<li><strong>Cuenta de resultados.</strong> El aumento del stock de provisiones de un año a otro es el gasto por deterioro de ese año. Junto con el resto de ingresos y gastos, que en el ejercicio proyectan otros equipos, da el resultado del año.</li>
+<li><strong>CET1.</strong> El resultado, neto de impuestos, mueve el capital (capítulo 2).</li>
+</ol>
+
+<h4 id="s7-1-2">7.1.2 Y en paralelo, los activos ponderados</h4>
+
+<p>Los mismos parámetros estresados alimentan una segunda cadena, la del denominador: las calificaciones empeoran, las PD regulatorias se recalculan, los <i>defaults</i> pasan a ponderar como tales, y los activos ponderados suben. El ejercicio europeo añade aquí una regla que conviene conocer desde el principio: los activos ponderados de crédito no pueden bajar del nivel de partida, aunque el cálculo dé menos. El motivo es que un banco cuya cartera se deteriora tanto que pasa a stage 3 &mdash; donde la provisión ya cubre buena parte del riesgo &mdash; podría ver bajar su denominador, y el supervisor no quiere que el estrés mejore el ratio por esa vía.</p>
+
+<h4 id="s7-1-3">7.1.3 Balance estático: por qué se congela el banco</h4>
+
+<p>Durante los tres años del ejercicio europeo, el banco se supone congelado: no crece, no cambia de negocio, no vende carteras y no reacciona al escenario. Lo que vence se sustituye por algo igual. Lo que entra en impago se queda en impago. Parece un supuesto irreal, y lo es; su función es que el resultado mida el efecto del escenario sobre el banco tal como es hoy, sin que las intenciones de la dirección lo mejoren. Otros ejercicios, como el <i>stress test</i> interno del ICAAP, permiten un balance dinámico y acciones de gestión, y por eso dan números distintos (capítulos 9 y 20).</p>
+
+<h4 id="s7-1-4">7.1.4 De dónde sale la caída en un ejercicio real</h4>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<p>El BCE publicó la descomposición de la caída de capital de los bancos que supervisa directamente en el ejercicio de 2025. En el adverso, las pérdidas brutas restaron 8,1 puntos de CET1: 5,0 de provisiones de crédito, 1,1 de aumento de activos ponderados, 1,3 de riesgo de mercado y unos 0,6 de riesgo operacional. Los ingresos que los bancos siguieron generando compensaron 4,8 puntos. Cifras según el informe del BCE sobre el ejercicio de 2025.</p>
+<p>Tres de cada cuatro puntos de pérdida bruta vienen del crédito, si se suman las provisiones y los activos ponderados (6,1 de 8,1). Por eso el crédito es el gran bloque de cualquier ejercicio en un banco comercial, y por eso este manual se centra en él. Y por eso también los ingresos importan aunque no se proyecten aquí: sin ellos, el mismo escenario quitaría más del doble de capital.</p>
+</div>
+
+<h3 id="s7-2">7.2 Dónde están las decisiones</h3>
+
+<h4 id="s7-2-1">7.2.1 Qué es mecánico y qué es criterio</h4>
+
+<p>Buena parte de la cadena es mecánica una vez fijados los parámetros: los flujos, las provisiones y el capital se calculan con fórmulas que la metodología prescribe. Las decisiones están en otros sitios:</p>
+
+<ul>
+<li><strong>En los parámetros de partida:</strong> de qué modelo salen y cómo se ajustan si no hay modelo.</li>
+<li><strong>En los satélites:</strong> qué variables entran, con qué retardos, estimados con qué muestra, a qué nivel de agregación.</li>
+<li><strong>En las variables que faltan:</strong> cómo se derivan del escenario.</li>
+<li><strong>En los ajustes de experto:</strong> cuándo se corrige lo que da el modelo y con qué justificación.</li>
+</ul>
+
+<p>Ahí está todo el margen del banco y, por tanto, toda la discusión con el supervisor.</p>
+
+<h4 id="s7-2-2">7.2.2 Dónde mira el supervisor</h4>
+
+<p>El supervisor no rehace los cálculos del banco; compara. Tiene sus propios valores de referencia para los parámetros de crédito, los <i>benchmarks</i>, y tiene los envíos de todos los demás bancos. Si las tasas de un banco responden al escenario mucho menos que las de sus pares o que las suyas propias, pregunta, y si no le convence la respuesta, pide revisarlas. En el ejercicio de 2025, esa revisión sumó 88 puntos básicos a la caída de capital del conjunto de bancos que supervisa directamente el BCE, según el propio BCE (capítulo 18). Es una cifra que conviene recordar: la revisión no es un trámite.</p>
+
+<h4 id="s7-2-3">7.2.3 Quién es dueño de cada eslabón</h4>
+
+<p>En un banco grande, cada eslabón de la cadena tiene un dueño distinto, y buena parte de los problemas de un ejercicio nacen en las juntas entre ellos. Un reparto típico:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Reparto habitual de la cadena en un gran grupo. Los nombres de las áreas cambian de un banco a otro; las juntas, no.</caption>
+<thead><tr><th>Eslabón</th><th>Dueño habitual</th><th>Junta crítica</th></tr></thead>
+<tbody>
+<tr><td>Escenario y variables derivadas</td><td>Estudios económicos o planificación</td><td>Variables que faltan y escenarios de filiales</td></tr>
+<tr><td>Punto de partida</td><td>Información financiera y datos de riesgos</td><td>Conciliación con la contabilidad y el reporting</td></tr>
+<tr><td>Satélites y parámetros</td><td>Metodología de riesgos (modelos de provisiones)</td><td>Coherencia con los modelos de capital y con los de IFRS 9</td></tr>
+<tr><td>Flujos y provisiones</td><td>Equipo de proyección del ejercicio</td><td>Aplicación de las restricciones de la metodología</td></tr>
+<tr><td>Activos ponderados</td><td>Capital regulatorio</td><td>Uso de los mismos parámetros estresados</td></tr>
+<tr><td>Consolidación y CET1</td><td>Planificación de capital</td><td>Agregación de las filiales y su divisa</td></tr>
+<tr><td>Revisión independiente</td><td>Validación interna</td><td>Plazo: llega cuando el calendario ya aprieta</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Quien coordina un ejercicio pasa más tiempo en las juntas que en los eslabones. El capítulo 28 vuelve sobre la organización con más detalle.</p>
+
+<div class="bloque b-caso">
+<span class="etiqueta">Caso JST</span>
+<dl>
+<dt>Qué llega</dt>
+<dd>Una pregunta escueta en la revisión: «Su tasa de entrada en stage 3 de consumo en el primer año del adverso es inferior a la del escenario base del año anterior. Explique».</dd>
+<dt>Qué hay detrás</dt>
+<dd>El supervisor ha detectado que la proyección no es monótona: en algún eslabón de la cadena, el escenario adverso produce menos daño del que debería. Puede ser un signo equivocado en un satélite, un retardo mal aplicado o un error de datos en el punto de partida. No está discutiendo un criterio: está buscando un fallo.</dd>
+<dt>La respuesta que funciona</dt>
+<dd>Recorrer la cadena eslabón a eslabón con los datos de esa cartera hasta encontrar dónde se pierde el efecto, explicarlo y corregirlo si es un error. Si no lo es &mdash; por ejemplo, porque el punto de partida recoge un pico excepcional &mdash;, enseñar el dato que lo demuestra.</dd>
+<dt>La que empeora las cosas</dt>
+<dd>Defender que el modelo está validado y que el resultado es el que es. Un resultado que va contra la intuición económica básica no se defiende con la validación del modelo; se defiende con una explicación, o no se defiende.</dd>
+</dl>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap8">8. Un <i>stress test</i> de juguete, de principio a fin <span class="nivel n1">N1</span></h2>
+
+<p class="lead">Este capítulo junta todo lo anterior en un ejercicio completo sobre una cartera pequeña. Es el comienzo del hilo conductor del manual &mdash; una filial mexicana con una cartera de consumo y otra de empresas &mdash;, que volverá en capítulos posteriores con más detalle y con datos reales. Aquí todo es deliberadamente simple, para que se vea la cadena entera.</p>
+
+<h3 id="s8-1">8.1 El caso</h3>
+
+<h4 id="s8-1-1">8.1.1 Las dos carteras</h4>
+
+<p>La filial tiene dos carteras de 1.000 millones de euros cada una:</p>
+
+<ul>
+<li><strong>Consumo</strong> (tarjetas y préstamos personales): 880 millones en stage 1, 70 en stage 2 y 50 en stage 3. Sin garantías; LGD en torno al 70 %, que sube un punto por cada punto de paro por encima del 3,5 %.</li>
+<li><strong>Empresas:</strong> 950 millones en stage 1, 36 en stage 2 y 14 en stage 3. LGD del 40 %, que sube dos puntos por cada punto de caída del PIB.</li>
+</ul>
+
+<h4 id="s8-1-2">8.1.2 El escenario</h4>
+
+<p>Se usa el escenario real de la JERS para México del ejercicio de 2025 (capítulo 5): en el base, el PIB crece un 1,3 %, un 2,0 % y un 2,3 % y el paro se queda en torno al 3,4 %; en el adverso, el PIB cae un 4,7 %, un 2,2 % y un 0,1 %, y el paro sube al 5,2 %, al 7,6 % y al 8,8 %.</p>
+
+<h4 id="s8-1-3">8.1.3 Paso a paso</h4>
+
+<p><strong>Parámetros.</strong> La PD de stage 1 de consumo sale del satélite del capítulo 6; la de empresas, de otro satélite más sensible al PIB que al paro. Con el escenario, la PD de consumo pasa del 4,86 % de partida a un 7,64 %, un 9,80 % y un 13,33 % en los tres años del adverso; en el base se queda en torno al 4,9 %. La de empresas pasa del 1,15 % a un 2,33 % en el primer año del adverso y se queda algo por encima del 2 %.</p>
+
+<p><strong>Flujos.</strong> Cada año, de stage 1 pasa a stage 3 una proporción igual a la PD; a stage 2, una vez y media la PD en consumo y dos veces en empresas. De stage 2 entra en impago una proporción igual a la PD de stage 2, que es tres veces la de stage 1 en consumo y seis en empresas, y vuelve a stage 1 un 20 %. Lo que entra en stage 3 se queda allí.</p>
+
+<p><strong>Provisiones.</strong> Al final de cada año: stage 1, doce meses de pérdida con los parámetros del año siguiente; stage 2, toda la vida residual (tres años en consumo, cuatro en empresas) con la senda del escenario conocida de antemano, es decir, con previsión perfecta; stage 3, la exposición por la LGD. Tras el horizonte, los parámetros del adverso vuelven en seis años a los del base, como pide la metodología europea.</p>
+
+<p><strong>Capital.</strong> Activos ponderados por el enfoque estándar (75 % para consumo, 100 % para empresas, 100 % para lo que está en impago neto de su provisión), con el suelo del nivel de partida. Capital inicial del 13 %. Como este manual solo trata el crédito, el margen antes de provisiones se da como un dato, sin proyectarlo: un 8,5 % de la exposición al año en consumo (7,5 % en el adverso) y un 1,5 % en empresas (1,2 % en el adverso).</p>
+
+<h3 id="s8-2">8.2 Leer el resultado</h3>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<div class="tabla-scroll">
+<table>
+<caption>Resultado del <i>stress test</i> de juguete (anexo S0). Deterioro: aumento del stock de provisiones de cada año, en millones de euros. Pérdida acumulada: suma de los tres años sobre la exposición inicial.</caption>
+<thead><tr><th>Cartera y escenario</th><th>Deterioro 2025 / 2026 / 2027</th><th>Pérdida acumulada</th><th>Stage 3 al final</th></tr></thead>
+<tbody>
+<tr><td>Consumo, base</td><td>44,8 / 41,0 / 37,7</td><td>12,34 %</td><td>21,2 %</td></tr>
+<tr><td>Consumo, adverso</td><td>141,0 / 113,2 / 88,9</td><td>34,31 %</td><td>39,4 %</td></tr>
+<tr><td>Empresas, base</td><td>6,1 / 5,7 / 5,6</td><td>1,74 %</td><td>5,4 %</td></tr>
+<tr><td>Empresas, adverso</td><td>27,6 / 10,4 / 8,5</td><td>4,65 %</td><td>9,8 %</td></tr>
+</tbody>
+</table>
+</div>
+<p>Con el margen dado, el CET1 de la filial pasa en el adverso del 13,00 % al 9,68 % en el primer año, al 8,19 % en el segundo y al 7,77 % en el tercero: una caída máxima de 523 puntos básicos. Sin el margen, solo con las pérdidas de crédito, el capital se agotaría en el tercer año. En el base, el capital sube cada año, porque el margen supera a las provisiones y el ejemplo no reparte dividendos.</p>
+</div>
+
+<h4 id="s8-2-1">8.2.1 Por qué el primer año pesa más</h4>
+
+<p>La PD de consumo es más alta en el tercer año del adverso (13,33 %) que en el primero (7,64 %), y sin embargo el deterioro es mayor en el primero: 141,0 millones frente a 88,9. La razón está en los capítulos 4 y 7. En el primer año, mucha exposición pasa a stage 2 y su provisión salta a toda la vida; y como se provisiona con previsión perfecta, esa provisión ya incorpora las PD de los años siguientes, que serán peores. La pérdida de los años dos y tres se adelanta en parte al primero. De los 224,2 millones de stock de provisiones de consumo a final del primer año, 76,0 están en stage 2.</p>
+
+<p>Para medir ese efecto, el anexo repite el cálculo sin previsión perfecta, con la PD del año siguiente fija para toda la vida de stage 2. El deterioro del primer año baja de 141,0 a 132,6 millones, y el total de los tres años apenas cambia (350,7 frente a 343,1). La previsión perfecta no crea pérdidas: las adelanta. Es una de las razones por las que, en los ejercicios reales, el peor año suele ser el primero (capítulo 16).</p>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Leer el stage 3 del final del horizonte como una tasa de mora. El 39,4 % de stage 3 del consumo en el adverso no significa que cuatro de cada diez clientes dejen de pagar: es lo que se acumula en tres años en un balance en el que nada de lo que entra en impago sale, ni se cura ni se da de baja. En una cartera real, buena parte de eso se habría recobrado o pasado a fallidos. En los ejercicios reales aparecen cifras igual de llamativas en carteras de consumo, y hay que explicarlas antes de que alguien las cite fuera de contexto.</p>
+</div>
+
+<h4 id="s8-2-2">8.2.2 Qué explica la pérdida</h4>
+
+<p>Casi toda la pérdida de la filial está en consumo: 343,1 millones de los 389,6 del adverso, con la misma exposición que empresas. La razón es doble: una PD de partida cuatro veces mayor y una LGD casi el doble, sin garantías. El escenario las empeora a las dos, pero lo decisivo es el punto de partida. Medido como adverso menos base, el escenario añade 21,97 puntos de pérdida en consumo y 2,91 en empresas. Esta forma de mirar la severidad &mdash; restando lo que habría pasado de todos modos &mdash; es la que se usa en el capítulo 32 para comparar México con España con datos reales.</p>
+
+<p>Las cifras del juguete tienen el orden de magnitud correcto. En el ejercicio europeo de 2025, el resto de la cartera minorista mexicana (consumo, tarjetas, automóvil y pymes minoristas) acumuló en el adverso un aumento de provisiones del 21,6 % de su exposición en Banco Santander y del 37,7 % en BBVA, según los datos publicados por la EBA. El juguete, con un 34,3 %, cae entre los dos.</p>
+
+<div class="bloque b-codigo">
+<span class="etiqueta">Código</span>
+<p>Anexo S0: el <i>stress test</i> de juguete completo en un solo script, con el escenario, los satélites, los flujos, las provisiones con y sin previsión perfecta, los activos ponderados con suelo y el capital. Cambia las carteras, los multiplicadores o el margen y vuelve a ejecutarlo: es la mejor forma de ver qué mueve el resultado.</p>
+</div>
+
+<h4 id="s8-2-3">8.2.3 Qué supuesto mueve más el resultado</h4>
+
+<p>Un resultado sin su sensibilidad a los supuestos es medio resultado. El anexo S0 repite el cálculo de la cartera de consumo en el adverso cambiando un supuesto cada vez, con el resto fijo:</p>
+
+<div class="bloque b-numeros">
+<span class="etiqueta">Números</span>
+<div class="tabla-scroll">
+<table>
+<caption>Pérdida acumulada de consumo en el adverso (referencia: 34,31 %) al mover un supuesto cada vez. Anexo S0.</caption>
+<thead><tr><th>Supuesto</th><th>A la baja</th><th>Al alza</th></tr></thead>
+<tbody>
+<tr><td>Coeficiente del paro en el satélite (×0,8 / ×1,2)</td><td>27,28 % (−7,03)</td><td>41,92 % (+7,60)</td></tr>
+<tr><td>Paso de stage 1 a stage 2 (1,0 / 2,0 veces la PD)</td><td>30,94 % (−3,37)</td><td>37,30 % (+2,98)</td></tr>
+<tr><td>PD de stage 2 (2 / 4 veces la de stage 1)</td><td>30,96 % (−3,35)</td><td>36,27 % (+1,96)</td></tr>
+<tr><td>LGD (5 puntos menos / más)</td><td>32,06 % (−2,26)</td><td>36,57 % (+2,26)</td></tr>
+<tr><td>Cura desde stage 2 (30 % / 10 % al año)</td><td>33,16 % (−1,16)</td><td>35,65 % (+1,33)</td></tr>
+<tr><td>Vida residual de stage 2 (2 / 4 años)</td><td>33,17 % (−1,14)</td><td>34,89 % (+0,58)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Entre paréntesis, la diferencia con la referencia en puntos.</p>
+</div>
+
+<p>El supuesto que más pesa con mucha diferencia es la sensibilidad del satélite al paro: un 20 % arriba o abajo en un solo coeficiente mueve la pérdida más de siete puntos, el triple que la LGD. Esa es la razón de fondo por la que el supervisor dedica tanta atención a la sensibilidad de los satélites y la compara con la de los <i>benchmarks</i> y la de los pares (capítulos 15 y 18): es el número que más cambia el resultado y el que más margen deja al banco. Le siguen los supuestos sobre stage 2, que en un ejercicio real dependen del criterio de SICR de cada banco (sección 4.1.4). La LGD, que en el IRB suele ser el gran debate, aquí pesa menos.</p>
+
+<h4 id="s8-2-4">8.2.4 Qué deberías saber hacer ahora</h4>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Explicar, sin notas, cómo un escenario de paro y PIB acaba en una caída de CET1, nombrando los seis eslabones de la cadena.</li>
+<li>Leer la ficha de resultados de un banco en el ejercicio europeo y decir de dónde sale su caída de capital.</li>
+<li>Distinguir un parámetro <i>through-the-cycle</i> de uno <i>point-in-time</i>, explicar por qué el <i>stress test</i> usa el segundo y pasar de uno a otro con el desplazamiento de Vasicek.</li>
+<li>Calcular a mano el salto de provisión de una exposición que pasa de stage 1 a stage 2, con una PD plana y con una senda de escenario.</li>
+<li>Leer una tabla del escenario de la JERS con la lista de la sección 5.2.4.</li>
+<li>Interpretar los coeficientes de un satélite en logit, explicar por qué el mismo punto de paro hace más daño cuando la cartera ya está mal y someterlo a las tres pruebas de validación.</li>
+<li>Decir qué supuesto de una proyección mueve más el resultado, y por qué el supervisor mira ahí.</li>
+<li>Rehacer el <i>stress test</i> de juguete con otra cartera y decir qué variable explica la mayor parte de la pérdida (caso 1 del anexo R7).</li>
+</ul>
+</div>
+
+<p>Si alguno de estos puntos no te sale, vuelve al capítulo correspondiente antes de seguir. La Parte II da por sabido todo lo anterior y empieza a mirar el ejercicio real: quién lo hace, con qué reglas y qué hace el supervisor con el resultado.</p>
+
+<nav class="nav">
+<p><a href="parte-00.html">← Parte 0</a> · <a href="index.html">Índice</a> · <a href="parte-02.html">Parte II: El mapa y los actores →</a></p>
+</nav>
+
+</body>
+</html>

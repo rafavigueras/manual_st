@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parte VI — El oficio</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<p class="eyebrow">Parte VI · Nivel 3</p>
+<h1>El oficio</h1>
+<p class="subtitulo">Cómo se entra en un encargo de <i>stress test</i> y cómo se diagnostica cualquier número.</p>
+
+<p class="lead">El manual termina donde empieza el trabajo: el primer día en un proyecto. Esta parte es corta y práctica. El capítulo 35 describe los tipos de encargo y lo que conviene hacer en las dos primeras semanas; el 36 reúne todo el manual en un árbol de preguntas para diagnosticar cualquier número de un <i>stress test</i>, propio o ajeno.</p>
+
+<hr/>
+
+<!-- ============================================================ -->
+<h2 id="cap35">35. Tipologías de encargo y cómo entrar en uno <span class="nivel n3">N3</span></h2>
+
+<h3 id="s35-1">35.1 Preparación, ejecución integrada, validación de segunda línea, QA independiente, <i>benchmark</i></h3>
+
+<p>Los encargos de <i>stress test</i> en un banco grande se agrupan en cinco tipos, que piden cosas distintas a quien entra:</p>
+
+<div class="tabla-scroll">
+<table>
+<caption>Tipos de encargo de <i>stress test</i> de crédito, con lo que piden y su riesgo principal.</caption>
+<thead><tr><th>Tipo</th><th>Cuándo</th><th>Qué se entrega</th><th>Riesgo principal</th></tr></thead>
+<tbody>
+<tr><td><strong>Preparación</strong></td><td>Del borrador de la nota al lanzamiento</td><td>Análisis de diferencias, recalibración de satélites, simulación previa, posición frente a pares (capítulo 28)</td><td>Que el banco crea que la preparación es el ejercicio y llegue al lanzamiento sin herramientas probadas</td></tr>
+<tr><td><strong>Ejecución integrada</strong></td><td>Todo el ciclo</td><td>Proyecciones, plantillas, nota explicativa, respuestas al QA, junto al equipo del banco</td><td>Sustituir al equipo interno en lugar de reforzarlo (sección 28.1.2)</td></tr>
+<tr><td><strong>Validación de segunda línea</strong></td><td>Antes de cada envío</td><td>Revisión independiente de modelos, supuestos y resultados</td><td>Llegar cuando el calendario ya no permite corregir</td></tr>
+<tr><td><strong>QA independiente</strong></td><td>Antes del primer envío y entre rondas</td><td>Revisión con los ojos del supervisor: <i>benchmarks</i> previos, pares, controles automáticos</td><td>Revisar el formato y no la sustancia</td></tr>
+<tr><td><strong><i>Benchmark</i></strong></td><td>Tras la publicación</td><td>Comparación del resultado con los pares y su explicación (capítulos 32 y 33)</td><td>Quedarse en el cociente</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Hay además encargos de ICAAP, de plan de recuperación y de ejercicios locales de filiales, que reutilizan las mismas piezas con otros supuestos (capítulos 20 y 13), y encargos de remediación tras un ejercicio, que parten de los hallazgos del supervisor (sección 30.3.2).</p>
+
+<h3 id="s35-2">35.2 Las dos primeras semanas en un proyecto</h3>
+
+<p>Lo que se hace en las dos primeras semanas determina si el resto del proyecto se pasa entendiendo o haciendo. Una lista que funciona:</p>
+
+<ol>
+<li><strong>Leer los documentos de cabecera</strong> en su versión vigente: la nota metodológica (borrador o final, sabiendo cuál), las preguntas y respuestas, la guía de plantillas y el escenario (sección 0.3.1).</li>
+<li><strong>Leer el último resultado del banco</strong>: su ficha de la EBA, el informe agregado y la descomposición de su caída (secciones 1.3.4 y 19.2.4). Saber de memoria cuánto cayó, dónde tocó mínimo y qué carteras explican la pérdida.</li>
+<li><strong>Leer la carta de resultados y los hallazgos</strong> del ciclo anterior. Es lo primero que el JST mirará en este.</li>
+<li><strong>Leer la nota explicativa anterior</strong>: qué decisiones se tomaron y cómo se justificaron. La mayoría se repetirán.</li>
+<li><strong>Mapear la cadena y sus dueños</strong> en este banco (sección 7.2.3): quién hace cada eslabón, con qué herramienta, dónde están las juntas.</li>
+<li><strong>Hacer la lista de cambios</strong> de la nueva metodología con su efecto en datos y modelos (sección 28.2.1).</li>
+<li><strong>Identificar las cinco carteras que más pesan</strong> en la pérdida y, para cada una, su modelo, su sensibilidad y su distancia al <i>benchmark</i> del ciclo anterior.</li>
+</ol>
+
+<p>Con eso se puede hablar con el equipo del banco de igual a igual. Sin eso, las primeras reuniones se gastan en preguntas que los documentos contestaban.</p>
+
+<h3 id="s35-3">35.3 Prometer un número antes de ver el punto de partida</h3>
+
+<div class="bloque b-trampa">
+<span class="etiqueta">Trampa</span>
+<p>Comprometer en la propuesta o en las primeras semanas una mejora del resultado («con nuestra metodología, el banco puede reducir su caída en 50 puntos básicos»). Es la promesa más frecuente en este mercado y la más peligrosa: antes de ver el punto de partida, los modelos y el escenario, nadie sabe si hay 50 puntos básicos de mejora legítima o si lo que hay es un modelo que responde de menos y que el QA corregirá al alza. Un encargo que nace con un objetivo de reducción empuja a todo el equipo hacia las decisiones que el supervisor busca en el QA (capítulo 18), y el día en que el QA las revierta, el consultor habrá prometido algo que el banco no tiene. Lo que sí se puede prometer es un número defendible: que cada cifra del resultado tendrá su explicación en cuatro frases.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="cap36">36. El árbol de diagnóstico <span class="nivel n3">N3</span></h2>
+
+<p class="lead">Este capítulo condensa el manual en cinco preguntas, en orden. Sirven para leer el resultado de un banco publicado, para revisar una proyección propia antes de enviarla y para preparar la respuesta a una pregunta del supervisor. Si una pregunta no se puede contestar, el diagnóstico se detiene ahí hasta que se pueda.</p>
+
+<h3 id="s36-1">36.1 ¿Qué ejercicio, qué métrica, qué escenario?</h3>
+
+<p>Antes de mirar un número, se identifican sus seis piezas (sección 1.3): quién lo pide, quién proyecta, con qué escenario y qué base, con qué balance, con qué horizonte y con qué métrica. «La filial pierde 500 puntos básicos» no significa nada hasta que se sabe si son de CET1 <i>fully loaded</i> del grupo, de índice de capitalización local o de CET1 de la filial sola; si el balance era estático o dinámico; y si había acciones de gestión. La mitad de las discusiones sobre números de estrés terminan aquí, cuando las dos partes descubren que hablaban de ejercicios distintos (capítulos 9 y 13).</p>
+
+<h3 id="s36-2">36.2 ¿Dónde está la pérdida: país, segmento, stage?</h3>
+
+<p>Se descompone la caída de capital en pérdidas, ingresos y denominador (sección 19.2.4), y la pérdida de crédito por país, por segmento y por stage. El objetivo es encontrar las tres o cuatro celdas que explican la mayor parte. En casi todos los grandes grupos españoles, la respuesta pasa por el consumo y las tarjetas de las filiales latinoamericanas y estadounidenses, por el primer año del escenario y por la migración a stage 2 con previsión perfecta (capítulos 16 y 31).</p>
+
+<h3 id="s36-3">36.3 ¿Es severidad, mezcla o intensidad?</h3>
+
+<p>Para cada celda relevante, y para cualquier comparación entre países, bancos o ejercicios, se aplica el puente del capítulo 32: cuánto pone el escenario frente al base, cuánto el denominador, cuánto la mezcla de carteras y cuánto la intensidad dentro del mismo segmento. Si la comparación es entre ejercicios, se añade el paso de la mecánica (escenario, balance, contabilidad, métrica, divisa). La intensidad es la parte que lleva al modelo, y es donde está la conversación con el supervisor.</p>
+
+<h3 id="s36-4">36.4 ¿Qué va a preguntar el JST?</h3>
+
+<p>Para cada celda relevante, se identifica cuál de las cuatro comprobaciones del supervisor la tocará (sección 30.2.1): si el dato es fiable, si el modelo responde, si las decisiones del banco son sistemáticamente favorables o si el banco controla su ejercicio. Y se prepara la respuesta antes de que llegue la pregunta: los bloques CASO JST de este manual, ordenados por esas cuatro comprobaciones, son un buen punto de partida para la lista.</p>
+
+<h3 id="s36-5">36.5 Defender un número no es defender el número más bajo</h3>
+
+<div class="bloque b-defensa">
+<span class="etiqueta">Defensa</span>
+<p>Un número de <i>stress test</i> bien defendido es el que se puede explicar entero: de qué piezas sale, qué supuestos lo mueven, cómo se compara con la referencia y con los pares, y qué se haría si alguno de esos supuestos cambiara. Esa defensa a veces lleva a un número más bajo, porque demuestra que la cartera es mejor que la media; otras veces lleva a uno más alto, porque descubre un modelo que respondía de menos. Las dos son buenas defensas.</p>
+<p>La mala defensa es la que empieza por el número que se quiere obtener y busca los argumentos después. El supervisor la reconoce porque tiene la misma forma en todos los bancos: ajustes en una sola dirección, interpretaciones de los silencios siempre favorables, sensibilidades que no se pueden contrastar. Y la corrige en el QA, con un coste que la sección 18.2.3 cifró en 88 puntos básicos para el conjunto de bancos del BCE en 2025.</p>
+<p>Quien ha recorrido este manual sabe hacer las dos cosas que hacen falta para la buena defensa: entender de dónde sale cada número y explicarlo a quien lo pregunta. Es el nivel 3.</p>
+</div>
+
+<div class="objetivos">
+<span class="etiqueta">Qué deberías saber hacer ahora</span>
+<ul>
+<li>Identificar el tipo de encargo y su riesgo principal, y organizar las dos primeras semanas.</li>
+<li>Diagnosticar cualquier número de un <i>stress test</i> con las cinco preguntas del árbol.</li>
+<li>Defender un número explicándolo entero, sea cual sea su dirección.</li>
+</ul>
+</div>
+
+<p>La autoevaluación del nivel 3 y los casos integrados están en los anexos R6 y R7. Los anexos de código reúnen los programas que han producido todas las cifras del manual.</p>
+
+<nav class="nav">
+<p><a href="parte-05.html">← Parte V</a> · <a href="index.html">Índice</a> · <a href="anexos-codigo.html">Anexos de código →</a></p>
+</nav>
+
+</body>
+</html>
