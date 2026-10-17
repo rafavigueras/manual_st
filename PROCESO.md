@@ -53,7 +53,7 @@ Ese texto es el criterio de aceptación de todo lo que se escriba.
 | **Anexos ejecutables** | Sí, seis (S1-S6), en Python, **ejecutados antes de publicar** |
 | **Fuentes** | Fase de research (F1) antes de cerrar el índice |
 | **Formato** | Multi-archivo HTML (una parte por fichero) + CSS compartido → Calibre (AZW3 + EPUB) |
-| **Repositorio** | **Público en GitHub** (`rafavigueras/manual_st`), por decisión de Rafa del 2026-10-17, que sustituye a la de «privado si se publica». Sin GitHub Pages. Los PDF de `investigacion/fuentes/` no se suben |
+| **Repositorio** | **Público en GitHub** (`rafavigueras/manual_st`), por decisión de Rafa del 2026-10-17, que sustituye a la de «privado si se publica». **GitHub Pages activado el 2026-10-17** (rama `main`, raíz) para leerlo en el móvil: `https://rafavigueras.github.io/manual_st/manual/index.html`. Cada `git push` lo actualiza. Los PDF de `investigacion/fuentes/` no se suben |
 | **Idioma y voz** | Los del IRB (§6 de su `PROCESO.md`): español de España, director de riesgos con quince años de proyecto |
 | **Máquina** | Mac. Python con `python3 -m venv .venv` (no hay `uv`). Calibre en `/Applications/calibre.app/Contents/MacOS/` |
 

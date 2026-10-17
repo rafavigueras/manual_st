@@ -6,6 +6,7 @@ Lleva de «conozco la banca y el IRB en lo básico» a «sé defender ante el JS
 
 ## Leer el manual
 
+- En línea: [rafavigueras.github.io/manual_st/manual/index.html](https://rafavigueras.github.io/manual_st/manual/index.html).
 - [Portada e índice](manual/index.html), con las partes en HTML (abrir en el navegador).
 - [Manual completo en un solo fichero](manual/manual-completo.html).
 - Libro electrónico: [EPUB](manual/Manual%20de%20Stress%20Test.epub) y [AZW3 para Kindle](manual/Manual%20de%20Stress%20Test.azw3).
