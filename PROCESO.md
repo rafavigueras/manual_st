@@ -49,6 +49,7 @@ Ese texto es el criterio de aceptación de todo lo que se escriba.
 | **Jurisdicción** | MUS/EBA como columna vertebral; reguladores de fuera de la UE de los grupos españoles como segunda capa |
 | **Bancos reales** | **Con nombre real** (Santander, BBVA y sus filiales), **solo con datos públicos, fuente y fecha** |
 | **Experiencia de encargos** | Entra **anonimizada**, como patrón, en los bloques CASO. Nunca con nombre del cliente |
+| **Pistas internas para cerrar huecos** | **2026-10-17:** lo que venga de encargos o de equipos internos puede entrar en el repo público **anonimizado** (sin nombres ni cifras que identifiquen al banco) y marcado `[Likely]` |
 | **Anexos ejecutables** | Sí, seis (S1-S6), en Python, **ejecutados antes de publicar** |
 | **Fuentes** | Fase de research (F1) antes de cerrar el índice |
 | **Formato** | Multi-archivo HTML (una parte por fichero) + CSS compartido → Calibre (AZW3 + EPUB) |
@@ -289,6 +290,14 @@ script, hay que revisar el texto que cita sus cifras.
 | 8 | §31.4.5 | FINREP/COREP como punto de partida, visto desde las filiales | Adopción de la norma técnica |
 | 9 | §34.1 | UE: simplificación, integración, clima, P2G bienal | Cada nota final y cada SREP |
 | 10 | §34.2 | Fed (SCB promediado, comentario público) y Banco de Inglaterra | Escenarios de la Fed de 2027; anuncio del BCST |
+
+### Huecos de fuentes: qué se hace con cada uno (Rafa, 2026-10-17)
+
+| Hueco | Decisión | Dónde |
+|---|---|---|
+| Nota final y escenario del EBA 2027 | Sin aviso automático. Se revisan los bloques QUÉ VIENE 2, 5, 6 y 9 cuando se publiquen | §11.2.2, §21.2.3, §26.4, §34.1 |
+| Anexo 12-D de la CUB, BCCh, BDDK, BCRA | **Se deja como está.** El texto ya dice que no se ha verificado en fuente primaria | Cap. 13 y cap. 31 |
+| 762 M€ de Santander (ΔProv 44.090 frente a deterioro 44.852) | **Corrección pendiente.** El manual dice que no cuadra y que la causa no está verificada. Cerrarlo más adelante en este proyecto: cruzar las pp. 21 (titulizaciones) y 25 (resultados) de la ficha y, si hace falta, el CSV de la EBA; luego corregir el bloque NÚMEROS del §11.4.2, `cifras_parte02.py` y, si se cita, el cap. 32 / S4 | §11.4.2 |
 
 ---
 
